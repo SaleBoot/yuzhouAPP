@@ -82,6 +82,7 @@ for name in ['lib.5plus.base-release.aar', 'uniapp-v8-release.aar', 'android-gif
 package = identity['android_package']
 label = '驭舟测试版' if args.app == 'consumer' else '驭舟经纪人测试版'
 (main / 'res/values/strings.xml').write_text('<resources><string name="app_name">' + label + '</string></resources>')
+(main / 'res/drawable').mkdir(exist_ok=True)
 shutil.copy2(ROOT / 'apps' / args.app / 'src/static/yacht.jpg', main / 'res/drawable/yuzhou_test.jpg')
 for sample_splash in (main / 'res').glob('drawable*/splash.*'):
     sample_splash.unlink()
