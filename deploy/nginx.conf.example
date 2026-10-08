@@ -23,6 +23,7 @@ server {
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME /www/wwwroot/yuzhou/current/backend/public/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
+        fastcgi_param PATH_INFO $uri;
         fastcgi_param HTTP_AUTHORIZATION $http_authorization;
         fastcgi_param REQUEST_URI $request_uri;
         fastcgi_param PHP_VALUE "upload_max_filesize=50M\npost_max_size=52M";
