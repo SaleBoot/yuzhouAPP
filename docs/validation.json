@@ -1,0 +1,87 @@
+{
+  "recorded_at": "2026-10-09",
+  "source_tests": {
+    "local_php": "8.2",
+    "local_business_checks": {
+      "core": 67,
+      "communication": 26,
+      "operations": 40,
+      "reports": 11,
+      "recommendations": 6,
+      "crm": 33,
+      "http": 14,
+      "events": 29,
+      "private_files": 18
+    },
+    "own_php_lint_files": 36,
+    "release_integrity_tests": 1,
+    "web_unit_tests": 3,
+    "app_checks_per_app": 8,
+    "map_model_tests": 2,
+    "deploy_installer_fixtures": 8,
+    "public_https_safety_fixtures": 11
+  },
+  "aliyun_php72_sqlite_compatibility": {
+    "actual_php": "7.2.33",
+    "core": 67,
+    "communication": 26,
+    "operations": 40,
+    "reports": 11,
+    "total": 244,
+    "mysql_business_acceptance": true,
+    "http": 14,
+    "recommendations": 6,
+    "crm": 33,
+    "events": 29,
+    "private_files": 18
+  },
+  "schema": {
+    "tables": 68,
+    "max_columns": 27,
+    "merchant_primary_key": "credit_code",
+    "mysql_schema_and_migrations_001_to_006_applied": true
+  },
+  "actual_browser_local": {
+    "web_business_checks": 49,
+    "web_feedback_checks": 3,
+    "web_fixtures": 11,
+    "native_devices": false,
+    "withdrawal_component_fixtures": 3,
+    "web_service_checks": 7,
+    "web_crm_checks": 8,
+    "map_live_checks": 8,
+    "app_activity_api_checks": 12,
+    "app_activity_browser_checks": 10,
+    "private_file_http_checks": 6
+  },
+  "public_https_acceptance": false,
+  "formal_provider_acceptance": false,
+  "aliyun_mysql57_acceptance": {
+    "version": "5.7.44-log",
+    "database": "yuzhou_acceptance_20261009",
+    "isolated_from_live": true,
+    "checks": 39,
+    "synthetic_fixtures": true,
+    "covers": [
+      "physical_boat_rent_sale_concurrency",
+      "mall_stock_concurrency",
+      "points_stock_and_same_key",
+      "withdrawal_balance_and_same_key",
+      "foreign_keys",
+      "broker_order_isolation",
+      "recommendation_preferences_and_isolation",
+      "same_physical_boat_purchase_creation_concurrency",
+      "historical_duplicate_purchase_payment_rejection"
+    ]
+  },
+  "android_static_packages": {
+    "apps": [
+      "consumer",
+      "broker"
+    ],
+    "signature_v2_verified": true,
+    "temporary_signing": true,
+    "installed_test": false,
+    "source_commit_bound": false
+  }
+}

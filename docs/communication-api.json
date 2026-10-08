@@ -1,0 +1,80 @@
+{
+  "base_path": "/api/v1",
+  "authentication": "Bearer token; all routes require authenticated account",
+  "routes": {
+    "GET conversations": "分页，仅本人参与且仍有订单权限的会话，members,last_message,unread_count",
+    "POST conversations": {
+      "order_id": 1,
+      "alternative": "resource_id; public resource consultation"
+    },
+    "GET conversations/:id/messages": {
+      "after_id": 0,
+      "page": 1,
+      "page_size": 20
+    },
+    "POST conversations/:id/messages": {
+      "client_id": "unique-retry-key",
+      "content": "消息内容"
+    },
+    "POST conversations/:id/read": {},
+    "GET appointments": "本人/公司/商家授权范围分页",
+    "POST appointments": {
+      "resource_id": 1,
+      "scheduled_at": "2026-11-01T10:00:00+08:00",
+      "notes": "",
+      "customer_id": "仅经纪人代其客户预约时提供"
+    },
+    "PATCH appointments/:id": {
+      "status": "confirmed|completed|cancelled",
+      "notes": ""
+    },
+    "GET notifications": "本人站内消息分页",
+    "POST notifications/:id/read": {},
+    "GET/POST favorites": {
+      "resource_id": 1
+    },
+    "GET/POST footprints": {
+      "resource_id": 1
+    },
+    "GET/POST/PATCH boat-records(/:id)": {
+      "title": "我的船艇",
+      "payload": {
+        "serial_number": "",
+        "model": "",
+        "notes": ""
+      }
+    },
+    "GET/POST/PATCH reminders(/:id)": {
+      "title": "维保提醒",
+      "payload": {
+        "due_date": "2026-11-01",
+        "notes": ""
+      }
+    },
+    "GET/POST feedback": {
+      "title": "意见反馈",
+      "payload": {
+        "content": "",
+        "contact": ""
+      }
+    },
+    "GET/POST reviews": {
+      "order_id": 1,
+      "payload": {
+        "rating": 5,
+        "content": ""
+      }
+    },
+    "POST feedback/:id/reply": {
+      "role": "platform",
+      "reply": "处理回复，2000字以内",
+      "result": "状态handled，向反馈人发送站内消息；相同内容重试不重复通知"
+    }
+  },
+  "limits": [
+    "消息持久化和站内未读可用；未提供推送资质，客户端轮询不等于厂商推送验收",
+    "经纪订单咨询仅客户和实际经纪人参与，供应商商家无权读取",
+    "收藏等删除为软删除，文件和订单关联均有外键",
+    "订单完成后可评价一次，不能代理客户评价"
+  ]
+}

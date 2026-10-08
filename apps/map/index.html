@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>驭舟 · 地图找船</title>
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="./map.css">
+</head>
+<body>
+  <header><div><strong>地图找船</strong><p>船艇位置由发布方维护</p></div><button id="refresh" type="button">刷新</button></header>
+  <div id="status" role="status">正在加载已发布船艇…</div>
+  <main>
+    <div id="map" aria-label="已录入位置的船艇地图"></div>
+    <section id="boats" aria-label="船艇列表"></section>
+  </main>
+  <footer>地图数据 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">地图服务使用政策</a><span id="provider-note"></span></footer>
+  <script src="./vendor/leaflet/leaflet.js"></script>
+  <script src="./vendor/uni.webview.1.5.8.js"></script>
+  <script type="module" src="./map.js"></script>
+</body>
+</html>

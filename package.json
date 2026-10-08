@@ -1,0 +1,12 @@
+{
+  "name": "yuzhou",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/build.mjs",
+    "release": "node scripts/release.mjs"
+  }
+}

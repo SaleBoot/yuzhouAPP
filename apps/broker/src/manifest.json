@@ -1,0 +1,52 @@
+{
+  "name": "驭舟销售",
+  "appid": "__UNI__59A80C3",
+  "description": "驭舟船艇服务",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "vueVersion": "3",
+  "h5": {
+    "router": {
+      "mode": "hash",
+      "base": "/broker/"
+    },
+    "title": "驭舟销售"
+  },
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "modules": {
+      "Camera": {},
+      "VideoPlayer": {},
+      "Invocation": {}
+    },
+    "distribute": {
+      "android": {
+        "packagename": "top.ourideas.yuzhou.broker",
+        "permissions": [
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>"
+        ]
+      },
+      "ios": {
+        "appid": "top.ourideas.yuzhou.broker",
+        "privacyDescription": {
+          "NSPhotoLibraryUsageDescription": "选择论坛图片和业务材料",
+          "NSCameraUsageDescription": "拍摄论坛图片和业务材料"
+        }
+      },
+      "sdkConfigs": {}
+    }
+  },
+  "uniStatistics": {
+    "enable": false
+  }
+}

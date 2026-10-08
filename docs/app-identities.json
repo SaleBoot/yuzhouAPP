@@ -1,0 +1,26 @@
+{
+  "purpose": "独立临时测试应用；不是商店发布或真机验收证明",
+  "provider": "DCloud / HBuilderX 5.26 official project create",
+  "consumer": {
+    "appid": "__UNI__E148E73",
+    "android_package": "top.ourideas.yuzhou.consumer",
+    "ios_bundle_id": "top.ourideas.yuzhou.consumer",
+    "apple_registered": false,
+    "created_project": "/tmp/yuzhou-consumer-test/yuzhou-consumer-test",
+    "android_test_platform_registered": true,
+    "android_runtime_key_created": true,
+    "android_temporary_signing": true,
+    "android_certificate_sha256": "22:01:6F:BF:4F:80:E0:D1:63:F4:F5:CE:94:5F:55:A5:9B:24:B3:50:F1:11:BF:9E:46:D2:EB:13:D1:3C:76:C7"
+  },
+  "broker": {
+    "appid": "__UNI__59A80C3",
+    "android_package": "top.ourideas.yuzhou.broker",
+    "ios_bundle_id": "top.ourideas.yuzhou.broker",
+    "apple_registered": false,
+    "created_project": "/tmp/yuzhou-broker-test/yuzhou-broker-test",
+    "android_test_platform_registered": true,
+    "android_runtime_key_created": true,
+    "android_temporary_signing": true,
+    "android_certificate_sha256": "22:01:6F:BF:4F:80:E0:D1:63:F4:F5:CE:94:5F:55:A5:9B:24:B3:50:F1:11:BF:9E:46:D2:EB:13:D1:3C:76:C7"
+  }
+}

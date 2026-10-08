@@ -1,0 +1,38 @@
+# 替换证书路径及PHP socket之前先核对目标阿里云。不得覆盖创意岛站点。
+server {
+    listen 80;
+    server_name yuzhou.ourideas.top;
+    location ^~ /.well-known/acme-challenge/ { root /www/wwwroot/yuzhou/acme; }
+    location / { return 301 https://$host$request_uri; }
+}
+server {
+    listen 443 ssl;
+    server_name yuzhou.ourideas.top;
+    ssl_certificate /www/wwwroot/yuzhou/certs/fullchain.pem;
+    ssl_certificate_key /www/wwwroot/yuzhou/certs/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    root /www/wwwroot/yuzhou/current/public;
+    index index.html;
+    client_max_body_size 52m;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    location ~ /\. { deny all; }
+    location ~ \.php$ { return 404; }
+    location ^~ /api/ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /www/wwwroot/yuzhou/current/backend/public/index.php;
+        fastcgi_param SCRIPT_NAME /index.php;
+        fastcgi_param HTTP_AUTHORIZATION $http_authorization;
+        fastcgi_param REQUEST_URI $request_uri;
+        fastcgi_param PHP_VALUE "upload_max_filesize=50M\npost_max_size=52M";
+        fastcgi_pass unix:/tmp/php-cgi-72.sock;
+    }
+    location /platform { try_files $uri /admin/index.html; }
+    location /merchant { try_files $uri /admin/index.html; }
+    location /agency { try_files $uri /admin/index.html; }
+    location /admin/ { try_files $uri $uri/ /admin/index.html; }
+    location /consumer/ { try_files $uri $uri/ /consumer/index.html; }
+    location /broker/ { try_files $uri $uri/ /broker/index.html; }
+    location / { try_files $uri $uri/ =404; }
+}

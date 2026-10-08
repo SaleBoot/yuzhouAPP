@@ -1,0 +1,223 @@
+{
+  "pages": [
+    {
+      "path": "pages/home",
+      "style": {
+        "navigationBarTitleText": "驭舟",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/classroom",
+      "style": {
+        "navigationBarTitleText": "航海课堂",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/discover",
+      "style": {
+        "navigationBarTitleText": "发现",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/profile",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/boat",
+      "style": {
+        "navigationBarTitleText": "船艇详情",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/compare",
+      "style": {
+        "navigationBarTitleText": "船艇对比",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/booking",
+      "style": {
+        "navigationBarTitleText": "预约订单",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/shop",
+      "style": {
+        "navigationBarTitleText": "商城与服务",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/product",
+      "style": {
+        "navigationBarTitleText": "商品详情",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/orders",
+      "style": {
+        "navigationBarTitleText": "我的订单",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/order",
+      "style": {
+        "navigationBarTitleText": "订单详情",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/event",
+      "style": {
+        "navigationBarTitleText": "航海活动",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/course",
+      "style": {
+        "navigationBarTitleText": "课程学习",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/membership",
+      "style": {
+        "navigationBarTitleText": "会员成长",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/coupons",
+      "style": {
+        "navigationBarTitleText": "我的优惠券",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/publish",
+      "style": {
+        "navigationBarTitleText": "发布动态",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/post",
+      "style": {
+        "navigationBarTitleText": "航海社区",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/login",
+      "style": {
+        "navigationBarTitleText": "欢迎来到驭舟",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/viewer",
+      "style": {
+        "navigationBarTitleText": "内容预览",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/chat",
+      "style": {
+        "navigationBarTitleText": "咨询消息"
+      }
+    },
+    {
+      "path": "pages/appointment",
+      "style": {
+        "navigationBarTitleText": "预约看船"
+      }
+    },
+    {
+      "path": "pages/account",
+      "style": {
+        "navigationBarTitleText": "我的记录"
+      }
+    },
+    {
+      "path": "pages/cart",
+      "style": {
+        "navigationBarTitleText": "购物车"
+      }
+    },
+    {
+      "path": "pages/learning",
+      "style": {
+        "navigationBarTitleText": "我的学习"
+      }
+    },
+    {
+      "path": "pages/points",
+      "style": {
+        "navigationBarTitleText": "积分商城"
+      }
+    },
+    {
+      "path": "pages/map",
+      "style": {
+        "navigationBarTitleText": "地图找船"
+      }
+    },
+    {
+      "path": "pages/identity",
+      "style": {
+        "navigationBarTitleText": "身份资料与审核"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "驭舟",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f4f6f8"
+  },
+  "tabBar": {
+    "color": "#8796a6",
+    "selectedColor": "#09233f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home",
+        "text": "首页",
+        "iconPath": "static/tab-home.png",
+        "selectedIconPath": "static/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/classroom",
+        "text": "课堂",
+        "iconPath": "static/tab-classroom.png",
+        "selectedIconPath": "static/tab-classroom-active.png"
+      },
+      {
+        "pagePath": "pages/discover",
+        "text": "发现",
+        "iconPath": "static/tab-discover.png",
+        "selectedIconPath": "static/tab-discover-active.png"
+      },
+      {
+        "pagePath": "pages/profile",
+        "text": "我的",
+        "iconPath": "static/tab-profile.png",
+        "selectedIconPath": "static/tab-profile-active.png"
+      }
+    ]
+  }
+}

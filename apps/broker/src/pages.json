@@ -1,0 +1,129 @@
+{
+  "pages": [
+    {
+      "path": "pages/work",
+      "style": {
+        "navigationBarTitleText": "驭舟销售",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/customers",
+      "style": {
+        "navigationBarTitleText": "客户管理",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/orders",
+      "style": {
+        "navigationBarTitleText": "销售订单",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/profile",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/quote",
+      "style": {
+        "navigationBarTitleText": "配置报价",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/order",
+      "style": {
+        "navigationBarTitleText": "订单详情",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/commission",
+      "style": {
+        "navigationBarTitleText": "佣金结算",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/login",
+      "style": {
+        "navigationBarTitleText": "销售登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/viewer",
+      "style": {
+        "navigationBarTitleText": "内容预览",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/chat",
+      "style": {
+        "navigationBarTitleText": "咨询消息"
+      }
+    },
+    {
+      "path": "pages/appointment",
+      "style": {
+        "navigationBarTitleText": "预约看船"
+      }
+    },
+    {
+      "path": "pages/reports",
+      "style": {
+        "navigationBarTitleText": "销售报表"
+      }
+    },
+    {
+      "path": "pages/map",
+      "style": {
+        "navigationBarTitleText": "地图找船"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "驭舟",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f4f6f8"
+  },
+  "tabBar": {
+    "color": "#8796a6",
+    "selectedColor": "#09233f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/work",
+        "text": "工作台",
+        "iconPath": "static/tab-work.png",
+        "selectedIconPath": "static/tab-work-active.png"
+      },
+      {
+        "pagePath": "pages/customers",
+        "text": "客户",
+        "iconPath": "static/tab-customers.png",
+        "selectedIconPath": "static/tab-customers-active.png"
+      },
+      {
+        "pagePath": "pages/orders",
+        "text": "订单",
+        "iconPath": "static/tab-orders.png",
+        "selectedIconPath": "static/tab-orders-active.png"
+      },
+      {
+        "pagePath": "pages/profile",
+        "text": "我的",
+        "iconPath": "static/tab-profile.png",
+        "selectedIconPath": "static/tab-profile-active.png"
+      }
+    ]
+  }
+}

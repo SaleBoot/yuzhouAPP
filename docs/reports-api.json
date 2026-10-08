@@ -1,0 +1,33 @@
+{
+  "routes": {
+    "GET reports/summary": {
+      "query": {
+        "from_date": "YYYY-MM-DD optional",
+        "to_date": "YYYY-MM-DD optional"
+      },
+      "fields": [
+        "order_count",
+        "paid_cents",
+        "refund_cents",
+        "net_paid_cents",
+        "profit_cents",
+        "commission_cents",
+        "frozen_commission_cents",
+        "customer_count",
+        "appointment_count",
+        "status_counts"
+      ]
+    },
+    "GET reports/dividends.xlsx": {
+      "query": "same optional date range",
+      "result": "authenticated private Excel workbook",
+      "max_rows": 20000
+    },
+    "GET admin/users/:id/history": {
+      "role": "platform",
+      "module_permission": "users",
+      "result": "public user fields, paginated orders, boat_records"
+    }
+  },
+  "scope": "Existing Policy order/customer/ledger scope; merchant cannot see broker orders; money integer cents; only confirmed profit included."
+}

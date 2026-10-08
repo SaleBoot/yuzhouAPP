@@ -1,0 +1,7 @@
+[Unit]
+Description=Renew only the Yuzhou HTTPS certificate
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/www/server/panel/pyenv/bin/python3 /www/wwwroot/yuzhou/current/deploy/renew-certificate.py

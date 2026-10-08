@@ -1,0 +1,5445 @@
+{
+  "agency_monthly_targets": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "month",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      },
+      {
+        "position": 2,
+        "name": "target_amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "updated_by",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "updated_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "application_files": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "application_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "file_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "uploads",
+        "source_column": "file_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "applications",
+        "source_column": "application_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "applications": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "kind",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "payload",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "file_ids",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "review_notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "reviewer_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "reviewer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "appointments": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "customer_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "broker_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "scheduled_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "broker_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 4,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "customer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "audit_logs": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "actor_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "action",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "object_type",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "object_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "payload",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "actor_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "auth_attempts": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "attempt_key",
+        "type": "VARCHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": []
+  },
+  "banners": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "placement",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "target_url",
+        "type": "VARCHAR(500)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "sort_order",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "boat_locations": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "boat_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "latitude",
+        "type": "REAL",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "longitude",
+        "type": "REAL",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "boats",
+        "source_column": "boat_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "boat_types": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "category",
+        "type": "VARCHAR(60)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "length_m",
+        "type": "VARCHAR(30)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "capacity",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "daily_price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "deposit_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "specs_json",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "boats": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "boat_type_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "serial_number",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "location",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "unavailable",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "boat_types",
+        "source_column": "boat_type_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "cart_items": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "product_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "quantity",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "products",
+        "source_column": "product_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "comments": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "post_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "content",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "post_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "contracts": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "version",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "file_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "file_sha256",
+        "type": "VARCHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "creator_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "review_status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "reviewer_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "reviewed_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "review_notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 11,
+        "name": "signed_by",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 12,
+        "name": "signed_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 13,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "signed_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "reviewer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "creator_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "sequence": 0,
+        "target_table": "uploads",
+        "source_column": "file_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 4,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "conversation_members": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "conversation_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "read_message_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "conversations",
+        "source_column": "conversation_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "conversations": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "context_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "coupon_claims": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "coupon_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'available'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "coupons",
+        "source_column": "coupon_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "coupons": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "discount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "min_amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "expires_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "stock",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "order_types_json",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "course_lessons": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "course_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "lesson_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "video_url",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "duration_seconds",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "sort_order",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "courses",
+        "source_column": "course_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "course_questions": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "course_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "question_index",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "question",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "options_json",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "answer_index",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "courses",
+        "source_column": "course_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "course_reward_claims": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "reward_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "reward_snapshot",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "reviewed_by",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "reviewed_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "course_reward_definitions",
+        "source_column": "reward_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "course_reward_definitions": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "course_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "reward_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "reward_type",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "points",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "coupon_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "event_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "active",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "1",
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "events",
+        "source_column": "event_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "coupons",
+        "source_column": "coupon_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "courses",
+        "source_column": "course_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "course_rewards": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "course_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "coupon_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "coupons",
+        "source_column": "coupon_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "courses",
+        "source_column": "course_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "courses": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "pass_score",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "60",
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "customer_tag_links": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "customer_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "tag_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      },
+      {
+        "position": 2,
+        "name": "created_by",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "created_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "customer_tags",
+        "source_column": "tag_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "customers",
+        "source_column": "customer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "customer_tags": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "name",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "color",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": "'active'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_by",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "created_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "customers": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "broker_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "name",
+        "type": "VARCHAR(120)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "stage",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'new'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "broker_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "enrollments": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "event_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "ticket_code",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "checked_in_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "events",
+        "source_column": "event_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "event_participants": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "event_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      },
+      {
+        "position": 2,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "reviewer_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "reviewed_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "reviewer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "events",
+        "source_column": "event_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "events": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "capacity",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "starts_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "location",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "exam_attempts": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "course_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "score",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "passed",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "answers",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "courses",
+        "source_column": "course_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "growth_logs": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "event_key",
+        "type": "VARCHAR(150)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "points",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "description",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "growth_products": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "points_price",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "stock",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "invitations": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "code",
+        "type": "VARCHAR(16)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "referrer_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "referrer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "learning_progress": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "course_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "lesson_id",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "position_seconds",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "completed",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "course_lessons",
+        "source_column": "course_id",
+        "target_column": "course_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 0,
+        "sequence": 1,
+        "target_table": "course_lessons",
+        "source_column": "lesson_id",
+        "target_column": "lesson_key",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "ledger": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "beneficiary_role",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "entry_key",
+        "type": "VARCHAR(150)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "state",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "available_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "reversal_of",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "ledger",
+        "source_column": "reversal_of",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "maintenance_plans": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "boat_type_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "boat_types",
+        "source_column": "boat_type_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "management_role_permissions": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "role_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "permission_key",
+        "type": "VARCHAR(40)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "management_roles",
+        "source_column": "role_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "management_roles": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "base_role",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "name",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(20)",
+        "not_null": 1,
+        "default": "'active'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_by",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "created_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "management_user_roles": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "role_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "management_roles",
+        "source_column": "role_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "merchants": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "credit_code",
+        "type": "CHAR(18)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "organization_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "legal_name",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "license_file_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "uploads",
+        "source_column": "license_file_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "organization_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "messages": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "conversation_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "sender_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "client_id",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "content",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "sender_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "conversations",
+        "source_column": "conversation_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "notifications": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "content",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "object_type",
+        "type": "VARCHAR(60)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "object_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "read_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "order_events": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "actor_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "action",
+        "type": "VARCHAR(60)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "payload",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "actor_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "order_items": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "quantity",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "unit_price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "start_date",
+        "type": "VARCHAR(10)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "end_date",
+        "type": "VARCHAR(10)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "order_progress": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "actor_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "stage",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "percent",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "actor_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "order_service_schedules": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "scheduled_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "location",
+        "type": "VARCHAR(300)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "updated_by",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "updated_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "orders": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_no",
+        "type": "VARCHAR(60)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "type",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "customer_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "creator_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "broker_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 11,
+        "name": "original_amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 12,
+        "name": "discount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 13,
+        "name": "paid_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 14,
+        "name": "refund_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 15,
+        "name": "profit_cents",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 16,
+        "name": "profit_status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'unconfirmed'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 17,
+        "name": "profit_revision",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 18,
+        "name": "coupon_claim_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 19,
+        "name": "quote_expires_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 20,
+        "name": "items",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 21,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 22,
+        "name": "rule_snapshot",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 23,
+        "name": "contract_version",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 24,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 25,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 26,
+        "name": "completed_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "coupon_claims",
+        "source_column": "coupon_claim_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 4,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "broker_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 5,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "creator_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 6,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "customer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "organizations": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "name",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "kind",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "payload",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": []
+  },
+  "payments": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "channel",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "idempotency_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "provider_reference",
+        "type": "VARCHAR(200)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "point_redemptions": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "product_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "quantity",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "points",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "idempotency_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "item_snapshot",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "reviewed_by",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 11,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "reviewed_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "growth_products",
+        "source_column": "product_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "post_likes": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "post_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 2
+      },
+      {
+        "position": 2,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "post_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "post_metadata": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "post_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "post_type",
+        "type": "VARCHAR(20)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "is_pinned",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "post_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "post_official_replies": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "post_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "author_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "content",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "author_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "post_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "products": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "stock",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "profit_confirmations": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "revision",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "profit_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "actor_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "actor_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "refund_requests": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "customer_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "reason",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "reviewed_by",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "review_notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "refund_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "refunds",
+        "source_column": "refund_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "reviewed_by",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "customer_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "refunds": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "reason",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "channel",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "idempotency_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "provider_reference",
+        "type": "VARCHAR(200)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "reminders": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "record_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "due_date",
+        "type": "DATE",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "last_notified_due_date",
+        "type": "DATE",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "user_records",
+        "source_column": "record_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "rental_reservations": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "boat_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "rental_date",
+        "type": "VARCHAR(10)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "boats",
+        "source_column": "boat_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "resource_options": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "option_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "resources": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "kind",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "owner_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "payload",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "version",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "1",
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "owner_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "settings": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "setting_key",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "value_json",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "version",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "1",
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": []
+  },
+  "tokens": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "token_hash",
+        "type": "VARCHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "expires_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "upgrade_schemes": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "boat_type_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "merchant_credit_code",
+        "type": "CHAR(18)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "price_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "merchants",
+        "source_column": "merchant_credit_code",
+        "target_column": "credit_code",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "boat_types",
+        "source_column": "boat_type_id",
+        "target_column": "resource_id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "uploads": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "owner_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "storage_name",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "original_name",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "mime",
+        "type": "VARCHAR(100)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "size_bytes",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "sha256",
+        "type": "VARCHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "is_private",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "1",
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "owner_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "user_records": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "kind",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "resource_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "order_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "title",
+        "type": "VARCHAR(200)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "payload",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'active'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "orders",
+        "source_column": "order_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "sequence": 0,
+        "target_table": "resources",
+        "source_column": "resource_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "users": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "username",
+        "type": "VARCHAR(120)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "password_hash",
+        "type": "VARCHAR(255)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "nickname",
+        "type": "VARCHAR(120)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "role",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'consumer'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "org_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'active'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "member_until",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "growth_points",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "identity_status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'unverified'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 11,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "organizations",
+        "source_column": "org_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "withdrawals": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "amount_cents",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "idempotency_key",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "status",
+        "type": "VARCHAR(30)",
+        "not_null": 1,
+        "default": "'pending'",
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "notes",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  }
+}

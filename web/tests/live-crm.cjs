@@ -1,0 +1,93 @@
+// Explicit localhost development mutations with synthetic companies, clients and test funds.
+const {chromium}=require('playwright')
+const assert=require('node:assert/strict')
+const fs=require('node:fs')
+const path=require('node:path')
+const crypto=require('node:crypto')
+const apiOrigin=process.env.WEB_LIVE_API||'http://127.0.0.1:8088',webOrigin=process.env.WEB_TEST_ORIGIN||'http://127.0.0.1:5173'
+const output=path.resolve(__dirname,'../test-results/live-crm'),checks=[],errors=[]
+let browser,activePage
+function pass(name){checks.push(name);console.log('PASS '+name)}
+async function api(token,route,method='GET',body,expected=200){
+  const response=await fetch(apiOrigin+'/api/v1'+route,{method,headers:{...(token?{Authorization:'Bearer '+token}:{}),...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined})
+  const result=await response.json();assert.equal(response.status,expected,route+': '+result.message);if(expected===200)assert.equal(result.code,0);return result.data
+}
+async function uiLogin(role,password){
+  const page=await(await browser.newContext({viewport:{width:1440,height:1000}})).newPage();activePage=page;page.on('pageerror',error=>errors.push(error.message))
+  await page.goto(webOrigin+'/admin/'+role);await page.getByLabel('登录账号').fill(role+'.demo');await page.getByLabel('密码',{exact:true}).fill(password)
+  await page.getByRole('button',{name:'登录管理后台'}).click();await page.getByRole('button',{name:'客户跟进',exact:true}).click();await page.getByRole('heading',{name:'客户管理',exact:true}).waitFor();return page
+}
+async function main(){
+  assert.equal(process.env.RUN_DEV_WEB_MUTATIONS,'1');for(const origin of [apiOrigin,webOrigin])assert.ok(['127.0.0.1','localhost'].includes(new URL(origin).hostname))
+  const env=await api(null,'/bootstrap');assert.ok(env.is_test_environment&&env.test_payments_enabled)
+  const secrets=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../backend/storage/dev-accounts.json'),'utf8')),auth={}
+  for(const role of ['platform','agency','broker','merchant'])auth[role]=await api(null,'/auth/login','POST',{username:role+'.demo',password:secrets.password})
+  const run='dev.crm.'+Date.now(),month=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'),company=auth.agency.user.org_id
+  const before=await api(auth.agency.token,'/agency-targets?month='+month)
+  const customer=await api(null,'/auth/register','POST',{username:run,password:crypto.randomBytes(18).toString('base64url'),nickname:'合成CRM客户'})
+  const clientName='合成标签客户 '+run,client=await api(auth.agency.token,'/customers','POST',{user_id:customer.user.id,broker_id:auth.broker.user.id,name:clientName,notes:'仅开发合成资料'})
+  const other=await api(auth.platform.token,'/admin/organizations','POST',{kind:'agency',name:'合成独立经纪公司 '+run,status:'approved'})
+  const password=crypto.randomBytes(20).toString('base64url'),otherUser=await api(null,'/auth/register','POST',{username:run+'.other',password,nickname:'合成其他公司管理员'})
+  await api(auth.platform.token,'/admin/users/'+otherUser.user.id,'PATCH',{role:'agency',org_id:other.id,status:'active'})
+  const otherAuth=await api(null,'/auth/login','POST',{username:run+'.other',password})
+  const foreignTag=await api(otherAuth.token,'/customer-tags','POST',{name:'合成异公司标签 '+run,color:'#9966aa',status:'active'})
+  fs.mkdirSync(output,{recursive:true});browser=await chromium.launch({headless:true})
+  const agency=await uiLogin('agency',secrets.password)
+  await agency.getByRole('button',{name:'＋ 新建标签'}).click();const tagName='合成客户标签 '+run
+  await agency.getByLabel('标签名称').fill(tagName);await agency.getByLabel('标签颜色').fill('#3366aa');await agency.getByRole('button',{name:'保存标签',exact:true}).click()
+  await agency.getByRole('row').filter({hasText:tagName}).getByRole('button',{name:'编辑标签'}).waitFor()
+  const tag=(await api(auth.agency.token,'/customer-tags?page_size=100')).items.find(tag=>tag.name===tagName);assert.ok(tag);assert.equal(Number(tag.org_id),Number(company))
+  pass('agency creates a structured company tag through the actual Web/API')
+  await agency.getByLabel('搜索客户').fill(clientName);await agency.getByRole('button',{name:'查询',exact:true}).click()
+  await agency.getByRole('row').filter({hasText:clientName}).getByRole('button',{name:'客户标签',exact:true}).click()
+  await agency.getByLabel(tagName,{exact:true}).check();await agency.getByRole('button',{name:'保存客户标签',exact:true}).click()
+  await agency.getByRole('row').filter({hasText:clientName}).getByText(tagName,{exact:true}).waitFor()
+  await agency.getByLabel('客户标签筛选').selectOption(String(tag.id));await agency.getByRole('button',{name:'查询',exact:true}).click()
+  assert.ok((await api(auth.agency.token,'/customers?tag_id='+tag.id)).items.some(row=>row.id===client.id))
+  pass('customer label assignment and real relation filtering persist')
+  await api(auth.agency.token,'/customer-tags?org_id='+other.id,'GET',undefined,403)
+  await api(auth.broker.token,`/customers/${client.id}/tags`,'PUT',{tag_ids:[foreignTag.id]},403)
+  await api(otherAuth.token,`/customers/${client.id}/tags`,'PUT',{tag_ids:[tag.id]},404)
+  await api(auth.merchant.token,'/customer-tags','GET',undefined,403)
+  pass('cross-company tag reads and assignment plus merchant CRM access are rejected')
+  await agency.getByLabel('月度净实收目标（元）').fill('500.00');await agency.getByRole('button',{name:'保存月度目标',exact:true}).click()
+  await agency.getByRole('status').filter({hasText:'月度目标已保存'}).waitFor()
+  const target=await api(auth.broker.token,'/agency-targets?month='+month);assert.equal(target.target_amount_cents,50000);assert.equal(target.configured,true)
+  await api(auth.broker.token,'/agency-targets/'+month,'PUT',{target_amount_cents:1},403)
+  await api(auth.agency.token,'/agency-targets/'+month,'PUT',{org_id:other.id,target_amount_cents:1},403)
+  pass('agency saves a monthly target while broker and other-company writes remain denied')
+  const platform=await uiLogin('platform',secrets.password);await platform.getByLabel('选择经纪公司').selectOption(String(company))
+  await platform.getByLabel('月度净实收目标（元）').fill('550.00');await platform.getByRole('button',{name:'保存月度目标',exact:true}).click();await platform.getByRole('status').filter({hasText:'月度目标已保存'}).waitFor()
+  assert.equal((await api(auth.agency.token,'/agency-targets?month='+month)).target_amount_cents,55000)
+  await platform.getByRole('row').filter({hasText:tagName}).getByRole('button',{name:'编辑标签'}).click();await platform.getByLabel('标签状态').selectOption('inactive');await platform.getByRole('button',{name:'保存标签',exact:true}).click()
+  await platform.getByRole('row').filter({hasText:tagName}).getByText('停用',{exact:true}).waitFor()
+  await api(auth.broker.token,`/customers/${client.id}/tags`,'PUT',{tag_ids:[tag.id]},403)
+  await api(auth.platform.token,'/customer-tags/'+tag.id,'PATCH',{status:'active'})
+  pass('platform selects the company and edits target/tag status without lifting company boundaries')
+  let service=await api(auth.merchant.token,'/resources/maintenance','POST',{title:'合成月业绩服务 '+run,status:'pending',price_cents:12000,payload:{}})
+  service=await api(auth.platform.token,'/resources/maintenance/'+service.id,'PATCH',{status:'published',version:service.version})
+  const order=await api(auth.broker.token,'/orders','POST',{type:'maintenance',resource_id:service.id,customer_id:customer.user.id,notes:'合成月业绩与提现验证'})
+  await api(auth.agency.token,`/orders/${order.id}/quote`,'POST',{amount_cents:12000});await api(customer.token,`/orders/${order.id}/accept-quote`,'POST',{})
+  const upload=new FormData();upload.append('private','1');upload.append('file',new Blob(['%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF'],{type:'application/pdf'}),'synthetic-crm-contract.pdf')
+  const uploaded=await fetch(apiOrigin+'/api/v1/uploads',{method:'POST',headers:{Authorization:'Bearer '+auth.agency.token},body:upload});assert.equal(uploaded.status,200);const file=(await uploaded.json()).data
+  await api(auth.agency.token,`/orders/${order.id}/contract`,'POST',{file_id:file.id,title:'合成开发合同'});await api(auth.platform.token,`/orders/${order.id}/contract-review`,'POST',{version:1,status:'approved',notes:'只审核合成材料'});await api(customer.token,`/orders/${order.id}/sign`,'POST',{version:1,accepted:true});await api(customer.token,`/orders/${order.id}/pay`,'POST',{channel:'test',idempotency_key:crypto.randomUUID()})
+  await api(auth.platform.token,`/orders/${order.id}/refund`,'POST',{amount_cents:2000,reason:'合成当月退款验证',channel:'test',idempotency_key:crypto.randomUUID()})
+  const after=await api(auth.agency.token,'/agency-targets?month='+month)
+  assert.equal(after.actual_paid_cents-before.actual_paid_cents,12000);assert.equal(after.actual_refund_cents-before.actual_refund_cents,2000);assert.equal(after.actual_net_paid_cents-before.actual_net_paid_cents,10000)
+  assert.equal((await api(otherAuth.token,'/agency-targets?month='+month)).actual_net_paid_cents,0)
+  await agency.getByRole('button',{name:'刷新公司设置',exact:true}).click();await agency.getByText('当月净实收',{exact:true}).waitFor()
+  await agency.screenshot({path:path.join(output,'agency-crm.png'),fullPage:true});await platform.screenshot({path:path.join(output,'platform-crm.png'),fullPage:true})
+  pass('monthly actual performance uses scoped payment minus refund flows rather than quotes')
+  await api(auth.platform.token,'/settings','PUT',{distribution:{broker_bps:1000,member_bps:500,settlement_days:0}})
+  await api(auth.agency.token,`/orders/${order.id}/fulfill`,'POST',{status:'fulfilling',notes:'合成履约状态，不是实际维修'});await api(auth.agency.token,`/orders/${order.id}/fulfill`,'POST',{status:'completed',notes:'合成测试完成记录'})
+  await api(auth.platform.token,`/orders/${order.id}/profit-confirm`,'POST',{profit_cents:6000,notes:'合成测试可分配利润',beneficiaries:[{user_id:auth.broker.user.id,role:'broker'}]})
+  const previousLedger=await api(auth.broker.token,'/ledger'),key=crypto.randomUUID()
+  const first=await api(auth.broker.token,'/withdrawals','POST',{amount_cents:300,idempotency_key:key}),again=await api(auth.broker.token,'/withdrawals','POST',{amount_cents:300,idempotency_key:key})
+  assert.equal(first.id,again.id);assert.equal((await api(auth.broker.token,'/ledger')).balance.withdrawn_and_reserved_cents-previousLedger.balance.withdrawn_and_reserved_cents,300)
+  await api(auth.broker.token,'/withdrawals','POST',{amount_cents:301,idempotency_key:key},409)
+  pass('actual withdrawal same-key retry returns one record and reserves funds only once')
+  assert.deepEqual(errors,[]);pass('no uncaught CRM Web page errors')
+  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({scope:'actual localhost API and Chromium; synthetic companies/contracts/test money only',run,checks,order_id:order.id,customer_id:client.id,page_errors:errors,unverified:['actual payout','real company qualification','native device','public HTTPS']},null,2))
+  await browser.close();console.log(JSON.stringify({passed:checks.length,output},null,2))
+}
+main().catch(async error=>{console.error(error.message);if(activePage&&!activePage.isClosed()&&await activePage.locator('input[type=password]').count()===0)await activePage.screenshot({path:path.join(output,'failure.png'),fullPage:true});await browser?.close();process.exit(1)})

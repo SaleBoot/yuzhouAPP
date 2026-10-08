@@ -1,0 +1,24 @@
+:root { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; color: #09233f; background: #f4f6f8; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: white; }
+header strong { font-size: 21px; }
+header p { margin: 5px 0 0; color: #748394; font-size: 12px; }
+button, .detail-link { color: white; background: #09233f; border: 0; border-radius: 9px; padding: 9px 14px; font-size: 13px; text-decoration: none; cursor: pointer; }
+button:disabled { opacity: .5; cursor: wait; }
+#status { margin: 12px 16px; font-size: 13px; line-height: 1.6; }
+#status.error { color: #ac442c; }
+#map { height: 50vh; min-height: 300px; background: #dce7ee; }
+#boats { display: grid; gap: 12px; margin: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.boat-card { padding: 16px; background: white; border-radius: 14px; border: 1px solid #e1e8ee; }
+.boat-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; }
+.boat-card h2 { font-size: 16px; margin: 12px 0 8px; }
+.boat-card p { font-size: 13px; color: #607385; line-height: 1.6; }
+.boat-card .actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+.locate { color: #09233f; background: #eef3f7; }
+.leaflet-popup-content { min-width: 170px; }
+.leaflet-popup-content p { margin: 7px 0; }
+.leaflet-popup-content a { color: white; display: inline-block; }
+footer { padding: 0 16px 16px; font-size: 11px; line-height: 1.8; color: #6c7e90; }
+footer a { color: #385d7b; }
+#provider-note { display: block; }

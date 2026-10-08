@@ -1,0 +1,612 @@
+{
+  "version": "1.0",
+  "base_path": "/api/v1",
+  "auth": "Authorization: Bearer <token>",
+  "money": "integer cents; price_cents, amount_cents, profit_cents",
+  "response": {
+    "code": 0,
+    "message": "ok",
+    "data": {}
+  },
+  "pagination": {
+    "items": [],
+    "total": 0,
+    "page": 1,
+    "page_size": 20
+  },
+  "roles": [
+    "consumer",
+    "broker",
+    "merchant",
+    "agency",
+    "platform"
+  ],
+  "resource_kinds": [
+    "boat_types",
+    "boats",
+    "products",
+    "upgrades",
+    "maintenance",
+    "events",
+    "courses",
+    "coupons",
+    "posts",
+    "growth_products",
+    "banners"
+  ],
+  "resource_shape": {
+    "id": 1,
+    "kind": "boat_types",
+    "org_id": null,
+    "title": "Name",
+    "status": "published",
+    "price_cents": 0,
+    "payload": {},
+    "version": 1,
+    "merchant_credit_code": null
+  },
+  "resource_fields": {
+    "boat_types": [
+      "category",
+      "length_m",
+      "capacity",
+      "daily_price_cents",
+      "deposit_cents",
+      "image_urls",
+      "description",
+      "parameters",
+      "vr_url"
+    ],
+    "boats": [
+      "boat_type_id",
+      "serial_number",
+      "location",
+      "image_urls",
+      "description",
+      "unavailable",
+      "vr_url",
+      "latitude",
+      "longitude"
+    ],
+    "products": [
+      "stock",
+      "image_urls",
+      "description"
+    ],
+    "events": [
+      "starts_at",
+      "capacity",
+      "location",
+      "image_urls",
+      "description",
+      "joint_merchant_codes",
+      "participant_reviews"
+    ],
+    "courses": [
+      "lessons",
+      "questions",
+      "pass_score",
+      "image_urls",
+      "description",
+      "rewards"
+    ],
+    "coupons": [
+      "discount_cents",
+      "min_amount_cents",
+      "expires_at",
+      "stock",
+      "order_types"
+    ],
+    "posts": [
+      "content",
+      "image_urls",
+      "video_url",
+      "post_type",
+      "is_pinned",
+      "like_count",
+      "liked"
+    ],
+    "upgrades": [
+      "boat_type_id",
+      "options",
+      "description",
+      "image_urls",
+      "before_parameters",
+      "after_parameters"
+    ],
+    "maintenance": [
+      "boat_type_id",
+      "options",
+      "description",
+      "image_urls",
+      "before_parameters",
+      "after_parameters"
+    ],
+    "growth_products": [
+      "points_price",
+      "stock",
+      "description",
+      "image_urls"
+    ],
+    "banners": [
+      "placement",
+      "sort_order",
+      "target_url",
+      "image_urls"
+    ]
+  },
+  "order_types": [
+    "boat_purchase",
+    "boat_rental",
+    "boat_upgrade",
+    "maintenance",
+    "mall",
+    "event"
+  ],
+  "order_statuses": [
+    "awaiting_quote",
+    "quoted",
+    "awaiting_payment",
+    "paid",
+    "fulfilling",
+    "completed",
+    "cancelled",
+    "partially_refunded",
+    "refunded"
+  ],
+  "order_create": {
+    "type": "boat_rental",
+    "resource_id": 1,
+    "customer_id": 1,
+    "quantity": 1,
+    "start_date": "2026-11-01",
+    "end_date": "2026-11-03",
+    "coupon_id": null,
+    "notes": ""
+  },
+  "order_shape": {
+    "id": 1,
+    "order_no": "YZ...",
+    "type": "boat_rental",
+    "customer_id": 1,
+    "broker_id": null,
+    "org_id": 1,
+    "status": "awaiting_payment",
+    "amount_cents": 600000,
+    "paid_cents": 0,
+    "refund_cents": 0,
+    "profit_cents": null,
+    "items": [],
+    "contract_version": null,
+    "profit_status": "unconfirmed",
+    "profit_revision": 0
+  },
+  "routes": {
+    "POST auth/register": {
+      "username": "account",
+      "password": "minimum 8 characters",
+      "nickname": "Name",
+      "invitation_code": "optional valid code"
+    },
+    "POST auth/login": {
+      "username": "account",
+      "password": "password"
+    },
+    "GET auth/me": {},
+    "POST auth/logout": {},
+    "POST auth/sms": {
+      "phone": ""
+    },
+    "GET bootstrap": {
+      "response_fields": [
+        "brand",
+        "api_version",
+        "vr_base_url",
+        "environment",
+        "is_test_environment",
+        "test_payments_enabled",
+        "services",
+        "resource_kinds",
+        "order_types"
+      ]
+    },
+    "GET resources/:kind": {
+      "page": 1,
+      "page_size": 20,
+      "search": "",
+      "mine": false
+    },
+    "GET resources/:kind/:id": {},
+    "POST resources/:kind": {
+      "title": "Name",
+      "price_cents": 0,
+      "payload": {}
+    },
+    "PATCH resources/:kind/:id": {
+      "version": 1,
+      "title": "Name",
+      "price_cents": 0,
+      "payload": {}
+    },
+    "GET inventory": {
+      "boat_type_id": 1,
+      "start_date": "2026-11-01",
+      "end_date": "2026-11-03",
+      "quantity": 1
+    },
+    "POST orders": "order_create",
+    "GET orders": {},
+    "GET orders/:id": {},
+    "POST orders/:id/quote": {
+      "amount_cents": 100000,
+      "valid_until": "",
+      "notes": "",
+      "option_ids": []
+    },
+    "POST orders/:id/accept-quote": {},
+    "POST orders/:id/pay": {
+      "channel": "test",
+      "idempotency_key": "uuid"
+    },
+    "POST orders/:id/fulfill": {
+      "status": "fulfilling",
+      "notes": ""
+    },
+    "POST orders/:id/cancel": {
+      "reason": ""
+    },
+    "GET orders/:id/contracts": {},
+    "POST orders/:id/contract": {
+      "file_id": 1,
+      "title": "Contract",
+      "notes": ""
+    },
+    "POST orders/:id/sign": {
+      "version": 1,
+      "accepted": true
+    },
+    "POST orders/:id/profit-confirm": {
+      "profit_cents": 100000,
+      "notes": "Manual profit confirmation",
+      "beneficiaries": [
+        {
+          "user_id": 2,
+          "role": "broker"
+        },
+        {
+          "user_id": 1,
+          "role": "member"
+        }
+      ]
+    },
+    "POST orders/:id/refund": {
+      "amount_cents": 10000,
+      "reason": "",
+      "channel": "test",
+      "idempotency_key": "uuid",
+      "request_id": null
+    },
+    "GET ledger": {},
+    "GET withdrawals": {},
+    "POST withdrawals": {
+      "amount_cents": 10000,
+      "idempotency_key": "withdraw-request-uuid"
+    },
+    "POST withdrawals/:id/review": {
+      "status": "rejected",
+      "notes": ""
+    },
+    "GET settings": {},
+    "PUT settings": {
+      "distribution": {
+        "broker_bps": 0,
+        "member_bps": 0,
+        "settlement_days": 7
+      },
+      "growth": {
+        "invitation_points": 0,
+        "rental_points_per_day": 0,
+        "lesson_points": 0,
+        "exam_points": 0,
+        "post_points": 0
+      }
+    },
+    "POST uploads": "multipart: file, private=1/0",
+    "GET files/:id": {},
+    "POST events/:id/enroll": {},
+    "GET enrollments": {},
+    "POST enrollments/:id/check-in": {
+      "ticket_code": ""
+    },
+    "GET learning/progress": {},
+    "POST learning/progress": {
+      "course_id": 1,
+      "lesson_id": "1",
+      "position_seconds": 60
+    },
+    "POST learning/exams": {
+      "course_id": 1,
+      "answers": [
+        0,
+        1
+      ]
+    },
+    "GET growth": {},
+    "GET coupons/my": {},
+    "POST coupons/:id/claim": {},
+    "GET posts/:id/comments": {},
+    "POST posts/:id/comments": {
+      "content": "Text"
+    },
+    "POST posts/:id/review": {
+      "status": "published",
+      "notes": ""
+    },
+    "GET customers": {
+      "search": "name/notes optional",
+      "tag_id": "optional"
+    },
+    "POST customers": {
+      "user_id": 1,
+      "name": "Name",
+      "notes": ""
+    },
+    "PATCH customers/:id": {
+      "notes": "",
+      "stage": "viewing"
+    },
+    "GET admin/users": {},
+    "PATCH admin/users/:id": {
+      "role": "broker",
+      "org_id": 1,
+      "status": "active",
+      "grant_membership": false,
+      "agency_allowed_fields": [
+        "nickname",
+        "status"
+      ]
+    },
+    "GET admin/organizations": {},
+    "POST admin/organizations": {
+      "name": "Name",
+      "kind": "agency"
+    },
+    "GET admin/audit": {},
+    "GET auth/invitation": {},
+    "POST orders/:id/contract-review": {
+      "version": 1,
+      "status": "approved",
+      "notes": ""
+    },
+    "POST orders/:id/refund-request": {
+      "amount_cents": 10000,
+      "reason": "Customer reason"
+    },
+    "GET admin/refund-requests": {},
+    "POST admin/refund-requests/:id/review": {
+      "status": "approved",
+      "notes": ""
+    },
+    "POST events/:id/review": {
+      "status": "approved",
+      "notes": ""
+    },
+    "GET learning/rewards": {},
+    "GET admin/course-rewards": {},
+    "POST admin/course-rewards/:id/fulfill": {
+      "notes": "Physical fulfillment evidence"
+    },
+    "GET cart": {},
+    "POST cart": {
+      "product_id": 1,
+      "quantity": 1
+    },
+    "PATCH cart/:id": {
+      "product_id": 1,
+      "quantity": 1
+    },
+    "DELETE cart/:id": {},
+    "POST comments/:id/review": {
+      "status": "published"
+    },
+    "PATCH admin/organizations/:id": {
+      "status": "approved",
+      "credit_code": "18-character social credit code",
+      "legal_name": "Merchant legal name",
+      "license_file_id": 1
+    },
+    "POST applications": {
+      "kind": "merchant",
+      "org_id": null,
+      "payload": {
+        "organization_name": "Name",
+        "credit_code": "18-character social credit code",
+        "legal_name": "Name"
+      },
+      "file_ids": [
+        1
+      ]
+    },
+    "GET applications": {},
+    "POST applications/:id/review": {
+      "status": "approved",
+      "notes": ""
+    },
+    "GET points-shop/products": {
+      "page": 1,
+      "page_size": 20
+    },
+    "POST points-shop/redeem": {
+      "product_id": 1,
+      "quantity": 1,
+      "idempotency_key": "unique-key"
+    },
+    "GET points-shop/redemptions": {},
+    "POST points-shop/redemptions/:id/cancel": {
+      "notes": ""
+    },
+    "POST points-shop/redemptions/:id/review": {
+      "status": "fulfilled",
+      "notes": "Physical delivery evidence"
+    },
+    "POST posts/:id/like": {},
+    "DELETE posts/:id/like": {},
+    "POST posts/:id/pin": {
+      "is_pinned": true
+    },
+    "GET posts/:id/official-replies": {},
+    "POST posts/:id/official-replies": {
+      "content": "Official response"
+    },
+    "GET admin/comments": {
+      "status": "pending",
+      "post_id": null
+    },
+    "POST orders/:id/schedule": {
+      "scheduled_at": "YYYY-MM-DD HH:mm:ss",
+      "location": "Service location"
+    },
+    "POST orders/:id/progress": {
+      "stage": "installing",
+      "percent": 40,
+      "notes": "Progress evidence"
+    },
+    "GET admin/permission-keys": {},
+    "GET admin/roles": {},
+    "POST admin/roles": {
+      "name": "Orders clerk",
+      "base_role": "platform",
+      "org_id": null,
+      "permissions": [
+        "orders"
+      ]
+    },
+    "PATCH admin/roles/:id": {
+      "name": "Name",
+      "status": "active",
+      "permissions": [
+        "orders"
+      ]
+    },
+    "GET admin/users/:id/roles": {},
+    "PUT admin/users/:id/roles": {
+      "role_ids": [
+        1
+      ]
+    },
+    "GET reports/summary": {
+      "from_date": "YYYY-MM-DD",
+      "to_date": "YYYY-MM-DD"
+    },
+    "GET reports/dividends.xlsx": {
+      "from_date": "YYYY-MM-DD",
+      "to_date": "YYYY-MM-DD"
+    },
+    "GET admin/users/:id/history": {
+      "page": 1,
+      "page_size": 20
+    },
+    "GET recommendations": {
+      "limit": 6,
+      "response": {
+        "items": [],
+        "based_on": "recently_published|own_favorites_and_views",
+        "personalized": false
+      }
+    },
+    "GET customer-tags": {
+      "org_id": "platform optional; otherwise own agency",
+      "status": "active|inactive optional"
+    },
+    "POST customer-tags": {
+      "org_id": "platform required; agency own",
+      "name": "Ready to buy",
+      "color": "#1677ff",
+      "status": "active"
+    },
+    "PATCH customer-tags/:id": {
+      "name": "Ready to buy",
+      "color": "#1677ff",
+      "status": "inactive"
+    },
+    "PUT customers/:id/tags": {
+      "tag_ids": [
+        1,
+        2
+      ]
+    },
+    "GET agency-targets": {
+      "month": "2026-10",
+      "org_id": "platform required; otherwise own agency"
+    },
+    "PUT agency-targets/:YYYY-MM": {
+      "org_id": "platform required; agency own",
+      "target_amount_cents": 1000000
+    },
+    "POST enrollments/:id/cancel": {
+      "ticket_code": "current_enrollment_ticket",
+      "reason": "optional free activity cancellation"
+    }
+  },
+  "rules": [
+    "Products are platform-only. Courses are free.",
+    "One coupon per order. Rental dates: start inclusive, end exclusive.",
+    "Broker orders are fulfilled by broker/agency and invisible to merchants.",
+    "Contract files are private; access requires order-participant authorization.",
+    "Platform explicitly confirms per-order profit and broker/member beneficiaries. No default distributions; total distribution cannot exceed profit.",
+    "Membership validity is six months per explicit platform grant.",
+    "Real payment/SMS integrations return 503 when unavailable. Test payment requires APP_ENV development/test and ALLOW_TEST_PAYMENTS=1.",
+    "Partial successful refund freezes the order ledger and requires manual remaining-profit reconfirmation using the original beneficiaries and rule snapshot; no refund-proportional profit estimate.",
+    "Physical course gifts remain pending_fulfillment until platform evidence; event invitations are eligibility and do not imply enrollment.",
+    "Invitation code is optional, validated only if filled, and affects configured growth only; no financial referral relation.",
+    "Points redemption uses atomic user/stock locks and idempotent negative growth ledger; physical delivery requires platform evidence.",
+    "Management sub-roles narrow module access beneath base identities and organizations; order profit/refund requires finance; account identity/organization changes require full platform access.",
+    "Purchase options are configured on the selected physical boat resource; boat-type parameters do not imply purchasable instance options.",
+    "Withdrawal requests require a caller-generated idempotency_key; the same user/key/amount returns the original request, changed amount rejects.",
+    "Customer tags are agency-scoped normalized relations. Monthly company performance uses successful payment/refund transaction month, not order creation or quotation.",
+    "Boat coordinates are actual operator-supplied paired numbers or paired null; no synthetic location or implicit GPS.",
+    "Activity enrollment and event-order creation require an active consumer, identity_status verified by platform material review, and member_until later than now. Identity review is not an external verification provider.",
+    "Free unredeemed activity tickets may be cancelled by their owner with the current ticket_code; capacity is released once. Priced activity orders use unpaid order cancellation or paid refund requests. Unconfigured real refunds refuse and leave enrollment unchanged."
+  ],
+  "course_reward_shape": {
+    "id": "stable_reward_key",
+    "type": "physical_gift",
+    "title": "Configured gift",
+    "points": null,
+    "coupon_id": null,
+    "event_id": null
+  },
+  "course_reward_types": [
+    "badge",
+    "growth",
+    "coupon",
+    "maintenance_coupon",
+    "physical_gift",
+    "event_invitation"
+  ],
+  "permission_keys": [
+    "catalog",
+    "orders",
+    "finance",
+    "settings",
+    "users",
+    "organizations",
+    "applications",
+    "customers",
+    "community",
+    "learning",
+    "operations",
+    "communication",
+    "reports",
+    "rbac"
+  ],
+  "agency_target_shape": {
+    "org_id": 2,
+    "month": "2026-10",
+    "configured": false,
+    "target_amount_cents": 0,
+    "actual_paid_cents": 0,
+    "actual_refund_cents": 0,
+    "actual_net_paid_cents": 0
+  }
+}

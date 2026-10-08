@@ -1,0 +1,75 @@
+<?php
+require_once __DIR__.'/../../backend/extend/yuzhou/bootstrap.php';
+use yuzhou\Database;
+use yuzhou\Api;
+use yuzhou\ApiError;
+use yuzhou\Catalog;
+use yuzhou\Orders;
+$checks=0;
+function eventCheck($condition,$label){global $checks;if(!$condition)throw new RuntimeException($label);$checks++;}
+function eventReject($callback,$status,$label){try{$callback();}catch(ApiError $e){eventCheck($e->status===$status,$label);return;}throw new RuntimeException($label);}
+putenv('APP_ENV=test');putenv('ALLOW_TEST_PAYMENTS=1');
+$db=new Database(new PDO('sqlite::memory:'));
+$db->pdo->exec(file_get_contents(__DIR__.'/../../database/sqlite.sql'));
+$db->pdo->exec(file_get_contents(__DIR__.'/../../database/communication-sqlite.sql'));
+foreach(glob(__DIR__.'/../../database/migrations/*-sqlite.sql')as$path)$db->pdo->exec(file_get_contents($path));
+$now=time();$u=[];
+$agency=$db->insert('organizations',['name'=>'Synthetic event agency','kind'=>'agency','status'=>'approved','payload'=>'{}','created_at'=>$now]);
+foreach(['platform','consumer','outsider','unverified','expired','nonmember','broker','agency'] as $name){
+ $id=$db->insert('users',['username'=>'evt_'.$name,'password_hash'=>'unused','nickname'=>$name,'role'=>in_array($name,['unverified','expired','nonmember','outsider'],true)?'consumer':$name,
+ 'org_id'=>in_array($name,['agency','broker'],true)?$agency:null,'identity_status'=>$name==='unverified'?'unverified':'verified','member_until'=>$name==='expired'?$now-1:($name==='nonmember'?0:$now+86400),'created_at'=>$now,'updated_at'=>$now]);
+ $u[$name]=$db->one('SELECT * FROM users WHERE id=?',[$id]);$db->insert('tokens',['user_id'=>$id,'token_hash'=>hash('sha256','evt-token-'.$name),'created_at'=>$now,'expires_at'=>$now+3600]);
+}
+$db->insert('customers',['user_id'=>$u['unverified']['id'],'broker_id'=>$u['broker']['id'],'org_id'=>$agency,'name'=>'Synthetic unverified client','notes'=>'','stage'=>'new','created_at'=>$now,'updated_at'=>$now]);
+$cat=new Catalog($db);$api=new Api($db);
+$call=function($method,$path,$body=[],$role='consumer')use($api){return $api->dispatch($method,$path,$body,[],'evt-token-'.$role);};
+$event=$cat->save('events',['title'=>'Synthetic free activity','payload'=>['capacity'=>1,'starts_at'=>date('Y-m-d H:i:s',$now+86400)]],$u['platform']);
+foreach(['unverified','expired','nonmember']as$role)eventReject(function()use($call,$event,$role){$call('POST','events/'.$event['id'].'/enroll',[],$role);},403,'Activity qualification rejects '.$role);
+eventCheck((int)$db->scalar('SELECT COUNT(*) FROM enrollments')===0,'Rejected qualification allocates no seat');
+$enrollment=$call('POST','events/'.$event['id'].'/enroll')['enrollment'];
+eventCheck($enrollment['status']==='active'&&strlen($enrollment['ticket_code'])===40,'Eligible consumer receives one real enrollment ticket');
+eventReject(function()use($call,$event){$call('POST','events/'.$event['id'].'/enroll',[],'outsider');},409,'Capacity enforced for other eligible consumer');
+eventReject(function()use($call,$enrollment){$call('POST','enrollments/'.$enrollment['id'].'/cancel',['ticket_code'=>$enrollment['ticket_code']],'outsider');},404,'Other consumer cannot cancel ticket');
+eventReject(function()use($call,$enrollment){$call('POST','enrollments/'.$enrollment['id'].'/cancel',['ticket_code'=>'incorrect-ticket']);},409,'Changed ticket cannot cancel current enrollment');
+$db->update('users',$u['consumer']['id'],['member_until'=>$now-1]);
+$cancelled=$call('POST','enrollments/'.$enrollment['id'].'/cancel',['ticket_code'=>$enrollment['ticket_code'],'reason'=>'Synthetic cancellation']);
+eventCheck($cancelled['status']==='cancelled','Owner can cancel free activity after membership expires');
+eventCheck($call('POST','enrollments/'.$enrollment['id'].'/cancel',['ticket_code'=>$enrollment['ticket_code']])['status']==='cancelled','Free cancellation retry is idempotent');
+$other=$call('POST','events/'.$event['id'].'/enroll',[],'outsider')['enrollment'];
+eventCheck($other['status']==='active','Free cancellation releases the seat');
+$call('POST','enrollments/'.$other['id'].'/check-in',['ticket_code'=>$other['ticket_code']],'platform');
+eventReject(function()use($call,$other){$call('POST','enrollments/'.$other['id'].'/cancel',['ticket_code'=>$other['ticket_code']],'outsider');},409,'Checked-in free ticket cannot be cancelled');
+$db->update('users',$u['consumer']['id'],['member_until'=>$now+86400]);
+$paid=$cat->save('events',['title'=>'Synthetic paid activity','price_cents'=>1200,'payload'=>['capacity'=>3,'starts_at'=>date('Y-m-d H:i:s',$now+86400)]],$u['platform']);
+eventReject(function()use($call,$paid){$call('POST','orders',['type'=>'event','resource_id'=>$paid['id']],'unverified');},403,'Direct paid-order path cannot bypass identity');
+eventReject(function()use($call,$paid){$call('POST','orders',['type'=>'event','resource_id'=>$paid['id']],'expired');},403,'Direct paid-order path cannot bypass membership');
+eventReject(function()use($call,$paid,$u){$call('POST','orders',['type'=>'event','resource_id'=>$paid['id'],'customer_id'=>$u['unverified']['id']],'broker');},403,'Broker cannot bypass client identity gate');
+eventCheck((int)$db->scalar('SELECT COUNT(*) FROM orders')===0,'Rejected direct or broker creation rolls back entire order');
+$order=$call('POST','events/'.$paid['id'].'/enroll')['order'];
+eventCheck($order['amount_cents']===1200&&$order['status']==='awaiting_payment','Eligible paid enrollment creates unpaid order');
+$paidEnrollment=$db->one('SELECT * FROM enrollments WHERE order_id=?',[$order['id']]);
+eventReject(function()use($call,$paidEnrollment){$call('POST','enrollments/'.$paidEnrollment['id'].'/cancel',['ticket_code'=>$paidEnrollment['ticket_code']]);},409,'Priced enrollment directs cancellation to order/refund flow');
+$db->update('users',$u['consumer']['id'],['member_until'=>$now-1]);
+eventReject(function()use($call,$order){$call('POST','orders/'.$order['id'].'/pay',['channel'=>'test','idempotency_key'=>'evt-expired-pay']);},403,'Qualification is rechecked before ticket activation');
+eventCheck((int)$db->scalar('SELECT COUNT(*) FROM payments')===0&&(int)$db->scalar('SELECT paid_cents FROM orders WHERE id=?',[$order['id']])===0,'Expired payment activation leaves no fake successful receipt');
+$db->update('users',$u['consumer']['id'],['member_until'=>$now+86400]);
+$call('POST','orders/'.$order['id'].'/pay',['channel'=>'test','idempotency_key'=>'evt-paid-pay-001']);
+eventCheck($db->scalar('SELECT status FROM enrollments WHERE order_id=?',[$order['id']])==='active','Successful guarded payment activates qualified ticket');
+$request=$call('POST','orders/'.$order['id'].'/refund-request',['amount_cents'=>1200,'reason'=>'Synthetic paid cancellation']);
+eventReject(function()use($call,$order,$request){$call('POST','orders/'.$order['id'].'/refund',['request_id'=>$request['id'],'amount_cents'=>1200,'reason'=>'Synthetic refund','channel'=>'wechat','idempotency_key'=>'evt-refund-real-001'],'platform');},503,'Unconfigured original-channel refund refuses');
+eventCheck($db->scalar('SELECT status FROM refund_requests WHERE id=?',[$request['id']])==='pending'&&$db->scalar('SELECT status FROM enrollments WHERE order_id=?',[$order['id']])==='active','Refund request/provider refusal do not prematurely release ticket');
+$call('POST','orders/'.$order['id'].'/refund',['request_id'=>$request['id'],'amount_cents'=>1200,'reason'=>'Synthetic successful refund','channel'=>'test','idempotency_key'=>'evt-refund-test-001'],'platform');
+eventCheck($db->scalar('SELECT status FROM enrollments WHERE order_id=?',[$order['id']])==='cancelled','Guarded full refund releases paid enrollment');
+$unpaid=$call('POST','events/'.$paid['id'].'/enroll')['order'];$call('POST','orders/'.$unpaid['id'].'/cancel',['reason'=>'Unpaid cancellation']);
+eventCheck($db->scalar('SELECT status FROM enrollments WHERE order_id=?',[$unpaid['id']])==='cancelled','Unpaid order cancellation releases pending seat');
+$freeOrderEvent=$cat->save('events',['title'=>'Synthetic zero-price direct order','payload'=>['capacity'=>2,'starts_at'=>date('Y-m-d H:i:s',$now+86400)]],$u['platform']);
+$freeOrder=$call('POST','orders',['type'=>'event','resource_id'=>$freeOrderEvent['id']]);
+$call('POST','orders/'.$freeOrder['id'].'/pay',['channel'=>'free','idempotency_key'=>'evt-free-order-pay']);
+$freeOrderEnrollment=$db->one('SELECT * FROM enrollments WHERE order_id=?',[$freeOrder['id']]);
+$call('POST','enrollments/'.$freeOrderEnrollment['id'].'/cancel',['ticket_code'=>$freeOrderEnrollment['ticket_code']]);
+eventCheck($db->scalar('SELECT status FROM orders WHERE id=?',[$freeOrder['id']])==='cancelled','Zero-price order cancellation does not require nonexistent refund');
+$reenroll=$call('POST','events/'.$freeOrderEvent['id'].'/enroll')['enrollment'];
+eventReject(function()use($call,$freeOrderEnrollment){$call('POST','enrollments/'.$freeOrderEnrollment['id'].'/cancel',['ticket_code'=>$freeOrderEnrollment['ticket_code']]);},409,'Stale cancel cannot invalidate a re-enrollment ticket');
+eventCheck($reenroll['ticket_code']!==$freeOrderEnrollment['ticket_code'],'Re-enrollment replaces old ticket version');
+eventCheck($db->all('PRAGMA foreign_key_check')===[],'Activity relationships preserve all foreign keys');
+echo 'Activity qualification and cancellation checks: '.$checks.' passed.'.PHP_EOL;

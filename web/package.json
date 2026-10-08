@@ -1,0 +1,36 @@
+{
+  "name": "yuzhou-management-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vue-tsc --noEmit && vite build",
+    "check": "vue-tsc --noEmit && npm run test",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node tests/browser-smoke.cjs",
+    "test:live": "node tests/live-management.cjs",
+    "test:live:content": "node tests/live-content.cjs",
+    "test:live:operations": "node tests/live-operations.cjs",
+    "test:live:service": "node tests/live-service.cjs",
+    "test:live:crm": "node tests/live-crm.cjs",
+    "test:withdrawal:fixtures": "node tests/withdrawal-retry.cjs",
+    "test:live:map": "node tests/live-map.cjs"
+  },
+  "dependencies": {
+    "vue": "3.5.43",
+    "vue-router": "4.6.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.9",
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3",
+    "playwright": "1.62.1",
+    "vite": "8.3.4",
+    "vue-tsc": "3.3.12"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
