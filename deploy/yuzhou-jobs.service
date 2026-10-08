@@ -7,7 +7,7 @@ Type=oneshot
 User=www
 Group=www
 WorkingDirectory=/www/wwwroot/yuzhou/current/backend
-ExecStart=/usr/bin/flock -n /www/wwwroot/yuzhou/shared/runtime/jobs.lock /www/server/php/72/bin/php /www/wwwroot/yuzhou/current/backend/bin/jobs.php
+ExecStart=/usr/bin/flock -n /www/wwwroot/yuzhou/shared/runtime/jobs.lock /www/server/php/72/bin/php -d beast.log_file=/www/wwwroot/yuzhou/shared/runtime/php-beast.log -d beast.log_user=www /www/wwwroot/yuzhou/current/backend/bin/jobs.php
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict

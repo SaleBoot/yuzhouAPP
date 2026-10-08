@@ -82,6 +82,7 @@
     "signature_v2_verified": true,
     "temporary_signing": true,
     "installed_test": false,
-    "source_commit_bound": false
+    "source_commit_bound": true,
+    "verified_source_commit": "7276636254ed86232e4931e52d902394b025f093"
   }
 }
