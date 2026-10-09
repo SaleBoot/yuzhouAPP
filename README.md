@@ -1,8 +1,10 @@
-# 驭舟
+# 驭舟（yuzhouAPP）
 
 两个独立 UniApp Vue 3 App：用户端、经纪人销售端。一个 Vue 3 网页工程提供商家、经纪公司管理、平台三个独立入口。后端使用与创意岛阿里云一致的定制 ThinkPHP 5.1.41 LTS，保持 PHP 7.2 语法和 MySQL 5.7 兼容。
 
 ## 开发
+
+源码仓库为 [SaleBoot/yuzhouAPP](https://github.com/SaleBoot/yuzhouAPP)。`develop` 用于日常开发，`main` 保存验证后的交付源码。克隆后执行 `git switch develop`；同步前执行 `git pull --ff-only`。提交和推送不会自动部署，网站发布与 App 资源热更新仍分别核对源提交、版本和 SHA-256。
 
 需要 Node.js、npm 和 PHP（pdo_sqlite、pdo_mysql、bcmath、mbstring、fileinfo、zip）。
 
