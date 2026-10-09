@@ -11,31 +11,37 @@
       <view class="subtitle">{{
         registering
           ? "注册普通用户，销售身份由平台分配"
-          : "使用账号开启你的航海之旅"
+          : mode === "sms" ? "使用已绑定当前账号的手机号登录" : "使用账号开启你的航海之旅"
       }}</view>
-      <view class="formline"
+      <view class="row login-methods section">
+        <button class="secondary small" :disabled="busy || smsBusy" @click="mode = 'password'">账号密码</button>
+        <button class="secondary small" :disabled="busy || smsBusy" @click="mode = 'sms'">手机验证码</button>
+      </view>
+      <view v-if="mode === 'password'" class="formline"
         ><text class="form-label">账号</text
         ><input
           v-model="form.username"
           placeholder="请输入账号"
+          aria-label="账号"
           autocomplete="username"
       /></view>
-      <view class="formline"
+      <view v-if="mode === 'password'" class="formline"
         ><text class="form-label">密码</text
         ><input
           v-model="form.password"
           :password="true"
           placeholder="至少8位密码"
+          aria-label="密码"
       /></view>
-      <view v-if="registering" class="formline"
+      <view v-if="registering && mode === 'password'" class="formline"
         ><text class="form-label">昵称</text
         ><input v-model="form.nickname" placeholder="你希望我们如何称呼你"
       /></view>
-      <view v-if="registering" class="formline"
+      <view v-if="registering && mode === 'password'" class="formline"
         ><text class="form-label">邀请码（选填）</text
         ><input v-model="form.invite_code" placeholder="填写好友邀请码"
       /></view>
-      <view class="row small agreement" @click="agreed = !agreed"
+      <view class="row small agreement" role="checkbox" :aria-checked="String(agreed)" tabindex="0" @click="agreed = !agreed" @keydown.enter="agreed = !agreed" @keydown.space.prevent="agreed = !agreed"
         ><text>{{ agreed ? "☑" : "☐" }}</text
         ><text>{{
           development
@@ -43,17 +49,17 @@
             : "我已阅读并同意服务条款和隐私政策"
         }}</text></view
       >
-      <button class="primary" :loading="busy" :disabled="busy" @click="submit">
+      <SmsPanel v-if="mode === 'sms'" :purpose="registering ? 'register' : 'login'" :allowed="agreed" @busy="smsBusy = $event" @verified="smsVerified" />
+      <button v-else class="primary" :loading="busy" :disabled="busy" @click="submit">
         {{ registering ? "注册并登录" : "登录" }}
       </button>
-      <view class="row spread section small"
-        ><text class="link" @click="registering = !registering">{{
+      <view v-if="!broker" class="section small"
+        ><button class="secondary small" :disabled="busy || smsBusy" @click="registering = !registering; error = ''">{{
           registering ? "已有账号，去登录" : "注册新账号"
-        }}</text
-        ><text class="link" @click="sms">短信登录</text></view
+        }}</button></view
       >
       <view v-if="error" class="error">{{ error }}</view>
-      <view class="notice small"
+      <view v-if="development" class="notice small"
         >本机开发测试请使用开发环境生成的测试账号。平台数据和外部能力由实际服务配置决定。</view
       >
     </view>
@@ -62,6 +68,7 @@
 <script setup>
 import { reactive, ref, onMounted } from "vue";
 import { post, saveSession, notify, tab, request } from "./api.js";
+import SmsPanel from "./SmsPanel.vue";
 const development = ref(import.meta.env.DEV);
 onMounted(async () => {
   try {
@@ -77,6 +84,8 @@ const form = reactive({
   invite_code: "",
 });
 const registering = ref(false),
+  mode = ref("password"),
+  smsBusy = ref(false),
   agreed = ref(false),
   busy = ref(false),
   error = ref("");
@@ -96,56 +105,68 @@ async function submit() {
   try {
     const result = registering.value
       ? await post("/auth/register", {
-          ...form,
+          username: form.username,
+          password: form.password,
           nickname: form.nickname || form.username,
+          invitation_code: form.invite_code || undefined,
         })
       : await post("/auth/login", {
           username: form.username,
           password: form.password,
         });
-    if (props.broker && result.user?.role !== "broker")
-      throw new Error("该账号没有销售权限，请联系平台分配身份");
-    if (!props.broker && result.user?.role !== "consumer")
-      throw new Error("请使用普通用户账号登录消费端");
-    saveSession(result);
-    tab(props.broker ? "work" : "home");
+    await finishLogin(result);
   } catch (e) {
     error.value = e.message;
   } finally {
     busy.value = false;
   }
 }
-async function sms() {
+async function finishLogin(result) {
+  const wrongRole = props.broker ? result.user?.role !== "broker" : result.user?.role !== "consumer";
+  if (wrongRole) {
+    const message = props.broker ? "该账号没有销售权限，请联系平台分配身份" : "请使用普通用户账号登录消费端";
+    saveSession(null);
+    try { await request("/auth/logout", { method: "POST", data: {}, authToken: result.token }); }
+    catch { throw new Error(`${message}；登录授权撤销失败，请检查网络后重试`); }
+    throw new Error(message);
+  }
+  saveSession(result);
+  tab(props.broker ? "work" : "home");
+}
+async function smsVerified(result) {
+  error.value = "";
   try {
-    await post("/auth/sms", { phone: form.username });
+    await finishLogin(result);
   } catch (e) {
-    notify(e);
+    error.value = e.message;
   }
 }
 </script>
 <style scoped>
 .brand {
-  font-size: 52rpx;
-  letter-spacing: 8rpx;
+  font-size: 44rpx;
+  letter-spacing: 4rpx;
   font-weight: 700;
-  margin: 70rpx auto 24rpx;
-  max-width: 760rpx;
-  color: white;
+  margin: 24rpx auto;
+  max-width: 686rpx;
+  color: #216cf7;
 }
 .brand-cn {
-  font-size: 38rpx;
+  font-size: 32rpx;
   letter-spacing: 2rpx;
   margin-left: 18rpx;
 }
 .login-welcome {
-  color: #e9f6ff;
-  font-size: 34rpx;
-  margin-bottom: 90rpx;
+  color: #666;
+  font-size: 30rpx;
+  margin-bottom: 48rpx;
 }
 .agreement {
-  margin: 30rpx 0;
-  font-size: 23rpx;
+  margin: 28rpx 0;
+  font-size: 24rpx;
   align-items: flex-start;
   gap: 12rpx;
 }
+.login-methods { gap: 16rpx; }
+.login-methods button { flex: 1; }
 </style>

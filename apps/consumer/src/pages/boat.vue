@@ -10,9 +10,11 @@
     ><view class="page"
       ><view class="row spread"
         ><view class="title">{{ boat.name }}</view
-        ><text class="link" @click="favorite">{{
-          saved ? "♥ 已收藏" : "♡ 收藏"
-        }}</text></view
+        ><button class="secondary small favorite-control" :disabled="favoriteBusy" :aria-pressed="favoriteKnown ? String(saved) : undefined" @click="favorite">{{
+          favoriteBusy ? "读取收藏中…" : !favoriteKnown ? "重试收藏状态" : saved ? "♥ 已收藏" : "♡ 收藏"
+        }}</button></view
+      ><view v-if="favoriteError" class="notice small section" role="alert">{{ favoriteError }}</view
+      ><view v-if="boat.model_code" class="subtitle section">船型型号 · {{ boat.model_code }}</view
       ><view v-if="mode === 'buy'" class="price section"
         >实船报价<text class="small muted"> · 选择船艇后查看售价</text></view
       ><view v-else class="price section"
@@ -34,22 +36,26 @@
       ><view v-if="instance" class="card section"><view class="card-head">{{ instance.name }}</view><view class="small muted section">{{ instance.serial_number || "" }} · {{ instance.location || instance.city || "已录入位置的实船" }}</view><view class="price section">实船售价 ¥{{ money(instance.price_cents) }}</view></view
       ><view class="card section"
         ><view class="card-head">核心参数</view
-        ><view class="grid stats"
+        ><view class="grid stats" :style="{ gridTemplateColumns: hasSpeed ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)' }"
           ><view
-            ><text class="value">{{ boat.length_m || "—" }}m</text
+            ><text class="value">{{ metricText(boat.length_m, 'm', true) }}</text
             ><text class="muted small">全长</text></view
           ><view
             ><text class="value"
-              >{{ boat.width_m || boat.parameters?.beam_m || "—" }}m</text
+              >{{ metricText(boat.width_m || boat.parameters?.beam_m, 'm', true) }}</text
             ><text class="muted small">宽度</text></view
           ><view
-            ><text class="value">{{ boat.capacity || "—" }}人</text
+            ><text class="value">{{ metricText(boat.capacity, '人', true) }}</text
             ><text class="muted small">核定人数</text></view
-          ><view
-            ><text class="value">{{ boat.speed_knots || "—" }}节</text
-            ><text class="muted small">最高航速</text></view
+          ><view v-if="hasSpeed"
+            ><text class="value">{{ metricText(boat.speed_knots, '节') }}</text
+            ><text class="muted small">航速</text></view
           ></view
-        ></view
+        ><view v-for="parameter in parameters" :key="parameter.key" class="list-item">
+          <text class="muted small">{{ parameter.label }}</text>
+          <text class="article">{{ parameter.value }}</text>
+        </view>
+        </view
       ><view class="card section"
         ><view class="card-head">船艇介绍</view
         ><view class="article">{{ boat.description || "详情待商家完善" }}</view
@@ -88,7 +94,7 @@
 </template>
 <script setup>
 import { ref, computed } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 import {
   detail,
   request,
@@ -97,15 +103,24 @@ import {
   external,
   notify,
   requireLogin,
+  session,
   fallbackBoat,
 } from "@shared/api.js";
 import { money } from "@shared/domain.js";
+import { findBoatFavorite, toggleBoatFavorite } from "@shared/post-boat.js";
+import { boatParameterRows, metricText } from "@shared/boat-parameters.js";
 const boat = ref(null),
   instance = ref(null),
   mode = ref("rent"),
   error = ref(""),
-  saved = ref(false),
+  favoriteId = ref(null),
+  favoriteKnown = ref(false),
+  favoriteBusy = ref(false),
+  favoriteError = ref(""),
   vrBaseUrl = ref("");
+const saved = computed(() => favoriteId.value !== null);
+const parameters = computed(() => boatParameterRows(boat.value?.parameters));
+const hasSpeed = computed(() => boat.value?.speed_knots !== null && boat.value?.speed_knots !== undefined && boat.value?.speed_knots !== "");
 const images = computed(() =>
   boat.value?.image_urls?.length ? boat.value.image_urls : [fallbackBoat],
 );
@@ -123,26 +138,52 @@ onLoad(async (q) => {
     }
     boat.value = b;
     vrBaseUrl.value = config.vr_base_url || "";
-    if (requireLoginSilent())
+    if (session())
       post("/footprints", { resource_id: boat.value.id }).catch(() => {});
+    await refreshFavorite();
   } catch (e) {
     error.value = e.message;
   }
 });
-function requireLoginSilent() {
-  return Boolean(uni.getStorageSync("yuzhou_consumer_session"));
+onShow(() => { if (boat.value) refreshFavorite(); });
+async function refreshFavorite() {
+  if (favoriteBusy.value) return;
+  favoriteError.value = "";
+  favoriteKnown.value = false;
+  favoriteId.value = null;
+  const userId = session()?.user?.id;
+  if (!userId) { favoriteKnown.value = true; return; }
+  favoriteBusy.value = true;
+  try {
+    const row = await findBoatFavorite(request, boat.value.id);
+    if (session()?.user?.id === userId) {
+      favoriteId.value = row?.id || null;
+      favoriteKnown.value = true;
+    }
+  } catch (e) {
+    favoriteError.value = e.message;
+  } finally {
+    favoriteBusy.value = false;
+  }
 }
 async function favorite() {
-  if (!requireLogin()) return;
+  if (!requireLogin() || favoriteBusy.value) return;
+  if (!favoriteKnown.value) return refreshFavorite();
+  favoriteBusy.value = true;
+  favoriteError.value = "";
   try {
-    const r = await post("/favorites", { resource_id: boat.value.id });
-    saved.value = r.active !== false;
+    const row = await toggleBoatFavorite(request, boat.value.id, favoriteId.value);
+    favoriteId.value = row?.id || null;
     uni.showToast({
       title: saved.value ? "已收藏" : "已取消收藏",
       icon: "none",
     });
   } catch (e) {
+    favoriteKnown.value = false;
+    favoriteError.value = e.message;
     notify(e);
+  } finally {
+    favoriteBusy.value = false;
   }
 }
 function compare() {
@@ -168,6 +209,13 @@ function book() {
 }
 </script>
 <style scoped>
+.favorite-control {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin: 0;
+  padding: 12rpx 20rpx;
+  line-height: 1.8;
+}
 .detail-swiper {
   height: 450rpx;
 }

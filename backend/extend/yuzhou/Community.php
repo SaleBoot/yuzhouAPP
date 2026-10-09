@@ -36,6 +36,24 @@ class Community
         });
     }
 
+    public function progressList(array $query, array $user)
+    {
+        $list = $this->db->paginate('learning_progress', 'user_id=?', [(int)$user['id']], $query);
+        if (!$list['items']) return $list;
+        $ids = array_map('intval', array_column($list['items'], 'id'));
+        $titles = $this->db->all('SELECT p.id,r.title AS course_title,l.title AS lesson_title FROM learning_progress p '
+            . 'LEFT JOIN resources r ON r.id=p.course_id '
+            . 'LEFT JOIN course_lessons l ON l.course_id=p.course_id AND l.lesson_key=p.lesson_id '
+            . 'WHERE p.user_id=? AND p.id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')', array_merge([(int)$user['id']], $ids));
+        $byId = []; foreach ($titles as $row) $byId[(int)$row['id']] = $row;
+        foreach ($list['items'] as &$row) {
+            $title = $byId[(int)$row['id']] ?? [];
+            $row['course_title'] = $title['course_title'] ?? null;
+            $row['lesson_title'] = $title['lesson_title'] ?? null;
+        }
+        return $list;
+    }
+
     public function exam(array $body, array $user)
     {
         return $this->db->transaction(function () use ($body, $user) {

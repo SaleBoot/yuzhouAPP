@@ -14,10 +14,7 @@
         v-for="chat in conversations"
         :key="chat.id"
         class="card section list-item"
-        @click="
-          selected = chat;
-          loadMessages();
-        "
+        @click="open(chat)"
         ><view
           ><view class="card-head">{{
             chat.title || chat.resource_title || `咨询 ${chat.id}`
@@ -32,7 +29,7 @@
     ><template v-else
       ><view class="row spread"
         ><view class="card-head">{{ selected.title || "船艇咨询" }}</view
-        ><text class="link" @click="selected = null">全部咨询</text></view
+        ><text class="link" @click="open(null)">全部咨询</text></view
       ><view class="notice small"
         >消息保存于服务端，当前每5秒同步一次。系统推送尚未配置。</view
       ><scroll-view scroll-y class="messages" :scroll-into-view="lastMessage"
@@ -50,7 +47,7 @@
               m.nickname ||
               (Number(m.sender_id || m.user_id) === Number(user?.id)
                 ? "我"
-                : "销售")
+                : user?.role === "broker" ? "客户" : "销售")
             }}
             · {{ dateTime(m.created_at) }}</text
           ><view class="bubble">{{ m.content }}</view></view
@@ -66,7 +63,7 @@
         </button></view
       ></template
     ><view v-if="error" class="error"
-      >{{ error }} <text class="link" @click="load">重试</text></view
+      >{{ error }} <text class="link" @click="selected ? loadMessages() : load()">重试</text></view
     ></view
   >
 </template>
@@ -74,6 +71,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { request, post, notify, requireLogin, session, uuid } from "./api.js";
 import { dateTime } from "./domain.js";
+import { conversationMessages } from "./chat.js";
 const props = defineProps({
   resourceId: [String, Number],
   conversationId: [String, Number],
@@ -85,7 +83,7 @@ const conversations = ref([]),
   busy = ref(false),
   error = ref("");
 const user = ref(session()?.user);
-let timer;
+let timer, pendingMessages = null, messageGeneration = 0, listGeneration = 0, visible = true;
 const lastMessage = computed(() =>
   messages.value.length
     ? `msg-${messages.value[messages.value.length - 1].id}`
@@ -93,54 +91,84 @@ const lastMessage = computed(() =>
 );
 async function load() {
   if (!requireLogin()) return;
+  const generation = ++listGeneration;
   error.value = "";
   try {
     const r = await request("/conversations");
+    if (generation !== listGeneration || !visible) return;
     conversations.value = r.items || [];
     if (props.conversationId) {
-      selected.value = conversations.value.find(
+      const chat = conversations.value.find(
         (c) => Number(c.id) === Number(props.conversationId),
       );
-      if (selected.value) await loadMessages();
+      open(chat || { id: Number(props.conversationId) });
     }
   } catch (e) {
-    error.value = e.message;
+    if (generation === listGeneration && visible) error.value = e.message;
   }
 }
+function open(chat) {
+  messageGeneration++;
+  pendingMessages = null;
+  selected.value = chat;
+  messages.value = [];
+  content.value = "";
+  error.value = "";
+  if (chat) loadMessages();
+}
 async function start() {
+  if (busy.value || !visible) return;
   busy.value = true;
+  const generation = messageGeneration;
   try {
-    selected.value = await post("/conversations", {
+    const chat = await post("/conversations", {
       resource_id: Number(props.resourceId),
     });
-    await loadMessages();
+    if (visible && generation === messageGeneration) open(chat);
   } catch (e) {
     notify(e);
   } finally {
     busy.value = false;
   }
 }
-async function loadMessages() {
-  if (!selected.value) return;
-  try {
-    const r = await request(`/conversations/${selected.value.id}/messages`);
-    messages.value = r.items || [];
-    await post(`/conversations/${selected.value.id}/read`);
-    error.value = "";
-  } catch (e) {
-    error.value = e.message;
+function loadMessages() {
+  if (!selected.value || !visible) return Promise.resolve();
+  if (pendingMessages) {
+    pendingMessages.again = true;
+    return pendingMessages.promise;
   }
+  const task = { id: selected.value.id, generation: messageGeneration, again: false };
+  const current = () => visible && task.generation === messageGeneration && task.id === selected.value?.id;
+  pendingMessages = task;
+  task.promise = (async () => {
+    do {
+      task.again = false;
+      const result = await conversationMessages(request, task.id, messages.value, current);
+      if (result === null) return;
+      messages.value = result;
+      await post(`/conversations/${task.id}/read`);
+      if (current()) error.value = "";
+    } while (task.again && current());
+  })().catch((e) => {
+    if (current()) error.value = e.message;
+  }).finally(() => {
+    if (pendingMessages === task) pendingMessages = null;
+  });
+  return task.promise;
 }
 async function send() {
-  if (!content.value.trim() || busy.value) return;
+  if (!selected.value || !visible || !content.value.trim() || busy.value) return;
+  const id = selected.value.id, generation = messageGeneration, text = content.value;
   busy.value = true;
   try {
-    await post(`/conversations/${selected.value.id}/messages`, {
-      content: content.value,
+    await post(`/conversations/${id}/messages`, {
+      content: text,
       client_id: uuid(),
     });
-    content.value = "";
-    await loadMessages();
+    if (visible && generation === messageGeneration && id === selected.value?.id) {
+      content.value = "";
+      await loadMessages();
+    }
   } catch (e) {
     notify(e);
   } finally {
@@ -148,23 +176,43 @@ async function send() {
   }
 }
 function resume() {
-  pause();
+  clearInterval(timer);
+  visible = true;
+  if (selected.value) loadMessages();
+  else load();
   timer = setInterval(() => (selected.value ? loadMessages() : null), 5000);
 }
 function pause() {
   clearInterval(timer);
+  visible = false;
+  messageGeneration++;
+  listGeneration++;
+  pendingMessages = null;
 }
-onMounted(() => {
-  load();
-  resume();
-});
+onMounted(resume);
 onUnmounted(pause);
 defineExpose({ resume, pause });
-watch(() => props.resourceId, load);
+watch(() => [props.resourceId, props.conversationId], () => {
+  open(null);
+  load();
+});
 </script>
 <style scoped>
+.page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--window-top, 0px) - var(--window-bottom, 0px));
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+.page > .row,
+.notice,
+.error {
+  flex-shrink: 0;
+}
 .messages {
-  height: calc(100vh - 340rpx);
+  flex: 1;
+  height: 0;
+  min-height: 240rpx;
   margin: 24rpx 0;
 }
 .message {
@@ -179,16 +227,17 @@ watch(() => props.resourceId, load);
 }
 .bubble {
   background: white;
-  border: 1rpx solid #e5eaf0;
-  border-radius: 18rpx;
-  padding: 22rpx;
+  border: 1rpx solid #ededed;
+  border-radius: 16rpx;
+  padding: 20rpx;
   max-width: 85%;
   font-size: 28rpx;
   line-height: 1.7;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .mine .bubble {
-  background: #09233f;
+  background: linear-gradient(90deg, #4bc8ff, #216cf7);
   color: white;
   border: 0;
 }
@@ -199,10 +248,13 @@ watch(() => props.resourceId, load);
 .chat-input input {
   flex: 1;
   background: white;
-  border-radius: 15rpx;
-  padding: 22rpx;
+  border-radius: 44rpx;
+  padding: 0 24rpx;
 }
 .chat-input button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 26rpx;
   font-size: 26rpx;
   margin: 0;

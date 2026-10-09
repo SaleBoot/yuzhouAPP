@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../backend/extend/yuzhou/bootstrap.php';
 
 use yuzhou\Api;
 use yuzhou\ApiError;
+use yuzhou\Admin;
 use yuzhou\Database;
 use yuzhou\FileStore;
 use yuzhou\Rbac;
@@ -57,7 +58,7 @@ try {
         $roleIds[$name] = $id;
     }
     $files = [];
-    foreach (['identity' => 'consumer', 'license' => 'merchant', 'contract' => 'broker', 'orphan' => 'consumer', 'public' => 'merchant'] as $name => $owner) {
+    foreach (['identity' => 'consumer', 'license' => 'merchant', 'contract' => 'broker', 'orphan' => 'consumer', 'public' => 'merchant', 'ownlicense' => 'organizations', 'applicationlicense' => 'consumer'] as $name => $owner) {
         $contents = $name === 'public' ? 'Synthetic published image' : '%PDF-1.4 Synthetic ' . $name;
         $path = $storage . '/' . $name;
         file_put_contents($path, $contents);
@@ -107,12 +108,42 @@ try {
     privateFileDenied(function () use ($read) { $read('contract', 'merchant'); }, 'Merchant cannot read a broker organization contract');
     $permit('contract', 'consumer', 'Authorized customer retains linked contract access');
 
+    $licenseBody = ['credit_code' => '91370200MA3YY0001D', 'legal_name' => 'Synthetic license owner', 'status' => 'approved'];
+    foreach (['identity', 'contract', 'orphan'] as $file) {
+        privateFileDenied(function () use ($api, $files, $licenseBody, $merchantOrg, $file) {
+            $api->dispatch('PATCH', 'admin/organizations/' . $merchantOrg, $licenseBody + ['license_file_id' => $files[$file]], [], 'private-files-token-organizations');
+        }, 'Organization-only manager cannot turn inaccessible ' . $file . ' material into a readable business license');
+        privateFileCheck((int)$db->scalar('SELECT license_file_id FROM merchants WHERE organization_id=?', [$merchantOrg]) === $files['license'], 'Rejected license association leaves the existing license unchanged');
+    }
+    $organizationCount = (int)$db->scalar('SELECT COUNT(*) FROM organizations');
+    privateFileDenied(function () use ($api, $files) {
+        $api->dispatch('POST', 'admin/organizations', ['kind' => 'merchant', 'name' => 'Synthetic rejected company', 'credit_code' => '91370200MA3YY0002D',
+            'legal_name' => 'Synthetic company', 'license_file_id' => $files['identity'], 'status' => 'approved'], [], 'private-files-token-organizations');
+    }, 'Creating an organization does not authorize an inaccessible file');
+    privateFileCheck((int)$db->scalar('SELECT COUNT(*) FROM organizations') === $organizationCount, 'Rejected new license association rolls back organization creation');
+    $api->dispatch('PATCH', 'admin/organizations/' . $merchantOrg, $licenseBody + ['license_file_id' => $files['license']], [], 'private-files-token-organizations');
+    privateFileCheck((int)$db->scalar('SELECT license_file_id FROM merchants WHERE organization_id=?', [$merchantOrg]) === $files['license'], 'Organization-only manager can retain an already authorized business license');
+    $api->dispatch('PATCH', 'admin/organizations/' . $merchantOrg, $licenseBody + ['license_file_id' => $files['ownlicense']], [], 'private-files-token-organizations');
+    privateFileCheck((int)$db->scalar('SELECT license_file_id FROM merchants WHERE organization_id=?', [$merchantOrg]) === $files['ownlicense'], 'Organization-only manager can associate their own private upload');
+    $api->dispatch('PATCH', 'admin/organizations/' . $merchantOrg, $licenseBody + ['license_file_id' => $files['orphan']], [], 'private-files-token-full');
+    privateFileCheck((int)$db->scalar('SELECT license_file_id FROM merchants WHERE organization_id=?', [$merchantOrg]) === $files['orphan'], 'Full platform manager can associate an accessible private upload');
+    $merchantApplication = $api->dispatch('POST', 'applications', ['kind' => 'merchant', 'payload' => ['organization_name' => 'Synthetic applicant company',
+        'credit_code' => '91370200MA3YY0003D', 'legal_name' => 'Synthetic applicant company'], 'file_ids' => [$files['applicationlicense']]], [], 'private-files-token-consumer');
+    $api->dispatch('POST', 'applications/' . $merchantApplication['id'] . '/review', ['status' => 'approved'], [], 'private-files-token-applications');
+    privateFileCheck((int)$db->scalar('SELECT license_file_id FROM merchants WHERE credit_code=?', ['91370200MA3YY0003D']) === $files['applicationlicense'], 'Application-only reviewer can approve the applicant-owned linked license');
+
     $store = new FileStore($db);
     $stale = $users['inactive'] + ['permissions' => Rbac::$keys];
     $db->update('management_roles', $roleIds['inactive'], ['status' => 'inactive']);
     privateFileDenied(function () use ($store, $files, $stale) { $store->read($files['identity'], $stale); }, 'Inactive current DB role rejects stale full permissions');
+    privateFileDenied(function () use ($db, $files, $licenseBody, $merchantOrg, $stale) {
+        (new Admin($db))->organization($licenseBody + ['license_file_id' => $files['identity']], $stale, $merchantOrg);
+    }, 'License association rechecks inactive current DB role rather than stale permissions');
     $forged = $users['wrongbase'] + ['permissions' => Rbac::$keys];
     privateFileDenied(function () use ($store, $files, $forged) { $store->read($files['identity'], $forged); }, 'Wrong base role or organization cannot delegate private file access');
+    privateFileDenied(function () use ($db, $files, $licenseBody, $merchantOrg, $forged) {
+        (new Admin($db))->organization($licenseBody + ['license_file_id' => $files['identity']], $forged, $merchantOrg);
+    }, 'License association rejects forged permissions from a mismatched role');
 } finally {
     foreach ($paths as $path) if (is_file($path)) unlink($path);
     rmdir($storage);

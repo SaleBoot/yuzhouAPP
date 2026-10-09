@@ -10,7 +10,7 @@ class Api
     {
         $path = trim($path, '/');
         if (strpos($path, 'api/v1/') === 0) $path = substr($path, 7);
-        $public = in_array($path, ['bootstrap', 'health', 'auth/register', 'auth/login', 'auth/sms'], true)
+        $public = in_array($path, ['bootstrap', 'health', 'auth/register', 'auth/login', 'auth/sms', 'auth/sms/verify'], true)
             || ($method === 'GET' && (strpos($path, 'resources/') === 0 || strpos($path, 'files/') === 0 || $path === 'inventory' || $path === 'points-shop/products' || $path === 'recommendations' || preg_match('#^posts/[0-9]+/(comments|official-replies)$#D', $path)));
         $auth = new Auth($this->db); $user = $auth->user($token, !$public);
         (new Rbac($this->db))->guard($path, $user);
@@ -23,13 +23,14 @@ class Api
             if ($path === 'auth/me' && $method === 'GET') return Auth::publicUser($user);
             if ($path === 'auth/invitation' && $method === 'GET') return $auth->invitation($user);
             if ($path === 'auth/logout' && $method === 'POST') return $auth->logout($token);
-            if ($path === 'auth/sms' && $method === 'POST') throw new ApiError('Real SMS service is not configured.', 503, 50311);
+            if ($path === 'auth/sms' && $method === 'POST') return $auth->smsSend($body, $ip, $user);
+            if ($path === 'auth/sms/verify' && $method === 'POST') return $auth->smsVerify($body, $ip, $user);
         }
         if ($path === 'bootstrap' && $method === 'GET') {
             $env = getenv('APP_ENV') ?: 'production';
             return ['brand' => '驭舟', 'api_version' => '1.0', 'vr_base_url' => getenv('VR_BASE_URL') ?: '', 'environment' => $env, 'is_test_environment' => in_array($env, ['development', 'test'], true),
                 'test_payments_enabled' => in_array($env, ['development', 'test'], true) && getenv('ALLOW_TEST_PAYMENTS') === '1',
-                'services' => ['payment' => 'unconfigured', 'sms' => 'unconfigured', 'external_esign' => 'unconfigured', 'insurance' => 'unconfigured', 'push' => 'unconfigured', 'ai_moderation' => 'unconfigured'],
+                'services' => ['payment' => 'unconfigured', 'sms' => AliSms::configured() ? 'configured' : 'unconfigured', 'external_esign' => 'unconfigured', 'insurance' => 'unconfigured', 'push' => 'unconfigured', 'ai_moderation' => 'unconfigured'],
                 'resource_kinds' => Catalog::$kinds, 'order_types' => Orders::$types];
         }
         if ($root === 'resources' && isset($parts[1])) {
@@ -77,7 +78,7 @@ class Api
         if (preg_match('#^enrollments/([0-9]+)/cancel$#D', $path, $match) && $method === 'POST') return $community->cancelEnrollment($match[1], $body, $user);
         if ($path === 'learning/progress') {
             if ($method === 'POST') return $community->progress($body, $user);
-            if ($method === 'GET') return $this->db->paginate('learning_progress', 'user_id=?', [(int)$user['id']], $query);
+            if ($method === 'GET') return $community->progressList($query, $user);
         }
         if ($path === 'learning/exams' && $method === 'POST') return $community->exam($body, $user);
         if ($path === 'learning/rewards' && $method === 'GET') return $community->rewardList($query, $user);

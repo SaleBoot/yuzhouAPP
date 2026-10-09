@@ -195,7 +195,16 @@
     "GET auth/me": {},
     "POST auth/logout": {},
     "POST auth/sms": {
-      "phone": ""
+      "phone": "mainland China mobile number; optional +86",
+      "purpose": "login|register|bind",
+      "response": {
+        "challenge_id": "opaque 64 hex characters",
+        "purpose": "login|register|bind",
+        "expires_in": 300,
+        "resend_after": 60,
+        "delivery_status": "accepted"
+      },
+      "notes": "Aliyun SendSms acceptance only. bind requires active Bearer and binds challenge to current user_id. No code/phone/provider secrets in response. Missing independent configuration: HTTP503 code50311."
     },
     "GET bootstrap": {
       "response_fields": [
@@ -318,7 +327,13 @@
     "POST enrollments/:id/check-in": {
       "ticket_code": ""
     },
-    "GET learning/progress": {},
+    "GET learning/progress": {
+      "query": {
+        "page": 1,
+        "page_size": 20
+      },
+      "response": "pagination; caller only; items add course_title:string|null, lesson_title:string|null; archived course titles retained; missing titles never substituted with IDs"
+    },
     "POST learning/progress": {
       "course_id": 1,
       "lesson_id": "1",
@@ -546,6 +561,15 @@
     "POST enrollments/:id/cancel": {
       "ticket_code": "current_enrollment_ticket",
       "reason": "optional free activity cancellation"
+    },
+    "POST auth/sms/verify": {
+      "challenge_id": "opaque 64 hex characters",
+      "phone": "same normalized phone as challenge",
+      "purpose": "same login|register|bind purpose",
+      "code": "6 digit string, including leading zeroes",
+      "nickname": "optional for register",
+      "invitation_code": "optional valid code for register",
+      "response": "login/register: {token,expires_at,user}; user.phone_bound:boolean. bind: {bound:true}, same active Bearer user as challenge, no permission/session change. Atomic one-time verification, consumer-only registration, verified phone identity login; no username matching/anonymous binding/reset/transfer/replacement."
     }
   },
   "rules": [

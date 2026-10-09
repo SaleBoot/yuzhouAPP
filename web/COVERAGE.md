@@ -32,10 +32,33 @@
 
 以上真实Web/API/H5检查合计49项，反馈另3项。运行报告及截图在 `test-results/live-management`、`live-content`、`live-operations`、`live-service`、`live-crm`、`live-map`、`live-feedback`，已忽略，不提交业务资料。`tests/browser-smoke.cjs` 的11项检查使用合成 API 夹具，仅作前端回归，不作为上述真实服务端证据。`tests/withdrawal-retry.cjs`另有3项组件级合成夹具，验证失败同金额复用键（含10/10.00格式）、成功新申请换键、金额变化换键，不能算真实交易；真实同key无重复预留证据在live-crm。
 
-私有文件权限修复后，真实本地只读HTTP另6项通过（`/tmp/yuzhou-analysis/private-file-boundary-fixed-report.json`）：仅orders平台子账号拒绝他人身份PDF及营业执照、保留实际关联合同读取；文件本人及全权限平台可读，匿名403。使用已有合成记录，不改数据或角色，未走浏览器操作，因此不计入上面的49项页面检查。后端 `private-files` 18项已分别在本地PHP8.2及阿里云PHP7.2.33通过，各环境当前后端244项；这6项的远端HTTP和公开HTTPS结果尚未取得。
+私有文件读取权限修复后，真实本地只读HTTP另6项通过（`/tmp/yuzhou-analysis/private-file-boundary-fixed-report.json`）：仅orders平台子账号拒绝他人身份PDF及营业执照、保留实际关联合同读取；文件本人及全权限平台可读，匿名403。使用已有合成记录，不改数据或角色，未走浏览器操作，因此不计入上面的49项页面检查。这6项及旧线上公开权限6项保持原有范围，不能替代新增营业执照关联权限的检查。
+
+当前未发布源码：最新本地单次完整npm check通过，PHP语法41、后端505（core74、communication26、operations40、reports11、recommendations6、CRM33、events29、private-files32、SMS91、media23、HTTP14共379，加catalog-import126）、两App各48、Web3/map2/install9/backup15/HTTPS安全11。阿里云PHP7.2.33分别两次执行379/126通过，合计505，不是云端单次完整505。短信独立MySQL5.7.44报告86项中6项为SQLite故障注入回滚，不能称真实MySQL故障；所有短信测试均未发送真实短信。
+
+源码数据库为71表、每表最多27字段，商家credit_code为主键；新迁移007尚未上线。线上旧版本目前为68表、迁移001—006，不能把隔离验收库或新schema的结果称为线上已升级。
+
+## 已部署测试版本的公开证据
+
+2026-10-09追加，线上测试发布 `20261008T204750444-be8031cc`，源提交 `be8031cc8870f0357271ac380df79d0575bf2c8b`。以下属于该已部署旧截点，不能归给后续学习名称、短信或营业执照关联权限修订的新源码。
+
+- `/tmp/yuzhou-https-acceptance.log`：259项合成脚本断言通过，含三管理/H5入口HTML与编译资源、实际MySQL API、当前整单测试付款/合同/履约、人工利润4000分、部分退款2000分冻结→1750分利润复核→剩余8000分全退冲回、免费活动会员门槛/取消重报。脚本HTTP/API证据不代替线上浏览器全部按钮或真实资金验收。
+- `artifacts/deployment-private/scoped-files-report.json`：公开权限6项，orders子角色身份PDF/执照403、关联合同200，全权限平台材料200、匿名403。新增限定合成测试账号已停用；不增加本地49项浏览器数。
+- 服务器400文件SHA256全部一致，另11站点vhost哈希未变；两自有timer active、jobs执行退出0。此处没有真实服务器失败回滚或长期任务可用性证据。
+- 两个Android临时测试APK各约35MB，包标识/v2签名/HTTPS API与be8031cc源提交绑定，公开下载SHA256和本地相同（`artifacts/deployment-private/download-verification.json`）；没有安装或设备证据。
+
+App另有本地H5逐页报告 `/tmp/yuzhou-analysis/app-pages-live/README.md`：消费者27+经纪人13主路由、59分类/详情场景、5项限定交互、“我的”8入口实际点击，API200、页面异常0。无API mock，外网全部拦截；它不是本目录三管理Web线上交互验收，且未提交付款/退款/提现、私人材料或外部视频/3D/底图。该轮发现的学习名称问题已通过本地实际API/H5针对性5项复验（`learning-names-report.json`），未全量重跑59场景，尚未发布新版。短信H5离线mock18项见 `/tmp/yuzhou-analysis/sms-offline/report.json`，不能计为真实服务端/短信发送或管理Web页面验收。
+
+App后续另有真实本地API/H5聊天7项、评价选择器/个人收藏7项、视频发布/船艇收藏13项（`/tmp/yuzhou-analysis/chat-live/report.json`、`account-panel-live/report.json`、`post-boat-live/report.json`）。无API mock：21条消息及轮询/切换边界、合成completed订单评价/取消收藏、可播放2秒H264视频本地预览→待审匿名403→实际平台API审核→匿名完整hash/Range206与H5播至ended、船艇收藏刷新恢复/取消，均限定合成数据。后端media23是关联权限/MIME/路径检查，不能算播放证据。三组App检查不增加本目录三管理Web的49项数，未发布新版或新APK。
+
+创意岛App统一主题源码已调整；320/390/430宽度下27组前后+6聊天after共33个本地H5视觉场景，报告 `/tmp/yuzhou-analysis/creative-style/summary.json`。全部API mock，仅验证限定模拟布局，不能计入上述真实Web/App/API检查或原生验收，亦不代表用户已认可视觉。
+
+本机19真实船型资料导入后，App只读实际API/H5参数展示另6项（`/tmp/yuzhou-analysis/boat-parameters-live/report.json`）：19型号/参数原值一致，1/2138/7完整展示、数组与未知容量、≥/约航速语义、最多3船共同参数与缺项—、第4ID截断、价钱/3D按钮保留。无API mock/写入，development实体及价格为测试数据；不属于三管理Web49项、MySQL、线上导入、真实库存/报价或原生证据。四项参数格式脚本已计App48。
+
+旧be8031cc/68表数据已做实际隔离备份恢复：139个外键匹配、0孤儿，3个上传对象大小/SHA256一致；未激活到线上。备份每日timer未启用、异地副本未验证。此证据不覆盖新71表/007，也不是生产故障切换或长期备份可靠性证明。
 
 ## 验证边界
 
-真实支付/退款/提现、短信、微信/Apple 登录、原生推送、保险/金融/船艇系统、外部电子签与 AI 审核尚未配置，不报告成功。未验证 iOS/Android 原生包、Safari 文件选择器完整兼容、生产部署、性能指标及实际视频观看或配送。本 Web 验证了商家与经纪订单归属边界；第二家经纪公司的完整页面回归需另有独立证据。
+真实支付/退款/提现、短信、微信/Apple 登录、原生推送、保险/金融/船艇系统、外部电子签与 AI 审核尚未配置，不报告成功。短信安全OTP及两App客户端已有新源码与离线检查，真实发送仍为0、缺独立配置时50311，未发布新版。Android仅有上述旧提交临时包静态/下载证据，未安装；iOS 26.5 Universal Simulator runtime已下载可用，但缺DCloud iOS离线SDK/基础包及Apple签名，没有模拟器App构建运行或设备证据。HBuilderX可读AX但操作/截图仍不可用，不作为已解锁或运行验收。Safari文件选择器完整兼容、正式交易生产环境、性能指标及实际视频观看或配送仍未验。本 Web 验证了商家与经纪订单归属边界；第二家经纪公司的完整页面回归需另有独立证据。
 
 服务预约与安装细分进度已接schedule/progress接口，并真实浏览器保存及回读；40%/100%仅是合成进度记录，100%不会自动完成订单。完整外部船艇系统、真实安装和档案同步仍须独立验收。资讯删除采用下架保留管理记录；项目没有提供不可恢复删除操作。

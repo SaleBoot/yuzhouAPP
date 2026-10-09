@@ -39,5 +39,5 @@ for name, data in tables.items():
     lines.append('')
     if data['foreign_keys']:
         lines += ['外键：' + '；'.join('`%s` → `%s.%s`' % (key['source_column'], key['target_table'], key['target_column']) for key in data['foreign_keys']), '']
-(root / 'docs/database.md').write_text('\n'.join(lines) + '\n')
+(root / 'docs/database.md').write_text('\n'.join(lines).rstrip() + '\n')
 print(json.dumps({'tables': len(tables), 'max_columns': max(len(table['columns']) for table in tables.values()), 'merchant_primary_key': 'credit_code'}, ensure_ascii=False))

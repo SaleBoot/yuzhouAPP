@@ -1,0 +1,55 @@
+<template>
+  <view ref="fields">
+    <view class="formline"><text class="form-label">手机号</text><input v-model="phone" type="text" inputmode="tel" maxlength="14" aria-label="手机号" placeholder="11位手机号，可带+86" :disabled="challenge.busy" /></view>
+    <view class="formline"><text class="form-label">验证码</text><input :value="code" @input="code = String($event.detail.value)" type="number" inputmode="numeric" maxlength="6" aria-label="短信验证码" text-content-type="one-time-code" placeholder="6位数字验证码" :disabled="challenge.busy" /></view>
+    <button class="secondary" :disabled="challenge.busy || resendSeconds > 0" :loading="challenge.busy" @click="send">{{ resendSeconds > 0 ? `${resendSeconds}秒后可重发` : '获取验证码' }}</button>
+    <view v-if="purpose === 'register'" class="formline"><text class="form-label">昵称</text><input v-model="nickname" aria-label="昵称" placeholder="你希望我们如何称呼你" :disabled="challenge.busy" /></view>
+    <view v-if="purpose === 'register'" class="formline"><text class="form-label">邀请码（选填）</text><input v-model="invitationCode" aria-label="邀请码（选填）" placeholder="填写好友邀请码" :disabled="challenge.busy" /></view>
+    <view v-if="challenge.notice" class="notice small section" role="status">{{ challenge.notice }}</view>
+    <view v-if="challenge.challengeId" class="small muted section">{{ expiresSeconds > 0 ? `验证码有效期剩余${expiresSeconds}秒` : '验证码已过期，请重新获取' }}</view>
+    <view v-if="!allowed" class="small muted section">请先勾选上方确认选项</view>
+    <button class="primary section" :disabled="challenge.busy || !allowed" :loading="challenge.busy" @click="verify">{{ purpose === 'bind' ? '验证并绑定手机号' : purpose === 'register' ? '验证并注册' : '验证码登录' }}</button>
+    <view v-if="error" class="error" role="alert">{{ error }}</view>
+  </view>
+</template>
+<script setup>
+import { computed, onMounted, onUnmounted, onUpdated, reactive, ref, watch } from "vue";
+import { post } from "./api.js";
+import { smsChallenge, secondsUntil } from "./sms.js";
+const props = defineProps({ purpose: { type: String, default: "login" }, allowed: { type: Boolean, default: true } });
+const emit = defineEmits(["verified", "busy"]);
+const phone = ref(""), code = ref(""), nickname = ref(""), invitationCode = ref(""), error = ref(""), now = ref(Date.now());
+const challenge = reactive(smsChallenge(post));
+const fields = ref(null);
+const resendSeconds = computed(() => secondsUntil(challenge.resendAt, now.value));
+const expiresSeconds = computed(() => secondsUntil(challenge.expiresAt, now.value));
+let timer;
+function labelInputs() {
+  // #ifdef H5
+  // Uni H5 puts inherited aria-label on its wrapper, so also label the focusable input.
+  const element = fields.value?.$el || fields.value;
+  element?.querySelectorAll?.("uni-input[aria-label]").forEach((wrapper) => {
+    wrapper.querySelector("input")?.setAttribute("aria-label", wrapper.getAttribute("aria-label"));
+  });
+  // #endif
+}
+onMounted(() => { labelInputs(); timer = setInterval(() => { now.value = Date.now(); }, 1000); });
+onUpdated(labelInputs);
+onUnmounted(() => clearInterval(timer));
+watch([phone, () => props.purpose], () => { challenge.invalidate(); code.value = ""; error.value = ""; });
+watch(() => challenge.busy, (value) => emit("busy", value));
+async function send() {
+  error.value = "";
+  try { await challenge.send(phone.value, props.purpose); now.value = Date.now(); }
+  catch (e) { error.value = e.message; now.value = Date.now(); }
+}
+async function verify() {
+  error.value = "";
+  if (!props.allowed) { error.value = "请先勾选确认选项"; return; }
+  try {
+    const result = await challenge.verify(phone.value, props.purpose, code.value, { nickname: nickname.value, invitation_code: invitationCode.value });
+    code.value = "";
+    emit("verified", result);
+  } catch (e) { error.value = e.message; }
+}
+</script>

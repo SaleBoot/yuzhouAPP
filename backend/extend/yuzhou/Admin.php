@@ -90,6 +90,8 @@ class Admin
         $fileId = Validation::id($body['license_file_id'] ?? 0, 'license_file_id');
         $file = $this->db->one('SELECT * FROM uploads WHERE id=? AND is_private=1', [$fileId]);
         if (!$file || !in_array($file['mime'], ['image/jpeg', 'image/png', 'application/pdf'], true)) throw new ApiError('A private business-license file is required.');
+        // Check existing access before a new license association can grant organizations access.
+        (new FileStore($this->db))->read($fileId, $actor);
         $old = $this->db->one('SELECT * FROM merchants WHERE organization_id=?', [(int)$orgId]);
         if ($old && $old['credit_code'] !== $credit) throw new ApiError('Merchant primary credit code cannot change. Create the correct merchant record.');
         $values = ['organization_id' => (int)$orgId, 'legal_name' => Validation::text($body['legal_name'] ?? '', 'legal_name', 200), 'license_file_id' => $fileId, 'status' => $status];

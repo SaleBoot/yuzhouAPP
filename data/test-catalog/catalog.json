@@ -1,0 +1,580 @@
+{
+  "schema_version": 1,
+  "boats": [
+    {
+      "external_id": "1",
+      "model_code": "js108",
+      "name": "JS-108客位铝合金游览船",
+      "category": "商用船",
+      "length_m": "22.15",
+      "capacity": 110,
+      "parameters": {
+        "总长": "22.15m",
+        "水线长": "19.83m",
+        "船宽": "5.40m",
+        "型深": "1.50m",
+        "吃水": "0.60m",
+        "航区": "内河C级",
+        "主机功率": "75HP*2",
+        "设计航速": "13km/h",
+        "乘员定额": "110人(含船员)",
+        "动机形式": "电动舷外挂机",
+        "材质": "铝合金",
+        "证书类型": "ZC",
+        "载员说明": "110人(含船员)",
+        "航速说明": "13km/h"
+      },
+      "description": "JS-108客位铝合金游览船。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=1",
+      "asset": {
+        "name": "1.webp",
+        "mime": "image/webp",
+        "sha256": "eaf871ab76cc517fea68977b68e9c1d7ac8a7c29cf1bf7f1eacfce1f49ba802d"
+      },
+      "width_m": "5.40"
+    },
+    {
+      "external_id": "2",
+      "model_code": "js119b",
+      "name": "JS-119B玻璃钢汽油公务执法艇",
+      "category": "商用船",
+      "length_m": "11.755",
+      "capacity": 12,
+      "parameters": {
+        "总长": "11.755m",
+        "水线长": "9.99m",
+        "船宽": "3.08m",
+        "型深": "1.385m",
+        "吃水": "0.50m",
+        "航区": "内河A、B、C级J1航段三峡库区(双机)；内河A、B、C级(单机)",
+        "主机功率": "最大300HP*2",
+        "设计航速": "≥50km/h",
+        "乘员定额": "12人(含船员)",
+        "动机形式": "舷外挂机",
+        "材质": "玻璃钢",
+        "证书类型": "ZC",
+        "载员说明": "12人(含船员)",
+        "航速说明": "≥50km/h"
+      },
+      "description": "JS-119B玻璃钢汽油公务执法艇。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=2",
+      "asset": {
+        "name": "2.webp",
+        "mime": "image/webp",
+        "sha256": "a93d0202af92dac40babf596ceee28319046601940cd65e074fc945b86c7b3cc"
+      },
+      "width_m": "3.08"
+    },
+    {
+      "external_id": "4",
+      "model_code": "js1300x",
+      "name": "JS-1300X铝合金智能消防艇",
+      "category": "公务船",
+      "length_m": "13.00",
+      "capacity": 10,
+      "parameters": {
+        "总长": "13.00m",
+        "水线长": "11.59m",
+        "船宽": "3.50m",
+        "型深": "1.55m",
+        "吃水": "0.45m",
+        "航区": "内河B级J2级航段",
+        "主机功率": "≥300HP*2",
+        "设计航速": "≥60km/h",
+        "额定乘员": "10人(含船员)",
+        "动力形式": "舷外挂机",
+        "材质": "铝合金",
+        "证书类型": "ZC",
+        "载员说明": "10人(含船员)",
+        "航速说明": "≥60km/h"
+      },
+      "description": "JS-1300X铝合金智能消防艇。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=4",
+      "asset": {
+        "name": "4.webp",
+        "mime": "image/webp",
+        "sha256": "9f63bf06755451a979d354c318f0dd8bffba799658a3964a7e37a3bdb76a7a9c"
+      },
+      "width_m": "3.50"
+    },
+    {
+      "external_id": "5",
+      "model_code": "barge40",
+      "name": "40米趸船",
+      "category": "公务船",
+      "length_m": "40.40",
+      "capacity": 6,
+      "parameters": {
+        "总长": "40.40m",
+        "水线长": "40.00m",
+        "船宽": "12.00m",
+        "型深": "2.20m",
+        "吃水": "1.00m",
+        "航区": "B、C、J1、J2及三峡库区",
+        "乘员": "6人",
+        "一层甲板室层高": "3.2m",
+        "二层甲板室层高": "3.0m",
+        "三层甲板室层高": "3.0m",
+        "满载排水量": "452.612t",
+        "载员说明": "6人"
+      },
+      "description": "40米趸船。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=5",
+      "asset": {
+        "name": "5.webp",
+        "mime": "image/webp",
+        "sha256": "17b6cda8d97d30e91b8459fc2fc8532eb34b664afa0e2b101e3d5ccd24155d0f"
+      },
+      "width_m": "12.00"
+    },
+    {
+      "external_id": "6",
+      "model_code": "js57",
+      "name": "JS-57客位电动钢质游览船",
+      "category": "商用船",
+      "length_m": "16.00",
+      "capacity": 59,
+      "parameters": {
+        "总长": "16.00m",
+        "水线长": "14.88m",
+        "船宽": "4.00m",
+        "型深": "1.20m",
+        "吃水": "0.80m",
+        "航区": "内河C级",
+        "主机功率": "22kw",
+        "设计航速": "13km/h",
+        "乘员定额": "59人(含船员)",
+        "动机形式": "电动舷外挂机",
+        "材质": "钢质",
+        "证书类型": "CCS/ZC",
+        "载员说明": "59人(含船员)",
+        "航速说明": "13km/h"
+      },
+      "description": "JS-57客位电动钢质游览船。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=6",
+      "asset": {
+        "name": "6.webp",
+        "mime": "image/webp",
+        "sha256": "8c35b616eb2aa26d598e032b613079f8ef65c326f2c1b907637f8654b22a4dfb"
+      },
+      "width_m": "4.00"
+    },
+    {
+      "external_id": "7",
+      "model_code": "js580w",
+      "name": "580W应急救援艇",
+      "category": "公务船",
+      "length_m": "5.8",
+      "capacity": 0,
+      "parameters": {
+        "特点": [
+          "快速响应",
+          "救援甲板",
+          "浅水适应",
+          "便捷运输"
+        ],
+        "载员说明": "救援任务配置"
+      },
+      "description": "应急救援船",
+      "vr_url": "https://www.ourideas.top/detail.html?id=7",
+      "asset": {
+        "name": "7.webp",
+        "mime": "image/webp",
+        "sha256": "4cf39248e4c9deb7fb83d00a102b05a65f7e7149c97eeacdf15621d084d8ffb7"
+      }
+    },
+    {
+      "external_id": "8",
+      "model_code": "js655",
+      "name": "6.5米级应急救援艇",
+      "category": "公务船",
+      "length_m": "6.55",
+      "capacity": 0,
+      "parameters": {
+        "特点": [
+          "机动救援",
+          "开放甲板",
+          "任务设备扩展",
+          "近岸作业"
+        ],
+        "载员说明": "救援任务配置"
+      },
+      "description": "属于JS-650/680系列，正式型号待确认。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=8",
+      "asset": {
+        "name": "8.webp",
+        "mime": "image/webp",
+        "sha256": "4d05ecce34cee7281d9cbf8aeaf61f9a11ce5ae64ba0f79b154c333d4036bbde"
+      }
+    },
+    {
+      "external_id": "9",
+      "model_code": "js78",
+      "name": "7.8米级新能源观光船",
+      "category": "商用船",
+      "length_m": "7.8",
+      "capacity": 0,
+      "parameters": {
+        "特点": [
+          "新能源推进",
+          "开放观景",
+          "小型水域适应",
+          "低噪运营"
+        ],
+        "载员说明": "开放式客舱"
+      },
+      "description": "-",
+      "vr_url": "https://www.ourideas.top/detail.html?id=9",
+      "asset": {
+        "name": "9.webp",
+        "mime": "image/webp",
+        "sha256": "b1f06acf499586d87dbbca5fb1d38e657c0b3da7c7caca35453fe96006285371"
+      }
+    },
+    {
+      "external_id": "10",
+      "model_code": "js828b",
+      "name": "JS-828B玻璃钢汽油公务执法艇",
+      "category": "公务船",
+      "length_m": "9.140",
+      "capacity": 10,
+      "parameters": {
+        "总长": "9.140m",
+        "水线长": "8.167m",
+        "船宽": "2.740m",
+        "型深": "1.245m",
+        "吃水": "0.420m",
+        "航区": "内河A、B、C、J1级(双机)；内河A、B、C级(单机)",
+        "主机功率": "最大200HP*2",
+        "设计航速": "≥50km/h",
+        "乘员定额": "10人(含船员)",
+        "动机形式": "舷外挂机",
+        "材质": "玻璃钢",
+        "证书类型": "ZC",
+        "载员说明": "10人(含船员)",
+        "航速说明": "≥50km/h"
+      },
+      "description": "JS-828B玻璃钢汽油公务执法艇。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=10",
+      "asset": {
+        "name": "10.webp",
+        "mime": "image/webp",
+        "sha256": "7f5e30c43a2a1ea2e6413c4edfccaf48e847ae801c723658bdedb84572d17b70"
+      },
+      "width_m": "2.740"
+    },
+    {
+      "external_id": "11",
+      "model_code": "js950_retro_series",
+      "name": "JS-950铝合金新能源双体游艇复古风格",
+      "category": "民用休闲",
+      "length_m": "9.98",
+      "capacity": 12,
+      "parameters": {
+        "总长": "9.98m",
+        "水线长": "8.72m",
+        "船宽": "3.50m",
+        "型深": "1.00m",
+        "吃水": "0.45m",
+        "航区": "游艇IV类",
+        "主机功率": "22KW*1",
+        "设计航速": "10km/h",
+        "乘员定额": "12人(含船员)",
+        "动机形式": "电动舷外挂机",
+        "材质": "铝合金",
+        "证书类型": "CCS",
+        "载员说明": "12人(含船员)",
+        "航速说明": "10km/h"
+      },
+      "description": "JS-950铝合金新能源双体游艇复古风格。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=11",
+      "asset": {
+        "name": "11.webp",
+        "mime": "image/webp",
+        "sha256": "de444b2c1899df9f422ec15b8f483a0b4bf90745dc6eb9c6a9e7dc96aecce75a"
+      },
+      "width_m": "3.50"
+    },
+    {
+      "external_id": "12",
+      "model_code": "js950",
+      "name": "JS-950铝合金新能源双体游艇现代风格",
+      "category": "民用休闲",
+      "length_m": "9.98",
+      "capacity": 12,
+      "parameters": {
+        "总长": "9.98m",
+        "水线长": "8.756m",
+        "船宽": "3.50m",
+        "型深": "1.00m",
+        "吃水": "0.52m",
+        "航区": "游艇IV类",
+        "主机功率": "22KW*1",
+        "设计航速": "10km/h",
+        "乘员定额": "12人(含船员)",
+        "动机形式": "电动舷外挂机",
+        "材质": "铝合金",
+        "证书类型": "CCS",
+        "特点": [
+          "JS-950铝合金新能源双体游艇现代风格"
+        ],
+        "载员说明": "12人(含船员)",
+        "航速说明": "10km/h"
+      },
+      "description": "JS-950铝合金新能源双体游艇现代风格",
+      "vr_url": "https://www.ourideas.top/detail.html?id=12",
+      "asset": {
+        "name": "12.webp",
+        "mime": "image/webp",
+        "sha256": "db155b5f54115d54bebe6bf50971424cbc54c20dc2c71686580d7aa859bf0a5c"
+      },
+      "width_m": "3.50"
+    },
+    {
+      "external_id": "13",
+      "model_code": "js1198",
+      "name": "JS-1198铝合金新能源电动游览船",
+      "category": "商用船",
+      "length_m": "11.98",
+      "capacity": 30,
+      "parameters": {
+        "总长": "11.98m",
+        "水线长": "11.33m",
+        "船宽": "3.40m",
+        "型深": "0.95m",
+        "吃水": "0.39m",
+        "航区": "内河B级",
+        "主机功率": "30HP",
+        "设计航速": "8km/h",
+        "乘员定额": "30人(含船员)",
+        "动机形式": "电动舷外挂机",
+        "材质": "铝合金",
+        "证书类型": "ZC",
+        "特点": [
+          "JS-1198铝合金新能源电动游览船"
+        ],
+        "载员说明": "30人(含船员)",
+        "航速说明": "8km/h"
+      },
+      "description": "JS-1198铝合金新能源电动游览船",
+      "vr_url": "https://www.ourideas.top/detail.html?id=13",
+      "asset": {
+        "name": "13.webp",
+        "mime": "image/webp",
+        "sha256": "45f096f70cf3c3d3a5c94260961da2d04ac844f8bb733b29d6decfa37adcd4dd"
+      },
+      "width_m": "3.40"
+    },
+    {
+      "external_id": "14",
+      "model_code": "js1398",
+      "name": "JS-13.98米铝合金游览船",
+      "category": "商用船",
+      "length_m": "13.98",
+      "capacity": 20,
+      "parameters": {
+        "总长": "13.98m",
+        "水线长": "13.23m",
+        "船宽": "5.0m",
+        "型深": "1.50m",
+        "吃水": "0.70m",
+        "航区": "内河C级航区",
+        "主机功率": "60HP*2",
+        "设计航速": "15km/h",
+        "成员定额": "20人（含船员）",
+        "动机形式": "电动舷外挂机",
+        "材质": "铝合金",
+        "证书类型": "ZC",
+        "载员说明": "20人（含船员）",
+        "航速说明": "15km/h"
+      },
+      "description": "JS-13.98米铝合金游览船。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=14",
+      "asset": {
+        "name": "14.webp",
+        "mime": "image/webp",
+        "sha256": "1a8325423b8a4a92ac8dae8b52ab1fa7c4439f046c4aee1bef92343b3b7d3881"
+      },
+      "width_m": "5.0"
+    },
+    {
+      "external_id": "15",
+      "model_code": "js1588",
+      "name": "JS-1588玻璃钢/钢质游览船",
+      "category": "商用船",
+      "length_m": "15.88",
+      "capacity": 34,
+      "parameters": {
+        "总长": "15.88m",
+        "水线长": "13.49m",
+        "船宽": "3.80m",
+        "型深": "1.10m",
+        "吃水": "0.50m",
+        "航区": "内河B级",
+        "主机功率": "130HP*1",
+        "设计航速": "15km/h",
+        "乘员定额": "34人(含船员)",
+        "动机形式": "柴油舷内外机",
+        "材质": "玻璃钢/钢质",
+        "证书类型": "ZC",
+        "特点": [
+          "JS-1588玻璃钢(钢质)游览船"
+        ],
+        "载员说明": "34人(含船员)",
+        "航速说明": "15km/h"
+      },
+      "description": "JS-1588玻璃钢(钢质)游览船",
+      "vr_url": "https://www.ourideas.top/detail.html?id=15",
+      "asset": {
+        "name": "15.webp",
+        "mime": "image/webp",
+        "sha256": "bab2b6aecd211af13b6c9d50cb44f7fc84cf74ac0176bade8b633878b8c04e5c"
+      },
+      "width_m": "3.80"
+    },
+    {
+      "external_id": "16",
+      "model_code": "js4028",
+      "name": "JS-4028系列新能源游览船",
+      "category": "商用船",
+      "length_m": "20",
+      "capacity": 0,
+      "parameters": {
+        "特点": [
+          "大型客舱",
+          "三种内饰方案",
+          "新能源推进",
+          "观光接待"
+        ],
+        "载员说明": "多种内饰布局"
+      },
+      "description": "包含一个基础外壳和三种内饰布置。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=16",
+      "asset": {
+        "name": "16.webp",
+        "mime": "image/webp",
+        "sha256": "126dd2743d5275b4c3967f566b7a2a6a17727dbdd36793538497509bdf7bec2e"
+      }
+    },
+    {
+      "external_id": "17",
+      "model_code": "pwc",
+      "name": "驭舟双座水上摩托艇",
+      "category": "民用休闲",
+      "length_m": "3.2",
+      "capacity": 2,
+      "parameters": {
+        "特点": [
+          "双座布局",
+          "灵活操控",
+          "水上娱乐",
+          "便捷维护"
+        ],
+        "载员说明": "2人"
+      },
+      "description": "双座水上摩托艇，正式产品型号待确认。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=17",
+      "asset": {
+        "name": "17.webp",
+        "mime": "image/webp",
+        "sha256": "4220024cd337f81e3e136d4fb93c09b3e92807eb3497fd8a619c155d65229539"
+      }
+    },
+    {
+      "external_id": "18",
+      "model_code": "usv1",
+      "name": "驭舟无人作业艇方案一",
+      "category": "军用船",
+      "length_m": "6",
+      "capacity": 0,
+      "parameters": {
+        "特点": [
+          "远程控制",
+          "任务载荷扩展",
+          "充气艇式平台",
+          "巡检作业"
+        ],
+        "载员说明": "无人任务载荷"
+      },
+      "description": "充气艇式无人作业平台。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=18",
+      "asset": {
+        "name": "18.webp",
+        "mime": "image/webp",
+        "sha256": "eedefca2ee266c7a031fe52ef5774426947b733bbeab5dc36c22e5dd9e543884"
+      }
+    },
+    {
+      "external_id": "19",
+      "model_code": "usv2",
+      "name": "驭舟高速无人艇方案二",
+      "category": "军用船",
+      "length_m": "8",
+      "capacity": 0,
+      "parameters": {
+        "特点": [
+          "封闭式艇体",
+          "高速航行",
+          "远程控制",
+          "巡逻监测"
+        ],
+        "载员说明": "无人任务载荷"
+      },
+      "description": "封闭式高速无人艇。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=19",
+      "asset": {
+        "name": "19.webp",
+        "mime": "image/webp",
+        "sha256": "1f62df1d23f7fc7c4eed0d5d959660c8cbecf8fb91521d12b80ad8e80023d6ae"
+      }
+    },
+    {
+      "external_id": "2138",
+      "model_code": "JS-910B",
+      "name": "JS-910B 广州水警铝合金执法艇",
+      "category": "公务船",
+      "length_m": "9.10",
+      "capacity": 6,
+      "parameters": {
+        "总长": "9.10m",
+        "最大船长": "10.23m",
+        "水线长": "8.00m",
+        "船宽": "2.52m",
+        "型深": "1.33m",
+        "满载吃水": "0.50m",
+        "满载排水量": "约5.8t",
+        "肋距": "0.50m",
+        "航区": "内河A级",
+        "动力形式": "双汽油舷外机",
+        "主机功率": "183.9kW×2（250HP×2）",
+        "额定转速": "5000rpm",
+        "设计航速": "约65km/h（35kn），非实船测速值",
+        "材质": "5083-H116铝合金",
+        "载员说明": "6人（船员1人、工作人员5人）",
+        "燃油箱": "600L",
+        "内饰方案": "六座巡逻、指挥通信、救援急救、登临行动、取证办公",
+        "备注": "五套内饰为展示配置；本艇专属船检证书待提供，舱室标高待校准。"
+      },
+      "description": "JS-910B 铝合金高速公务执法艇，用于水上巡逻、执法、指挥通信、救援急救、登临行动及取证办公展示。\n\n设备配置：5083-H116铝合金，尖艏方艉单体V形折角船底，600L燃油箱，聚脲护舷，夹层钢化前风挡，甚高频无线电话、对外扩音、探照灯、航行信号灯、长排警灯及消防救生设备。实际交付设备以最终合同与船检要求为准。\n\n内饰展示包括六座巡逻、指挥通信、救援急救、登临行动、取证办公。五套内饰为展示配置；本艇专属船检证书待提供。",
+      "vr_url": "https://www.ourideas.top/detail.html?id=2138",
+      "asset": {
+        "name": "2138.png",
+        "mime": "image/png",
+        "sha256": "34d3ef19625ac5950a0e8cf52df3edc1e00f002371e7ca5d045e38a69f4066d4"
+      },
+      "width_m": "2.52"
+    }
+  ],
+  "posts": [
+    {
+      "external_id": "life-saving-appliances",
+      "title": "认识船上常见的救生装备",
+      "content": "救生衣、救生圈、救生筏和救生艇是船上常见的救生装备。个人救生装备与集体逃生装备承担不同的用途；船舶配置还需要结合船型、航程和运营方式。了解装备的位置和用途，是认识船艇安全设施的起点。"
+    },
+    {
+      "external_id": "domestic-ferry-safety",
+      "title": "内河渡运安全与人员培训",
+      "content": "国内渡运安全既涉及船舶设施，也涉及运营管理与船员培训。通过经验交流、技能培训和持续改进管理流程，可以帮助渡运经营者提升安全工作能力。船艇体验与日常运营都离不开人员、设备和管理的配合。"
+    }
+  ]
+}

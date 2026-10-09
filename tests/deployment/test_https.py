@@ -76,9 +76,10 @@ class OfflineSafety(unittest.TestCase):
 
     def test_environment_preflight_blocks_before_mutations(self):
         base = {"environment": "test", "is_test_environment": True, "test_payments_enabled": True,
-                "services": {"payment": "unconfigured"}}
+                "services": {"payment": "unconfigured", "sms": "unconfigured"}}
         for change in ({"environment": "production"}, {"is_test_environment": False},
-                       {"test_payments_enabled": False}, {"services": {"payment": "configured"}}):
+                       {"test_payments_enabled": False}, {"services": {"payment": "configured", "sms": "unconfigured"}},
+                       {"services": {"payment": "unconfigured", "sms": "configured"}}):
             client = HTTPS.Client()
             with patch.object(client, "api", return_value=dict(base, **change)) as api:
                 with self.assertRaises(HTTPS.AcceptanceFailure):
@@ -102,10 +103,10 @@ class OfflineSafety(unittest.TestCase):
             def response(path, method="GET", body=None, token=None):
                 if path == "bootstrap":
                     return {"environment": "test", "is_test_environment": True, "test_payments_enabled": True,
-                            "services": {"payment": "unconfigured"}}
+                            "services": {"payment": "unconfigured", "sms": "unconfigured"}}
                 if path == "health": return {"database": "mysql", "framework": "ThinkPHP 5.1.41 LTS"}
                 if path == "auth/login":
-                    return {"user": {"id": 1, "role": body["username"].split(".")[0], "org_id": 1}, "token": "synthetic"}
+                    return {"user": {"id": 1, "role": body["username"].split(".")[0], "org_id": 1, "phone_bound": False}, "token": "synthetic"}
                 if path == "settings": return {"version": 1, "distribution": {"broker_bps": bps}}
                 self.fail("Business write occurred before distribution preflight")
             with patch.object(client, "api", side_effect=response):

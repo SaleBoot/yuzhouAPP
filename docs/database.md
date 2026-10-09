@@ -117,6 +117,7 @@ erDiagram
     users ||--o{ orders : "creator_id"
     users ||--o{ orders : "customer_id"
     orders ||--o{ payments : "order_id"
+    users ||--o{ phone_identities : "user_id"
     users ||--o{ point_redemptions : "reviewed_by"
     users ||--o{ point_redemptions : "user_id"
     growth_products ||--o{ point_redemptions : "product_id"
@@ -140,6 +141,7 @@ erDiagram
     users ||--o{ resources : "owner_id"
     merchants ||--o{ resources : "merchant_credit_code"
     organizations ||--o{ resources : "org_id"
+    users ||--o{ sms_challenges : "user_id"
     users ||--o{ tokens : "user_id"
     merchants ||--o{ upgrade_schemes : "merchant_credit_code"
     boat_types ||--o{ upgrade_schemes : "boat_type_id"
@@ -819,6 +821,17 @@ erDiagram
 
 外键：`order_id` → `orders.id`
 
+### phone_identities（4字段）
+
+| 字段 | 类型 | 主键 | 必填 | 默认 |
+|---|---|---|---|---|
+| id | INTEGER | 是 |  |  |
+| user_id | INTEGER |  | 是 |  |
+| phone_hash | CHAR(64) |  | 是 |  |
+| verified_at | INTEGER |  | 是 |  |
+
+外键：`user_id` → `users.id`
+
 ### point_redemptions（12字段）
 
 | 字段 | 类型 | 主键 | 必填 | 默认 |
@@ -988,6 +1001,35 @@ erDiagram
 | setting_key | VARCHAR(100) |  | 是 |  |
 | value_json | TEXT |  | 是 |  |
 | version | INTEGER |  | 是 | 1 |
+| updated_at | INTEGER |  | 是 |  |
+
+### sms_challenges（13字段）
+
+| 字段 | 类型 | 主键 | 必填 | 默认 |
+|---|---|---|---|---|
+| id | INTEGER | 是 |  |  |
+| challenge_id | CHAR(64) |  | 是 |  |
+| phone_hash | CHAR(64) |  | 是 |  |
+| purpose | VARCHAR(20) |  | 是 |  |
+| code_hash | CHAR(64) |  | 是 |  |
+| status | VARCHAR(20) |  | 是 |  |
+| attempts | INTEGER |  | 是 | 0 |
+| expires_at | INTEGER |  | 是 |  |
+| created_at | INTEGER |  | 是 |  |
+| consumed_at | INTEGER |  |  |  |
+| user_id | INTEGER |  |  |  |
+| provider_request_id | VARCHAR(128) |  |  |  |
+| provider_biz_id | VARCHAR(128) |  |  |  |
+
+外键：`user_id` → `users.id`
+
+### sms_rate_limits（4字段）
+
+| 字段 | 类型 | 主键 | 必填 | 默认 |
+|---|---|---|---|---|
+| bucket_key | CHAR(64) | 是 | 是 |  |
+| window_start | INTEGER |  | 是 |  |
+| attempt_count | INTEGER |  | 是 | 0 |
 | updated_at | INTEGER |  | 是 |  |
 
 ### tokens（5字段）

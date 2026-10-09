@@ -27,7 +27,8 @@
       ><view class="list-item" @click="tab('orders')"
         ><text>合同与履约</text><text>›</text></view
       ></view
-    ><view class="notice small section"
+    ><PhoneBinding v-if="user" :user="user" @bound="refreshUser" />
+    <view class="notice small section"
       >这是销售人员工作端。机构管理、规则配置与审核由平台后台处理。</view
     ><button class="secondary section" @click="user ? logout() : go('login')">
       {{ user ? "退出登录" : "销售登录" }}</button
@@ -38,9 +39,11 @@
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { request, post, session, saveSession, go, tab } from "@shared/api.js";
+import PhoneBinding from "@shared/PhoneBinding.vue";
 const user = ref(session()?.user),
   error = ref("");
-onShow(async () => {
+async function refreshUser() {
+  error.value = "";
   user.value = session()?.user;
   if (user.value)
     try {
@@ -50,7 +53,8 @@ onShow(async () => {
     } catch (e) {
       error.value = e.message;
     }
-});
+}
+onShow(refreshUser);
 async function logout() {
   try {
     await post("/auth/logout");

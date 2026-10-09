@@ -49,6 +49,13 @@ class InstallerTests(unittest.TestCase):
             (self.release / 'deploy' / name).write_bytes(b'new-unit')
         (self.release / 'deploy/nginx.conf.example').write_bytes(b'new-site')
         (self.release / 'deploy/preflight.php').write_text('<?php /* synthetic */')
+        (self.release / 'database/migrations').mkdir(parents=True)
+        self.migration = self.release / 'database/migrations/007-synthetic-mysql.sql'
+        self.migration.write_text('/* synthetic migration */')
+        (self.shared / 'migrations.json').write_text(json.dumps({
+            'database': 'yuzhou',
+            'migration_sha256': {self.migration.name: hashlib.sha256(self.migration.read_bytes()).hexdigest()},
+        }))
         files = [{'path': str(file.relative_to(self.release)), 'sha256': hashlib.sha256(file.read_bytes()).hexdigest()}
                  for file in self.release.rglob('*') if file.is_file()]
         (self.release / 'release.json').write_text(json.dumps({
@@ -167,6 +174,18 @@ class InstallerTests(unittest.TestCase):
         for name in ['.env', 'storage', 'runtime']:
             self.assertEqual((self.release / 'backend' / name).resolve(), (self.shared / name).resolve())
         self.assertTrue(all(state == {'enabled': True, 'active': True} for state in self.states.values()))
+
+    def test_missing_or_mismatched_migrations_refuse_before_activation(self):
+        receipt_file = self.shared / 'migrations.json'
+        for receipt in [None, {'database': 'another_site', 'migration_sha256': {}},
+                        {'database': 'yuzhou', 'migration_sha256': {self.migration.name: '0' * 64}}]:
+            with self.subTest(receipt=receipt):
+                if receipt is None: receipt_file.unlink(missing_ok=True)
+                else: receipt_file.write_text(json.dumps(receipt))
+                with self.assertRaisesRegex(SystemExit, 'migrations before activation'): INSTALLER.main()
+                self.assert_site_restored()
+                self.assertFalse(any(args[0] == 'systemctl' for args in self.commands))
+                self.assertFalse((self.release / 'backend/.env').exists())
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

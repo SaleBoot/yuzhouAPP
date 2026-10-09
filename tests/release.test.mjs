@@ -19,7 +19,7 @@ test('发布要求已提交源码，并排除运行数据与秘密', () => {
     put('docs/app-identities.json', JSON.stringify({ consumer: { appid: 'consumer', android_package: 'test.consumer' } }));
     for (const app of ['consumer', 'broker']) { put(`apps/${app}/dist/build/h5/index.html`, app); put(`apps/${app}/src/manifest.json`, JSON.stringify({ appid: app, versionName: '0.1.0', versionCode: '100' })); }
     put('backend/public/index.php', '<?php'); put('backend/.env', 'secret=test-only'); put('backend/storage/private.txt', 'do not release'); put('backend/runtime/token.txt', 'do not release');
-    put('database/mysql.sql', 'schema'); put('deploy/landing.html', 'landing'); put('.gitignore', 'artifacts/\ndist/\n');
+    put('database/mysql.sql', 'schema'); put('deploy/landing.html', 'landing'); put('data/test-catalog/catalog.json', '{}'); put('data/test-catalog/assets/example.webp', 'synthetic media'); put('scripts/import-test-catalog.php', '<?php'); put('.gitignore', 'artifacts/\ndist/\n');
     git('init', '--initial-branch=main'); git('add', '.'); git('-c', 'user.name=Release test', '-c', 'user.email=test@example.invalid', 'commit', '-m', 'fixture');
     const run = () => spawnSync(process.execPath, ['scripts/release.mjs'], { cwd: dir, env: { ...process.env, VITE_API_BASE: 'http://127.0.0.1:8088', VITE_API_BASE_URL: 'http://development.invalid' }, encoding: 'utf8' });
     const result = run(); assert.equal(result.status, 0, result.stderr);
@@ -28,6 +28,8 @@ test('发布要求已提交源码，并排除运行数据与秘密', () => {
     assert.ok(existsSync(path.join(output, 'backend/public/index.php')));
     assert.equal(readFileSync(path.join(output, 'public/admin/index.html'), 'utf8'), 'SOURCE_A');
     assert.ok(existsSync(path.join(output, 'public/boat-map/index.html')));
+    assert.ok(existsSync(path.join(output, 'data/test-catalog/assets/example.webp')));
+    assert.ok(existsSync(path.join(output, 'deploy/import-test-catalog.php')));
     for (const name of ['backend/.env', 'backend/storage/private.txt', 'backend/runtime/token.txt']) assert.equal(existsSync(path.join(output, name)), false, name);
     const manifest = JSON.parse(readFileSync(path.join(output, 'release.json')));
     assert.match(manifest.source_commit, /^[a-f0-9]{40}$/); assert.ok(manifest.files.every(file => /^[a-f0-9]{64}$/.test(file.sha256)));

@@ -89,7 +89,7 @@ onShow(load);
   flex: 1;
 }
 .hero {
-  background: #09233f;
+  background: linear-gradient(90deg, #4bc8ff, #216cf7);
   color: white;
   padding: 34rpx;
 }

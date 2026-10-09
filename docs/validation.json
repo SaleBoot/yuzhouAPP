@@ -3,7 +3,7 @@
   "source_tests": {
     "local_php": "8.2",
     "local_business_checks": {
-      "core": 67,
+      "core": 74,
       "communication": 26,
       "operations": 40,
       "reports": 11,
@@ -11,35 +11,55 @@
       "crm": 33,
       "http": 14,
       "events": 29,
-      "private_files": 18
+      "private_files": 32,
+      "sms": 91,
+      "media": 23,
+      "catalog_import": 126
     },
-    "own_php_lint_files": 36,
+    "own_php_lint_files": 41,
     "release_integrity_tests": 1,
     "web_unit_tests": 3,
-    "app_checks_per_app": 8,
+    "app_checks_per_app": 48,
     "map_model_tests": 2,
-    "deploy_installer_fixtures": 8,
-    "public_https_safety_fixtures": 11
+    "deploy_installer_fixtures": 9,
+    "public_https_safety_fixtures": 11,
+    "local_business_checks_total": 505,
+    "backup_restore_fixtures": 15
   },
   "aliyun_php72_sqlite_compatibility": {
     "actual_php": "7.2.33",
-    "core": 67,
+    "core": 74,
     "communication": 26,
     "operations": 40,
     "reports": 11,
-    "total": 244,
-    "mysql_business_acceptance": true,
+    "total": 505,
     "http": 14,
     "recommendations": 6,
     "crm": 33,
     "events": 29,
-    "private_files": 18
+    "private_files": 32,
+    "sms": 91,
+    "media": 23,
+    "catalog_import": 126,
+    "execution_groups": [
+      {
+        "checks": 379,
+        "includes_catalog_import": false
+      },
+      {
+        "checks": 126,
+        "includes_catalog_import": true
+      }
+    ]
   },
   "schema": {
-    "tables": 68,
+    "tables": 71,
     "max_columns": 27,
     "merchant_primary_key": "credit_code",
-    "mysql_schema_and_migrations_001_to_006_applied": true
+    "mysql_schema_and_migrations_001_to_006_applied": true,
+    "source_migrations": "001–007",
+    "live_tables_at_recording": 68,
+    "mysql_migration_007_applied_to_live": false
   },
   "actual_browser_local": {
     "web_business_checks": 49,
@@ -52,9 +72,28 @@
     "map_live_checks": 8,
     "app_activity_api_checks": 12,
     "app_activity_browser_checks": 10,
-    "private_file_http_checks": 6
+    "private_file_http_checks": 6,
+    "app_main_routes_rendered": 40,
+    "app_page_scenarios": 59,
+    "app_limited_interactions": 5,
+    "app_profile_navigation_links": 8,
+    "app_learning_title_checks": 5,
+    "sms_h5_mock_interactions": 18,
+    "sms_h5_mock_real_provider": false,
+    "app_chat_live_checks": 7,
+    "app_review_and_favorite_live_checks": 7,
+    "app_publication_and_favorite_live_checks": 13,
+    "boat_parameter_live_checks": 6,
+    "creative_style_visual_scenes": 33,
+    "creative_style_api_mocked": true,
+    "creative_style_widths": [
+      320,
+      390,
+      430
+    ],
+    "root_review_real_api_preview": true
   },
-  "public_https_acceptance": false,
+  "public_https_acceptance": true,
   "formal_provider_acceptance": false,
   "aliyun_mysql57_acceptance": {
     "version": "5.7.44-log",
@@ -83,6 +122,90 @@
     "temporary_signing": true,
     "installed_test": false,
     "source_commit_bound": true,
-    "verified_source_commit": "7276636254ed86232e4931e52d902394b025f093"
+    "verified_source_commit": "be8031cc8870f0357271ac380df79d0575bf2c8b",
+    "public_download_hash_verified": true
+  },
+  "public_https_report": {
+    "verified_source_commit": "be8031cc8870f0357271ac380df79d0575bf2c8b",
+    "release_id": "20261008T204750444-be8031cc",
+    "synthetic_business_checks": 259,
+    "scoped_private_file_checks": 6,
+    "staged_payment_verified": false,
+    "formal_provider_verified": false,
+    "native_device_verified": false,
+    "files_hash_verified": 400,
+    "other_vhost_hashes_unchanged": 11,
+    "background_job_exit_status": 0
+  },
+  "aliyun_mysql57_sms_acceptance": {
+    "version": "5.7.44-log",
+    "database": "yuzhou_acceptance_20261009",
+    "isolated_from_live": true,
+    "checks": 86,
+    "includes_sqlite_retry_fault_checks": 6,
+    "synthetic_fixtures": true,
+    "real_sms_sent": false,
+    "covers": [
+      "challenge_replay_and_attempt_limit",
+      "phone_and_bind_user_serialization",
+      "concurrent_registration_and_binding",
+      "fully_rolled_back_mysql_lock_retry"
+    ]
+  },
+  "actual_backup_restore": {
+    "source_commit": "be8031cc8870f0357271ac380df79d0575bf2c8b",
+    "backup": "yuzhou-backup-20261008T213228Z-0fa3304b",
+    "isolated_target": "yuzhou_restore_20261009_2132",
+    "tables": 68,
+    "foreign_keys_matched": 139,
+    "foreign_key_orphans": 0,
+    "upload_objects_size_and_hash_matched": 3,
+    "activated_live": false,
+    "daily_timer_installed": false,
+    "offsite_copy_verified": false
+  },
+  "public_management_read_only_ui": {
+    "source_commit": "be8031cc8870f0357271ac380df79d0575bf2c8b",
+    "checks": 6,
+    "roles": [
+      "platform",
+      "merchant",
+      "agency"
+    ],
+    "business_writes": false
+  },
+  "ios_native_status": {
+    "simulator_runtime": "iOS 26.5 (23F77)",
+    "runtime_architectures": [
+      "x86_64",
+      "arm64"
+    ],
+    "runtime_available": true,
+    "dcloud_offline_sdk_available": false,
+    "independent_signing_available": false,
+    "package_built": false,
+    "device_verified": false
+  },
+  "aliyun_mysql57_catalog_import": {
+    "database": "yuzhou_acceptance_20261009",
+    "isolated_from_live": true,
+    "created": 40,
+    "reimport_created": 0,
+    "retained": 40,
+    "boat_types": 19,
+    "boats": 19,
+    "posts": 2,
+    "unknown_capacity_verified": 6,
+    "boat_type_orphans": 0
+  },
+  "test_catalog_local_import": {
+    "environment": "development",
+    "created": 40,
+    "reimport_created": 0,
+    "retained": 40,
+    "boat_types": 19,
+    "boats": 19,
+    "posts": 2,
+    "existing_accounts_reseeded": false
   }
 }

@@ -47,7 +47,8 @@
         ><text>{{ entry.title }}</text
         ><text class="muted">›</text></view
       ></view
-    ><view v-if="user" class="card section"
+    ><PhoneBinding v-if="user" :user="user" @bound="refreshUser" />
+    <view v-if="user" class="card section"
       ><view class="small muted"
         >邀请码 {{ user.invite_code || "暂未分配" }}</view
       ><button class="secondary section" @click="logout">退出登录</button></view
@@ -59,6 +60,7 @@ import { ref, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { request, post, session, saveSession, go } from "@shared/api.js";
 import { dateTime, memberActive } from "@shared/domain.js";
+import PhoneBinding from "@shared/PhoneBinding.vue";
 const user = ref(null),
   error = ref("");
 const member = computed(() => memberActive(user.value));
@@ -83,7 +85,8 @@ const entries = [
   { title: "意见反馈", action: () => go("account", { kind: "feedback" }) },
   { title: "交付评价", action: () => go("account", { kind: "reviews" }) },
 ];
-onShow(async () => {
+async function refreshUser() {
+  error.value = "";
   user.value = session()?.user || null;
   if (user.value)
     try {
@@ -93,7 +96,8 @@ onShow(async () => {
     } catch (e) {
       error.value = e.message;
     }
-});
+}
+onShow(refreshUser);
 async function logout() {
   try {
     await post("/auth/logout");
@@ -104,10 +108,10 @@ async function logout() {
 </script>
 <style scoped>
 .member-banner {
-  background: #09233f;
-  color: #f3da98;
-  border-radius: 20rpx;
-  padding: 30rpx;
+  background: linear-gradient(90deg, #4bc8ff, #216cf7);
+  color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -116,12 +120,13 @@ async function logout() {
   grid-template-columns: repeat(4, 1fr);
 }
 .four .tile-icon {
-  background: #f4f6f8;
+  background: #fff;
 }
 .four .scene {
   font-size: 22rpx;
 }
 .profile {
-  padding: 20rpx 0;
+  padding: 28rpx;
 }
+.member-banner .card-head { color: #fff; }
 </style>

@@ -15,8 +15,12 @@
             >¥{{ money(boat.daily_price_cents || boat.price_cents) }}</view
           ><view v-for="field in fields" :key="field.key" class="compare-cell"
             ><text class="muted small">{{ field.label }}</text
-            ><view>{{ boat[field.key] || "—" }}{{ field.unit }}</view></view
-          ><view
+            ><view>{{ metricText(boat[field.key], field.unit, field.zeroUnknown) }}</view></view
+          ><view v-for="field in parameterFields" :key="'parameter-' + field.key" class="compare-cell">
+            <text class="muted small">{{ field.label }}</text>
+            <view>{{ boatParameterValue(boat, field.key) }}</view>
+          </view>
+          <view
             v-for="angle in ['总览', '正面', '俯视']"
             :key="angle"
             class="compare-cell"
@@ -47,20 +51,23 @@
   >
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { detail, go, external, fallbackBoat } from "@shared/api.js";
 import { money } from "@shared/domain.js";
+import { comparisonParameterFields, boatParameterValue, metricText } from "@shared/boat-parameters.js";
 const boats = ref([]),
   mode = ref("rent"),
   error = ref("");
-const fields = [
-  { key: "length_m", label: "全长", unit: "m" },
-  { key: "width_m", label: "宽度", unit: "m" },
-  { key: "capacity", label: "核定人数", unit: "人" },
-  { key: "speed_knots", label: "最高航速", unit: "节" },
+const fields = computed(() => [
+  { key: "model_code", label: "船型型号", unit: "" },
+  { key: "length_m", label: "全长", unit: "m", zeroUnknown: true },
+  { key: "width_m", label: "宽度", unit: "m", zeroUnknown: true },
+  { key: "capacity", label: "核定人数", unit: "人", zeroUnknown: true },
+  ...(boats.value.some(boat => boat.speed_knots !== null && boat.speed_knots !== undefined && boat.speed_knots !== "") ? [{ key: "speed_knots", label: "航速", unit: "节" }] : []),
   { key: "category", label: "船艇类型", unit: "" },
-];
+]);
+const parameterFields = computed(() => comparisonParameterFields(boats.value));
 onLoad(async (q) => {
   mode.value = q.mode || "rent";
   try {

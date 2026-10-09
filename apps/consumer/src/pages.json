@@ -186,11 +186,11 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "驭舟",
     "navigationBarBackgroundColor": "#ffffff",
-    "backgroundColor": "#f4f6f8"
+    "backgroundColor": "#f8f8f8"
   },
   "tabBar": {
-    "color": "#8796a6",
-    "selectedColor": "#09233f",
+    "color": "#999999",
+    "selectedColor": "#216cf7",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [

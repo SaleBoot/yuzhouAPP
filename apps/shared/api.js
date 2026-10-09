@@ -24,9 +24,14 @@ export function token() {
   return session()?.token || session()?.access_token || "";
 }
 export function media(path) {
-  return path?.startsWith("/") && BASE.startsWith("http")
-    ? new URL(path, BASE).href
-    : path;
+  if (path?.startsWith("/") && BASE.startsWith("http"))
+    return new URL(path, BASE).href;
+  // #ifdef H5
+  // Uni H5 otherwise adds its /consumer/ or /broker/ router base to media URLs.
+  if (/^\/api\/v1\/files\/[1-9]\d*$/.test(path || ""))
+    return new URL(path, window.location.origin).href;
+  // #endif
+  return path;
 }
 export const query = (data = {}) =>
   Object.entries(data)
@@ -50,8 +55,20 @@ export function resource(item) {
       }
     : null;
 }
-function serviceMessage(message) {
+function serviceMessage(message, code) {
+  if (message === "Phone identity already exists. Use SMS login.") return "手机号已注册，请使用验证码登录";
+  const smsErrors = {
+    50311: "短信验证服务暂未开通",
+    50312: "短信平台未受理，请稍后重试",
+    50313: "短信发送结果暂无法确认，请等待冷却结束后重试",
+    40103: "验证码错误、已过期或已使用，请检查后重试",
+    40104: "手机号未绑定有效账号，请使用密码登录后绑定",
+    40903: "此手机号无法绑定当前账号，请联系平台",
+    42903: "短信请求过于频繁，请稍后重试",
+  };
+  if (smsErrors[code]) return smsErrors[code];
   const translations = [
+    [/Invitation code is invalid/i, "邀请码无效"],
     [/Activity enrollment requires approved identity materials/i, "活动报名需平台资料审核通过，请提交身份资料"],
     [/Activity enrollment requires an active membership/i, "活动报名需有效会员，请查看会员状态"],
     [/The enrollment changed|current ticket/i, "报名记录已更新，请刷新后重试"],
@@ -86,7 +103,8 @@ function serviceMessage(message) {
     message
   );
 }
-export function request(path, { method = "GET", data } = {}) {
+export function request(path, { method = "GET", data, authToken } = {}) {
+  const bearer = authToken === undefined ? token() : authToken;
   return new Promise((resolve, reject) =>
     uni.request({
       url: `${BASE}${path}`,
@@ -94,24 +112,24 @@ export function request(path, { method = "GET", data } = {}) {
       data,
       header: {
         ...(data !== undefined ? { "Content-Type": "application/json" } : {}),
-        ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
+        ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
       },
       timeout: 20000,
       success(res) {
-        if (res.statusCode === 401) saveSession(null);
+        // OTP failures use 401 without expiring the current binding session.
+        if (res.statusCode === 401 && bearer === token() && ![40103, 40104].includes(res.data?.code)) saveSession(null);
         if (
           res.statusCode >= 200 &&
           res.statusCode < 300 &&
           res.data?.code === 0
         )
           resolve(res.data.data);
-        else
-          reject(
-            new Error(
-              serviceMessage(res.data?.message) ||
-                `请求失败（${res.statusCode}）`,
-            ),
-          );
+        else {
+          const error = new Error(serviceMessage(res.data?.message, res.data?.code) || `请求失败（${res.statusCode}）`);
+          error.code = res.data?.code;
+          error.status = res.statusCode;
+          reject(error);
+        }
       },
       fail: () => reject(new Error("暂时无法连接服务，请检查网络或服务地址")),
     }),

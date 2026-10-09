@@ -71,7 +71,7 @@ watch(() => props.placement, load, { immediate: true });
   left: 0;
   right: 0;
   color: white;
-  background: linear-gradient(transparent, #09233fc9);
+  background: linear-gradient(transparent, #216cf7aa);
   padding: 40rpx 24rpx 24rpx;
   font-size: 32rpx;
   font-weight: 600;

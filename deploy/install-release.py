@@ -49,6 +49,15 @@ def main():
     shared = ROOT / 'shared'
     if not (shared / '.env').is_file() or not (ROOT / 'certs/fullchain.pem').is_file():
         raise SystemExit('Initialize the independent database and certificate first.')
+    migrations = sorted((release / 'database/migrations').glob('*-mysql.sql'))
+    if migrations:
+        receipt_file = shared / 'migrations.json'
+        migration_receipt = json.loads(receipt_file.read_text()) if receipt_file.is_file() else {}
+        applied = migration_receipt.get('migration_sha256', {})
+        if migration_receipt.get('database') != 'yuzhou' or any(
+            applied.get(file.name) != hashlib.sha256(file.read_bytes()).hexdigest() for file in migrations
+        ):
+            raise SystemExit('Apply this release\'s reviewed independent database migrations before activation.')
     account = pwd.getpwnam('www')
     for name in ['storage', 'runtime', 'backups']:
         directory = shared / name

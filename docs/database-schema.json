@@ -3941,6 +3941,54 @@
       }
     ]
   },
+  "phone_identities": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "phone_hash",
+        "type": "CHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "verified_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
   "point_redemptions": {
     "columns": [
       {
@@ -4895,6 +4943,163 @@
       },
       {
         "position": 4,
+        "name": "updated_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": []
+  },
+  "sms_challenges": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "challenge_id",
+        "type": "CHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "phone_hash",
+        "type": "CHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
+        "name": "purpose",
+        "type": "VARCHAR(20)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 4,
+        "name": "code_hash",
+        "type": "CHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 5,
+        "name": "status",
+        "type": "VARCHAR(20)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 6,
+        "name": "attempts",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 7,
+        "name": "expires_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 8,
+        "name": "created_at",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 9,
+        "name": "consumed_at",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 10,
+        "name": "user_id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 11,
+        "name": "provider_request_id",
+        "type": "VARCHAR(128)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 12,
+        "name": "provider_biz_id",
+        "type": "VARCHAR(128)",
+        "not_null": 0,
+        "default": null,
+        "primary_key_position": 0
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "sequence": 0,
+        "target_table": "users",
+        "source_column": "user_id",
+        "target_column": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION",
+        "match": "NONE"
+      }
+    ]
+  },
+  "sms_rate_limits": {
+    "columns": [
+      {
+        "position": 0,
+        "name": "bucket_key",
+        "type": "CHAR(64)",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 1
+      },
+      {
+        "position": 1,
+        "name": "window_start",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key_position": 0
+      },
+      {
+        "position": 2,
+        "name": "attempt_count",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": "0",
+        "primary_key_position": 0
+      },
+      {
+        "position": 3,
         "name": "updated_at",
         "type": "INTEGER",
         "not_null": 1,

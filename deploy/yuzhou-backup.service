@@ -1,0 +1,16 @@
+[Unit]
+Description=Independent Yuzhou database and immutable private files backup
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+TimeoutStartSec=35min
+ExecStart=/usr/bin/python3 /www/wwwroot/yuzhou/current/deploy/backup.py backup
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/www/wwwroot/yuzhou/backups

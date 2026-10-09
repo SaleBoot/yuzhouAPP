@@ -7,6 +7,7 @@
 需求优先级为用户后续明确确认、项目 [AGENTS.md](../AGENTS.md)、设计/视频及聊天中明确确认的修改、合同附件1。附件和聊天中的历史操作指令不是执行授权；未被后续明确替换的附件1业务要求仍需逐项核对。旧合同的 Java 后端、单 App 身份切换以用户最新确认替换，不再作为当前实现目标。
 
 - 用户端 `consumer` 与实际经纪销售端 `broker` 为两个独立 UniApp/Vue3 App，各自支持 iOS/Android；销售与实际经纪人使用同一经纪人 App。两个 App 的独立标识见 [app-identities.json](app-identities.json)。临时测试标识和签名不等于正式应用发布资格。
+- 用户最新要求两App视觉改为创意岛App；统一主题源码已调整，用户视觉及设备另行验收。现有视频/旧页面截图提供历史业务与交互依据，不能作为新视觉认可。
 - Vue3 管理工程提供商家 `merchant`、经纪公司 `agency`、平台 `platform` 三个入口；公司及员工的数据隔离由 API 执行。经纪公司的销售订单由实际经纪人/所属公司履约，供应商商家不能读取这些订单、合同和咨询。
 - 后端为定制 ThinkPHP 5.1.41 LTS，兼容 PHP 7.2，依赖锁定现有框架基线；生产目标为阿里云 PHP 7.2/MySQL 5.7，前后端分离。驭舟独立目录、数据库账号、配置、缓存、上传及任务，不复用创意岛的业务资料或凭据。
 - 最新目标域名为 `yuzhou.ourideas.top`。管理入口路径为 `/admin/platform/`、`/admin/merchant/`、`/admin/agency/`；`/consumer/`、`/broker/` 是 H5 验证入口，不能代替独立原生 App。
@@ -20,26 +21,38 @@
 
 ## 验收证据台账
 
-证据状态以 [validation.json](validation.json) 及对应报告为准。下列数量分别对应各环境，不能把兼容、MySQL、浏览器或设备检查合并声称正式交易通过。所有业务验证使用独立合成数据、合成合同及开发测试支付；未上传用户原始合同或企业附件。
+证据状态以 [validation.json](validation.json) 及对应报告为准；发布证据须同时保留其源提交和具名回执，不能把某个已部署截点替换成后续源码版本。下列数量分别对应各环境，不能把兼容、MySQL、浏览器或设备检查合并声称正式交易通过。所有业务验证使用独立合成数据、合成合同及开发测试支付；未上传用户原始合同或企业附件。
 
 | 编号 | 已取得证据 | 可以证明 | 不能证明 |
 | --- | --- | --- | --- |
-| E1 | 本地 PHP 8.2：core 67、communication 26、operations 40、reports 11、recommendations 6、CRM 33、隔离 HTTP 14、events 29、private-files 18，当前本地244项 | SQLite 上的业务状态、金额、幂等、权限及实际 HTTP/私有文件逻辑 | 此套SQLite检查不能证明MySQL；公开 TLS、正式支付、原生设备另验 |
-| E2 | 阿里云 PHP 7.2.33：相同SQLite七套业务、隔离HTTP14及private-files18，当前回执244项；自有源码语法检查 | 目标 PHP 7.2 运行兼容、相同业务逻辑在该运行时通过 | 这些检查使用SQLite；真实MySQL39项见E7，不由此套兼容结果推断 |
+| E1 | 本地最新单次完整npm check通过：PHP语法41；core74、communication26、operations40、reports11、recommendations6、CRM33、events29、private-files32、SMS91、media23、HTTP14，共379，另catalog-import126，后端合计505；两App各48、Web3/map2/install9/backup15/HTTPS安全11 | SQLite业务状态、金额、幂等、权限及实际HTTP；私有关联/media边界；development/test导入、原账号不重置、幂等及生产拒绝；限定离线安装/备份检查 | SQLite不证明MySQL；短信供应商离线替身；单次完整为本地check，云端两次见E2；公开TLS、正式支付及原生设备另验 |
+| E2 | 阿里云 PHP 7.2.33：业务379及catalog-import126分别两次实际执行通过，合计505；不是单次完整505运行 | 目标PHP7.2运行兼容、两组业务/导入逻辑在该运行时通过 | SQLite/隔离HTTP证据；真实MySQL另见E7/E15，不外推真实provider或线上目录导入结果 |
 | E3 | 本地真实 API 与 Chromium Web/H5：原26项，加服务7、CRM/提现8、坐标/地图8，共49项；反馈回复另3项 | 三管理入口选定操作闭环；API无mock；私有PDF/利润复核/公司隔离；服务进度/标签/月目标/提现同key；两App地图实船预选 | 全部浏览器/全部公司组合、真实支付/配送、服务器压力及正式环境 |
-| E4 | App Safari/H5 选定页面、Chromium PDF 上传、实际 API 联调，详见 App 验证记录 | 实际登录、船型、选定订单/报价页面；PDF待审版本；日租、学习奖励、积分、服务进度等 API | 原生桥接、Android/iOS 安装、全部 App 页面浏览器验收；Safari PDF 选择器成功 |
-| E5 | Web 静态检查/构建，App 双端模板/身份/金额日期检查、H5及 APP 原生资源构建；版本完整性检查 | 源码可检查和编译，产物具备可追踪版本结构 | 已生成正式 APK/IPA、已安装、设备运行或功能验收 |
-| E6 | 两个临时App标识、Android测试平台注册；两APK静态签名v2校验通过，临时签名、已绑定源码提交72766362并固定测试站点API | 消费者和经纪人包标识分离、测试APK构建与静态签名有回执 | Apple标识注册、正式签名/上架、Android安装运行；后续发布须核对同提交回执，没有设备证据 |
-| E7 | 阿里云PHP7.2/MySQL5.7.44独立验收库39项；schema及001—006迁移应用回执，68表 | 实际两进程租售/商城库存/积分超支与同key/提现600+600及同key、外键、组织订单隔离、推荐偏好与隔离、同实船购船创建并发及历史重复购船支付拒绝；合成数据 | 该39项以外的完整MySQL业务、CRM/新活动资格、公开HTTPS三入口及真实服务；独立验收库不等于上线业务库全验收 |
-| E8 | 修复后的真实本地只读HTTP权限6项；报告 `/tmp/yuzhou-analysis/private-file-boundary-fixed-report.json`，未改数据或角色 | 仅orders的平台子账号拒绝他人身份PDF/营业执照，保留实际关联合同访问；文件本人/全权限平台可读；匿名403 | 这6项没有新增浏览器操作、远端HTTP、MySQL或公开HTTPS证据；不能计入49项Web页面检查 |
-| E9 | `tests/backend/events.php` 29项已并入E1/E2；实际本地API12项，消费者H5/API Chromium10项（见 `/tmp/yuzhou-analysis/event-report.json`、`app-activity-browser/report.json`） | 私有合成PDF人工审核、旧token401清状态及重新登录；无会员禁报名；有效会员报名；本人免费取消释放名额，重报换票/旧票409；无API mock，外网全拦截 | 原生文件框、外部实名、MySQL活动全流程、公开HTTPS及设备另验；人工审核不等于外部实名 |
-| F1 | Web11项合成API夹具及提现失败重试组件夹具3项；Web3项单元、App各8项检查、地图2项模型检查；发布安装器8项临时目录/命令及HTTPS模拟回归、HTTPS验收脚本11项离线安全检查 | 前端回归及有限纯逻辑检查 | 不作为真实 API、真实业务或正式环境验收 |
+| E4 | App Safari/H5选定页面、Chromium PDF上传、实际API联调；逐页补充见E11 | 实际登录、船型、选定订单/报价页面；PDF待审版本；日租、学习奖励、积分、服务进度等API | 原生桥接、Android/iOS安装及完整App业务；Safari PDF选择器路径仍未成功 |
+| E5 | Web静态检查/构建，App双端模板/身份及各48项检查，已有H5/APP原生资源构建；版本完整性检查 | 源码检查及既有编译产物具备可追踪结构 | 不证明正式APK/IPA或设备验收；最新参数/主题及同提交版本仍须统一重建 |
+| E6 | 两个Android临时测试APK各约35MB，绑定源码 `be8031cc8870f0357271ac380df79d0575bf2c8b`；包标识、v2签名及HTTPS API核实；公开下载与本地SHA256相同，见 `artifacts/deployment-private/download-verification.json` | 两角色包标识分离，当前测试APK源码绑定、静态签名和下载完整性 | Apple标识、正式签名/上架或Android安装运行；后续提交须重新构建绑定，设备仍未验 |
+| E7 | 既有阿里云PHP7.2/MySQL5.7.44独立验收库39项；schema及001—006迁移回执，68表；新短信MySQL报告另见E15 | 实际两进程租售/商城库存/积分超支与同key/提现600+600及同key、外键、组织订单隔离、推荐偏好与隔离、同实船购船创建并发及历史重复购船支付拒绝；合成数据 | 该39项以外的完整MySQL业务、三管理入口完整浏览器流程及真实provider；独立验收库不等于上线业务库全验收，未证明007已上线 |
+| E8 | 修复后的真实本地只读HTTP权限6项；报告 `/tmp/yuzhou-analysis/private-file-boundary-fixed-report.json`，未改数据或角色 | 仅orders的平台子账号拒绝他人身份PDF/营业执照，保留实际关联合同访问；文件本人/全权限平台可读；匿名403 | 这6项是本地只读HTTP，不能计入49项Web页面检查；独立的公开权限6项见E12 |
+| E9 | `tests/backend/events.php` 29项已并入E1/E2；实际本地API12项，消费者H5/API Chromium10项（见 `/tmp/yuzhou-analysis/event-report.json`、`app-activity-browser/report.json`） | 私有合成PDF人工审核、旧token401清状态及重新登录；无会员禁报名；有效会员报名；本人免费取消释放名额，重报换票/旧票409；无API mock，外网全拦截 | 原生文件框、外部实名、完整MySQL活动/原生设备另验；选定线上报名取消见E10；人工审核不等于外部实名 |
+| E10 | 阿里云发布 `20261008T204750444-be8031cc`、源提交 `be8031cc8870f0357271ac380df79d0575bf2c8b`；公开HTTPS合成脚本259项断言通过，日志 `/tmp/yuzhou-https-acceptance.log` | 三管理/H5 HTML及入口资源、MySQL API；整单测试付款、私有合同/履约；利润4000分、部分退款2000分冻结→1750分利润复核→剩余8000分全退冲回；实名人工审核/会员/免费票取消重报 | 不证明分期付款、真实provider、线上全部浏览器/全部业务、负载或原生设备；仅对该已部署提交成立 |
+| E11 | 本地真实H5/API消费者27+经纪人13主路由、59分类/详情场景；5项限定交互、从“我的”点击8入口；`/tmp/yuzhou-analysis/app-pages-live/README.md`及report、截图 | 所列40路由/59场景实际渲染、导航和读取，接口200、页面异常0，无API mock，外网全部拦截；新购物车1→2、鉴权Excel等限定操作 | 没有支付/退款/提现、私人资料上传或真实视频观看；不能外推原生、外部3D/底图/provider；学习名称修复的本地限定复验另见E14 |
+| E12 | 同一线上源提交的公开HTTPS私有文件权限6项，`artifacts/deployment-private/scoped-files-report.json`；新增限定测试账号已停用 | orders平台子角色身份PDF/执照403、关联合同200；全权限平台材料200、匿名403；使用合成材料 | 不是全部角色组合/全部文件用途验收，不计入本地49项浏览器检查 |
+| E13 | 同一发布服务器400文件SHA256全部匹配；另11站点vhost哈希无变化；两timer active，jobs执行退出0；隔离记录见发布回执及 `artifacts/deployment-private/other-vhosts-verification.json` | 该发布文件完整性、未改另11站点配置、已激活自有任务并执行一次 | 不是真实服务器故障回滚、长期任务可靠性、备份恢复或99.9%可用性证明 |
+| E14 | 学习名称修复后本地实际API/H5针对性5项，`/tmp/yuzhou-analysis/app-pages-live/learning-names-report.json` | 当前课程/课时名称、缺失提示实现、不显示ID/UUID、按course_id进入课程及实际API200、无页面异常 | 尚未发布新版；未在此孤立修改后全量重跑59场景，不证明真实视频观看/考试/奖励履约 |
+| E15 | 后端离线SMS91已计E1/E2；实际隔离MySQL5.7.44短信报告86项（含6项SQLite故障注入）；两App实际H5 DOM的离线API mock18项，`/tmp/yuzhou-analysis/sms-offline/report.json` | OTP一次性消费、错误次数/用途/本人绑定/身份停用隔离及真实数据库并发；限定客户端登录/注册/绑定、冷却、前导零及会话边界 | 86项中的6项故障注入不是真实MySQL故障；H5 mock不是真实短信发送；实际发送0、正式独立配置缺失50311，未发布新版/未验设备 |
+| E16 | 旧be8031cc源码和68表数据的实际隔离备份恢复；139个外键匹配、0孤儿、3个上传对象size/SHA256一致，见validation.json具名记录 | 该旧备份可在隔离目标恢复结构、关系及现有上传对象；未激活到线上 | 不覆盖新71表/007；备份每日timer未启用、异地副本未验证，不证明生产故障切换/长期可靠性 |
+| E17 | 本地真实API/H5聊天7项、个人中心评价/收藏7项、视频发布/船艇收藏13项；报告 `/tmp/yuzhou-analysis/chat-live/report.json`、`account-panel-live/report.json`、`post-boat-live/report.json` | 两端完整21条消息及轮询/切换/离页边界；本人合成completed订单选择/评价与收藏取消；2秒可播放H264视频本地预览、待审403、平台审核后匿名GET/hash及Range206、动态页播至ended；收藏刷新恢复/取消 | 无API mock、仅合成本地资料，未发布；平台视频审核是API操作；不证明实际交付、长视频、原生媒体/推送或创意岛新视觉；不能并入三管理Web49项 |
+| E18 | 19真实船型资料本机导入后只读API/H5展示6项；`/tmp/yuzhou-analysis/boat-parameters-live/report.json`；格式4项已计App48 | 19型号/原parameters API一致；型号1/2138/7全部参数、数组、容量未知；≥/约/单位及非实船测速说明保留；最多3船共同参数比较、第4ID截断、价钱与3D按钮保留；无来源metadata | development实体/价格为测试数据，无API mock或写入；不是MySQL、新线上版本、真实库存/报价、外部3D或原生验收；参数/主题待最终同提交重建 |
+| F1 | Web11项合成API夹具及提现失败重试组件夹具3项；Web3项单元、App各48项检查、地图2项模型检查；安装器9项临时目录/命令及HTTPS模拟回归、备份15项离线检查、HTTPS验收脚本11项离线安全检查 | 前端回归及有限纯逻辑检查；最新本地单次完整check通过 | 不作为真实API、真实业务、服务器失败回滚、生产备份或正式环境验收 |
+| F2 | 创意岛主题本地H5全API mock33场景（27组前后+6聊天after），宽320/390/430；`/tmp/yuzhou-analysis/creative-style/summary.json` | 只读实际创意岛源风格对应浅灰/白卡、#4BC8FF→#216CF7胶囊按钮与限定布局 | 全部API模拟，不能计真实业务/数据库或原生验收；无用户视觉认可，最终版本待统一重建 |
 
 E3 的脚本为 `web/tests/live-management.cjs`、`live-content.cjs`、`live-operations.cjs`、`live-service.cjs`、`live-crm.cjs`、`live-map.cjs`；运行报告/截图在被忽略的 `web/test-results/`。这些报告含合成开发数据，不提交业务资料。Excel 已通过鉴权下载及 ZIP/OOXML 结构完整性检查，未报告 Microsoft Excel 交互兼容验收。
 
-新增private-files18已取得本地PHP8.2与阿里云PHP7.2.33证据，两处后端总数分别为244；修后只读HTTP6项独立记E8，不并入Web页面或公开HTTPS验收。
+最新private-files32、media23已计业务379，与导入126合计505；本地最新单次完整npm check已通过。阿里云PHP7.2.33的379及126为两次实际执行，不能称云端单次完整505。E8本地只读HTTP6项与E12旧线上公开权限6项保持原范围，不替代营业执照关联检查，也不并入Web页面数。MySQL短信86项含6项SQLite模拟完全回滚/有限重试，须与真实MySQL并发分开。
 
-本次截点 `public_https_acceptance=false`、`formal_provider_acceptance=false`、`native_devices=false`；独立MySQL39项已通过，范围见E7。部署工作进行中，本文不提前填写目标网址、真实服务或设备验收通过。
+当前源码schema为71表、最多27字段/表、商家credit_code主键，源迁移001—007；线上旧提交仍为68表、仅001—006，007待上线。隔离库检查不代表线上升级。E16恢复演练也只针对旧68表；当前备份每日timer未启用、offsite未完成，与E13的旧发布任务状态分别记录。
+
+当前线上测试发布截点仍为 `20261008T204750444-be8031cc`，源提交 `be8031cc8870f0357271ac380df79d0575bf2c8b`；E10的259项合成HTTPS断言、E12的6项权限和E6旧Android包证据只属于该提交。学习名称、短信、营业执照关联权限等新源码尚未发布，须重新构建/发布并核对回执。`formal_provider_acceptance=false`、`native_devices=false`，不能把旧截点结果归给新版本。
 
 ## 需求、入口及证据对应表
 
@@ -47,8 +60,8 @@ E3 的脚本为 `web/tests/live-management.cjs`、`live-content.cjs`、`live-ope
 
 | 需求/确认规则 | 当前实现入口 | 已取得证据与当前状态 | 剩余验收或阻碍 |
 | --- | --- | --- | --- |
-| 两个独立 App、三管理入口 | `apps/consumer`、`apps/broker`；`platform/merchant/agency`；`auth/login`、`auth/me` | E3/E4选定入口实际登录，E5独立构建；登录由服务端角色校验 | 正式原生包和设备；三管理入口公开HTTPS完整流程 |
-| 账号注册、资料、实名及入驻 | App `login/account/identity`；平台 `applications/users/organizations`；`applications`、`admin/users`、`admin/organizations` | E1/E3基本账号及人工申请审核、私有证明文件、机构管理；E9消费者身份PDF人工审核及旧token失效API闭环 | 短信/邮箱验证及外部实名服务未接；人工审核不能称权威身份校验 |
+| 两个独立 App、三管理入口 | `apps/consumer`、`apps/broker`；`platform/merchant/agency`；`auth/login`、`auth/me` | E3/E4选定入口实际登录，E5独立构建；E10公开HTML/API选定检查、E11两App H5路由覆盖；登录由服务端角色校验 | 正式原生包和设备；三管理入口完整线上浏览器操作流程 |
+| 账号注册、资料、实名及入驻 | App `login/account/identity/profile`；平台 `applications/users/organizations`；`auth/sms/verify`、`applications`、`admin/users/organizations` | E1/E3基本账号及人工审核；E9私有身份PDF及旧token失效；E15安全OTP/本人手机号绑定新源码与离线验证 | 新短信功能未上线、真实发送未验；邮箱及外部实名未接，人工审核不能称权威身份校验 |
 | 商家信用代码和营业执照 | 平台机构/入驻表单；`merchants.credit_code`、私有 `uploads/files` | E1/E3/E7代码结构及上传/预览；真实主键与组织容器分离 | 合成信用代码及执照不是合法企业材料验收；现存开发账号资料不作正式认证 |
 | 公司/员工、客户、订单隔离 | 经纪公司 `users/customers/orders`；经纪人 `customers/orders`；API `Policy` 与组织范围 | E1/E3商家不能读经纪订单/PDF、经纪公司不能读商家直单；多组织逻辑检查 | 第二家经纪公司完整页面回归、正式 MySQL/HTTPS 多公司测试 |
 | 后台子角色、最小模块权限 | 平台 `roles/users`；`admin/roles`、`admin/users/:id/roles` | E1/E3仅订单子角色隐藏财务、直接页阻止、API账本/报表403；E8私有文件按订单/申请/机构模块授权，orders不能读取身份或营业执照；基础身份/组织不可提升 | 更完整的权限组合和停用账号正式环境回归 |
@@ -56,15 +69,15 @@ E3 的脚本为 `web/tests/live-management.cjs`、`live-content.cjs`、`live-ope
 | 船艇搜索、分类、偏好推荐、参数及对比 | 消费者 `home/boat/compare`；资源查询 | E4首页；E5搜索/类别/排序/对比；E1/E7推荐按本人收藏/足迹偏好，匿名新发布冷启动 | 多设备/真实大量数据；当前偏好排序不是AI，距离匹配销售另列缺口 |
 | 地图找船及WGS84发布位置 | 两App `map`同源iframe `/boat-map/`；Web实体船艇坐标表单；公开boats目录 | E3真实无坐标空态、仅新合成船成对/范围检查、typed数值保存、审批后marker→两App实船预选、清空及既有坐标不变；无API mock | 所有外网/瓦片拦截；正式底图、真实泊位和原生桥接未验，人工位置不是实时GPS |
 | 已有3D看船和本船模型 | 两App `viewer`及船型详情外链；`bootstrap.vr_base_url`、资源模型地址 | E5外链/模型入口提供，不重做已有3D系统 | 每船真实模型映射、网络可达、Android/iOS WebView/交互性能未验 |
-| 购船报价与合同付款前置 | 消费者 `booking/order`；经纪人 `quote/order`；Web `orders`；`orders/:id/quote/accept-quote/pay` | E1/E3/E4价格校验、客户接受报价、当前合同前置、开发整单支付 | 真实支付未接；定金/尾款专门流程及融资未完成，不能把整单测试支付代替 |
+| 购船报价与合同付款前置 | 消费者 `booking/order`；经纪人 `quote/order`；Web `orders`；`orders/:id/quote/accept-quote/pay` | E1/E3/E4价格校验、客户接受报价、当前合同前置、开发整单支付；E10同一已部署版本选定整单付款/合同API | 真实支付未接；定金/尾款专门流程及融资未完成，不能把整单测试支付代替 |
 | 按日租赁、同型多船、优惠券 | 消费者 `booking/coupons/orders`；Web船型/实体/订单；日占用唯一约束 | E1/E4两艘实体与日租/券规则；服务端计价、日期及库存检查 | 实际MySQL并发预订/取消/过期、支付回调；保险/外部船艇系统 |
 | 商城商品、购物车与订单 | 消费者 `shop/product/cart/order`；平台 `products/orders`；`cart/orders` | E1领域库存/金额/幂等、E5页面构建；商城按确认由平台经营 | App完整浏览器/设备购买闭环、支付/配送服务 |
 | 升级方案与前后参数 | 消费者 `discover/booking/order`；平台/商家 `upgrades`；经纪人报价 | E3结构化型号与前后参数，E4 API相关数据 | 所有实际船型匹配及真实安装资料；按场景/身份的推荐口径尚未验证 |
 | 服务预约及安装进度 | App共享订单面板；`orders/:id/schedule/progress`；三Web `orders`时间/地点、阶段及非递减百分比 | E3/E4时间地点及40%真实API记录，三Web保存/回读/拒绝回退；100%不完成订单 | 设备各阶段/实际收货调试完成、外部进度同步未验；合成进度不是实际安装 |
 | 保养申请、计划、档案和评价 | 消费者 `discover/booking/profile/order`；`maintenance`、`boat-records/reminders/reviews` | E1/E4选定 API记录；模板有入口 | 完整个人船档/提醒/评价设备流程；原厂/船艇系统同步未接 |
-| 商家独享与平台联合活动 | 消费者 `event`；商家/平台 `events`；联合参与商家审核 | E3指定商家实际审批；E1容量/票逻辑；E9已补人工实名+有效会员共同门槛及免费取消 | E9实际API12项及消费者H5/API10项、PHP7.2逻辑已通过；MySQL完整活动/真实支付及验票核销/原生设备另验 |
+| 商家独享与平台联合活动 | 消费者 `event`；商家/平台 `events`；联合参与商家审核 | E3指定商家实际审批；E1容量/票逻辑；E9已补人工实名+有效会员共同门槛及免费取消；E10线上会员/免费票取消重报 | E9实际API12项及消费者H5/API10项、PHP7.2逻辑已通过；全部MySQL活动组合/真实支付及验票核销/原生设备另验 |
 | 活动推荐、分享及会员资格 | 经纪人客户/活动推荐入口，消费者活动资格；`enrollments`、奖励记录 | E1/E4活动奖励只发资格，未假装自动报名；经纪公司不是活动发布方 | 原生分享、会员具体活动权益和真实报名/验票联动 |
-| 免费课程、学习进度、试题 | 消费者 `course/classroom/learning`；平台 `courses`；进度/考试API | E1/E3/E4章节/题目/及格线、合成学习进度/考试、答案不下发学生 | 真机实际观看、后台/断网/续播、时长可靠性；合成位置上报不是观看证明 |
+| 免费课程、学习进度、试题 | 消费者 `course/classroom/learning`；平台 `courses`；进度/考试API | E1/E3/E4章节/题目/及格线、合成进度/考试、答案不下发学生；E14名称显示本地5项通过 | 名称修复新版待发布；真机实际观看、后台/断网/续播、时长可靠性，合成位置上报不是观看证明 |
 | 六类课程奖励及交付 | 课程配置、平台 `course-rewards`；消费者 `learning/coupons` | E1/E3/E4徽章、成长、普通券、保养券、待履约礼包、活动资格；重复领取防护及礼包交付凭据 | 真实礼包配送、每项真实券/活动资格业务；未提供独立正式证书体系的验收证据 |
 | 六个月会员及成长任务 | 消费者 `membership/learning/points`；平台 `settings/users` | E1购船会员及增长幂等，E3配置；E4成长相关API | 正式数据下到期/叠加/退款关联回归；不可写成全部高级会员等级已完成 |
 | 积分商城及兑换发放 | 消费者 `points`；平台 `growth_products/redemptions`；兑换审核API | E1/E3/E4扣分/库存、幂等、取消/驳回精确返还、发放凭据 | 真实实物交付/物流；设备积分全流程 |
@@ -72,14 +85,14 @@ E3 的脚本为 `web/tests/live-management.cjs`、`live-content.cjs`、`live-ope
 | 首页/商城/学习/社区轮播 | 平台 `banners`；App `BannerStrip` | E3实际合成图片上传、位置/顺序/跳转；E5模板 | App各位置设备检查及素材授权；静态占位图不证明设计素材交付 |
 | 咨询IM、带看预约及记录 | 两App `chat/appointment`；Web `conversations/appointments`；会话成员/预约API | E1/E3/E4成员限制、实际回复、预约确认/完成/取消 | 当前轮询不是系统推送；200ms响应/送达率未验；带看佣金单独规则未落实 |
 | 经纪人客户跟进与订单履约 | 经纪人 `work/customers/quote/orders/order`；经纪公司 `customers/orders` | E3/E4客户选择、报价/合同/履约；公司标签维护/客户赋标签/实际筛选、公司月度净实收目标通过 | 个人目标、距离匹配销售、主动保养邀约专门口径未验；公司月目标不自动替代个人目标 |
-| 合同私有上传、版本、审核和确认 | 三Web `orders`、两App共享订单面板；`uploads`→`orders/:id/contract`→`contract-review/sign`、鉴权 `files/:id` | E1/E3三Web真实上传/Blob预览；报价使旧合同失效；E4 Chromium销售H5上传；E8修后只读私有文件权限6项 | Safari文件框上传按钮禁用，未算通过；Android/iOS文件选择及预览未验；不是第三方电子签 |
+| 合同私有上传、版本、审核和确认 | 三Web `orders`、两App共享订单面板；`uploads`→`orders/:id/contract`→`contract-review/sign`、鉴权 `files/:id` | E1/E3三Web真实上传/Blob预览；报价使旧合同失效；E4 Chromium销售H5上传；E8本地及E12公开权限各6项；E10线上私有合同/审核/确认API | Safari文件框上传按钮禁用，未算通过；Android/iOS文件选择及预览未验；不是第三方电子签 |
 | 客户退款申请及平台处理 | 消费者订单申请；平台 `refunds/orders`；退款申请/审核/退款API | E1/E3申请审核；真实渠道未配返回503且状态不变；开发通道明确 | 真实渠道的签名回调、异步成功/失败/重试、真实资金退回 |
 | 逐单人工利润、显式受益人与快照 | 平台 `orders/settings`；`profit-confirm`、账本 | E1/E3确认利润，会员/经纪人资格、整数分/bps、原规则快照 | 实际业务利润及受益人资料录入、财务对账；无自动推算利润功能承诺 |
-| 部分退款利润复核、全部冲回 | 平台 `refunds/orders/ledger`；退款后 `needs_reconfirmation` | E1/E3部分退款冻结、复核保留原会员/5%规则、追加差额后净账本1750分；全部冲回逻辑 | 正式渠道回调、该39项外的MySQL退款复核/重复回调；测试金额不是实际财务交易 |
+| 部分退款利润复核、全部冲回 | 平台 `refunds/orders/ledger`；退款后 `needs_reconfirmation` | E1/E3部分退款冻结、复核保留原会员/5%规则、追加差额后净账本1750分；全部冲回逻辑；E10线上合成4000/2000/1750/8000分复核冲回闭环 | 正式渠道回调、全部MySQL组合/真实退款回调；测试金额不是实际财务交易 |
 | 分红周期、账本、提现及导出 | App `commission/membership/reports`；三Web `ledger`、平台 `withdrawals/settings`；XLSX报表 | E1/E3/E4/E7范围/账本/审核/xlsx；真实同key返回同申请且只预留一次，换金额409 | 审核通过不等于转账成功，真实出款未接；原生保存/分享xlsx未验 |
 | 订单统计、客户/带看及分红统计 | Web `dashboard`、经纪人 `reports`；`reports/summary/dividends.xlsx` | E1/E3/E4实际范围/财务/客户/预约；公司月目标按当月支付减退款，不计报价或创建额 | 正式累计数据/对账/HTTPS；个人目标未由公司目标或统计卡证明 |
 | 平台用户历史订单与船艇 | 平台 `users`详情；`admin/users/:id/history` | E1/E3订单分页及船艇记录；仅平台且要求users权限 | 正式历史资料迁移/完整性；不存在的数据不以演示补齐 |
-| 收藏、足迹、通知、反馈回复 | 消费者 `profile/account`；Web `notifications/feedback`；对应API | E1/E3/E4收藏/足迹相关API、已读、平台反馈回复handled且通知用户 | App后补页面全部逐页浏览器/真机未验；站内记录不等于系统推送到达 |
+| 收藏、足迹、通知、反馈回复 | 消费者 `profile/account`；Web `notifications/feedback`；对应API | E1/E3/E4收藏/足迹相关API、已读、平台反馈回复handled且通知用户；E11“我的”8入口实际点击 | H5的40路由已有限读取/导航验，完整操作及真机另验；站内记录不等于系统推送到达 |
 | 审计、金额和状态防重复 | 平台 `audit`；订单事件、不可删除账本、幂等键 | E1/E2状态/库存/财务逻辑，E3真实拒绝越权和错误通道 | E7以外的MySQL交易/作业重试、备份恢复和运营审计留存 |
 
 ## 尚未闭合的内部需求
@@ -102,19 +115,21 @@ E3 的脚本为 `web/tests/live-management.cjs`、`live-content.cjs`、`live-ope
 | 范围 | 当前边界 | 仍需的输入及实际验证 |
 | --- | --- | --- |
 | 支付、退款、提现 | 真实支付/退款返回未配置；提现审批不是出款；有开发测试状态和幂等逻辑 | 驭舟自己的渠道账号、接口/证书及回调配置；官方测试/正式回调签名、金额校验、幂等重试、失败恢复和对账，不能借用创意岛凭据 |
-| 手机/邮箱验证、微信/Apple登录 | 基础账号可注册/登录；未证明号码/邮箱已验证；外部登录未接 | 独立应用平台注册、短信/邮件服务与登录回调；设备授权拒绝、重复账号绑定及会话验证 |
+| 手机/邮箱验证、微信/Apple登录 | 安全OTP及本人手机号绑定已有新源码、SMS91/MySQL报告86/H5 mock18；真实短信发送0，缺独立配置50311；邮箱/外部登录未接 | 007及新版本上线、驭舟独立短信签名/模板/账号与实际受理/送达；邮件/外部登录授权、重复绑定及设备验证，不能用mock称真实验证 |
 | 外部实名 | 当前私有材料+平台人工审核 | 业务所需实名服务及授权流程；成功/失败/撤销及敏感资料访问，不把人工审核称外部实名 |
 | 推送与关键消息 | 站内通知和会话轮询持久化 | 独立推送应用/配置、设备token与证书；前后台/离线/拒绝权限及送达率测量，不能用站内写入替代送达 |
 | 保险、融资及船艇/原厂系统 | 没有已接真实服务的证据 | 业务接口和状态/责任边界、授权及回调；真实预约/使用/档案/进度失败和重试 |
 | AI合规及内容优化 | 当前人工审核、下架/评论审核；没有AI服务成功记录 | 明确AI供应商、审核/优化范围及人工复核；输入输出、失败降级、费用/权限；人工审核不等于AI完成 |
 | 3D模型平台 | 接已有外链及本船模型地址 | 真实逐船地址/模型映射与移动端授权；原生WebView载入、返回、交互及性能，不把通用平台地址称本船模型 |
-| Android两独立App | 临时标识和签名、APP资源构建；两Android测试APK签名v2静态校验通过，尚未绑定最终源提交 | 最终APK哈希/包标识/版本/签名回执；两包实际安装、启动/网络/权限/PDF选择/上传预览/视频/3D/支付；临时签名不是商店正式发布 |
-| iOS两独立App | APP资源可构建，`apple_registered=false`；没有IPA安装证据 | Apple开发者账号、两个Bundle ID、证书/描述文件与正式渠道；签名IPA构建、安装、相机/文件/视频/WebView/登录支付等真机流程 |
+| Android两独立App | 两个约35MB临时签名测试APK，E6绑定be8031cc并核实v2签名、HTTPS API及公开下载SHA256 | 两包实际安装、启动/网络/权限/PDF选择/上传预览/视频/3D/支付；临时签名不是商店正式发布；新提交须重建绑定 |
+| iOS两独立App | 两个APP原生资源编译；iOS26.5 Universal Simulator runtime已下载可用，仅为环境准备；DCloud iOS离线SDK/基础包与Apple签名仍缺，无App模拟器运行/签名IPA/安装证据 | 匹配5.26 SDK/基础包与各自标识并实际构建运行；真机需Apple账号、证书/描述文件与签名IPA，资源编译/runtime下载均不能替代 |
 | 正式法律文本和素材 | 测试同意文案、合成企业/合同及占位/设计素材仅用于开发 | 运营方正式隐私/服务协议、主体资料、素材授权和商店材料；本文不作法律合规通过判断 |
 
 最终品牌源图标尚未确认；Android测试图标已用交付参考船图替换SDK示例，但不能称最终驭舟品牌，参见 [apps/ASSETS.md](../apps/ASSETS.md)。DCloud `Camera` 是官方Camera&Gallery整体模块，当前应用只调用相册选择；模块/用途描述不证明主动拍摄或设备权限已验。
 
 原生PDF桥接代码/H5上传成功不自动证明原生系统文件选择。Safari选择器曾出现上传按钮禁用，现有成功证据来自Chromium；需各目标浏览器和真机复验。视频、课程礼包/积分商品真实配送及实际验票同样不由合成数据记录证明。
+
+HBuilderX目前可读取AX，但操作菜单未能关闭、截图不可用，不能据此视作已解锁或iOS运行验收。实际备份恢复仅记E16的旧提交隔离演练；备份timer与异地恢复仍待启用/验证。
 
 ## 性能及服务指标
 
@@ -132,12 +147,12 @@ E3 的脚本为 `web/tests/live-management.cjs`、`live-content.cjs`、`live-ope
 
 源提交、依赖锁文件、Web/H5/APP资源、后端源码和发布清单应绑定同一版本及SHA256。两个App的DCloud标识、Android包名/iOS Bundle ID分开，开发与正式API环境不能混用；正式包应明确指向目标HTTPS接口，不保留localhost/LAN地址。H5构建、原生资源、APK/IPA和设备验证分别记录。
 
-截至本记录，MySQL表结构迁移已应用，阿里云PHP7.2当前244项SQLite/隔离HTTP兼容检查及独立MySQL39项通过；公开HTTPS及完整上线业务库流程仍未标为通过。后续至少补充下列独立回执：
+截至本记录，最新本地单次完整npm check通过，后端505（379+126）；阿里云PHP7.2分别两次执行379/126、合计505。既有MySQL39及短信报告86按E7/E15记录；App各48、E14名称5、E17真实H5 7/7/13、E18参数6及SMS mock18已本地通过，尚未发布新版。源码71表/007与线上68表/001—006分开；E10—E13仍只证明旧be8031cc发布。消费者APK35,473,999字节、经纪人APK35,444,476字节，公开下载哈希与本地一致，完整SHA256在具名下载回执中，仅证明该旧构建。完整线上业务和设备仍有以下待验项：
 
-1. 发布版本/Git提交、包及静态资源哈希、服务器实际文件版本；两个App构建/签名类型与API地址，不公开私有密钥。
-2. 目标域名DNS/TLS、三Web入口和API实际请求；私有上传目录不公开，匿名/跨公司读取拒绝，正式环境测试支付开关关闭。
+1. 每个后续提交重新绑定发布/静态资源/APK哈希与源码、核对服务器实际版本；保留签名类型/API地址回执，不能继承be8031cc旧截点结果。
+2. 当前目标HTTPS及选定三Web/H5入口/API已有E10证据；仍需三管理入口完整线上浏览器操作和更全面的文件/公司权限回归。当前是显式test站点；切换正式交易环境前关闭测试支付并补provider验收。
 3. 独立MySQL账号和真实MySQL下订单/合同/退款复核/学习/库存/提现逻辑；多实体同日并发、重复回调/提现，需扩展至全部实际目标业务，不能用SQLite或39项局部通过替代。
-4. 三入口完整浏览器闭环、第二家经纪公司隔离；App后补页面在浏览器逐页核对。
+4. 三入口完整线上浏览器闭环、第二家经纪公司隔离；E11已覆盖App H5全部40主路由读取/导航，E14名称已本地修复，仍补完整业务交互和新版本发布后的回归。
 5. 两个Android App及两个iOS App设备安装和实际功能记录，特别是PDF选择/预览、视频、3D、权限、支付/登录/推送及网络失败。
 6. 未配置provider、内部覆盖缺口及性能指标逐项完成或由用户明确修订验收范围，保留具体证据和失败结果。
 

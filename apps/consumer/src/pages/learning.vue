@@ -10,8 +10,9 @@
         class="list-item"
         @click="go('course', { id: item.course_id })"
         ><view
-          >课程 {{ item.course_id }} · 课时 {{ item.lesson_id
-          }}<view class="small muted"
+          >{{ item.course_title || "课程信息暂不可用" }}
+          <view class="small muted">{{ item.lesson_title || "课时已移除或暂不可用" }}</view>
+          <view class="small muted"
             >已学习 {{ item.position_seconds }} 秒</view
           ></view
         ><text class="badge">{{

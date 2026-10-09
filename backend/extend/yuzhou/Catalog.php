@@ -67,7 +67,7 @@ class Catalog
             $payload = $body['payload'] ?? ($old ? $old['payload'] : []);
             if (!is_array($payload) || strlen(json_encode($payload)) > 100000) throw new ApiError('Invalid resource payload.');
             if ($kind === 'posts' && $user['role'] !== 'platform' && (($payload['post_type'] ?? 'forum') !== 'forum' || !empty($payload['is_pinned']))) throw new ApiError('Official news and pinning require platform management.', 403, 403);
-            $this->validatePayload($kind, $payload);
+            $this->validatePayload($kind, $payload, $user);
             $status = $user['role'] === 'platform' ? ($body['status'] ?? ($old ? $old['status'] : 'published')) : 'pending';
             if ($kind === 'events' && !empty($payload['joint_merchant_codes'])) {
                 if ($user['role'] !== 'platform') throw new ApiError('Only the platform can organize joint merchant events.', 403, 403);
@@ -94,13 +94,15 @@ class Catalog
         });
     }
 
-    private function validatePayload($kind, array $payload)
+    private function validatePayload($kind, array $payload, array $user)
     {
         foreach (['daily_price_cents', 'deposit_cents', 'discount_cents', 'min_amount_cents'] as $key) if (isset($payload[$key])) Validation::money($payload[$key], $key);
         foreach (['stock', 'capacity'] as $key) if (isset($payload[$key])) Validation::integer($payload[$key], $key, 0, 1000000);
         foreach (['before_parameters', 'after_parameters', 'parameters'] as $key) if (isset($payload[$key]) && !is_array($payload[$key])) throw new ApiError($key . ' must be an object.');
-        foreach (['vr_url', 'video_url'] as $key) if (!empty($payload[$key]) && !preg_match('#^https?://#i', $payload[$key])) throw new ApiError($key . ' must be an HTTP URL.');
-        foreach ($payload['image_urls'] ?? [] as $url) if (!is_string($url) || (!preg_match('#^https?://#i', $url) && strpos($url, '/api/v1/files/') !== 0)) throw new ApiError('Invalid image URL.');
+        if (!empty($payload['vr_url']) && (!is_string($payload['vr_url']) || !preg_match('#^https?://#i', $payload['vr_url']))) throw new ApiError('vr_url must be an HTTP URL.');
+        if (!empty($payload['video_url'])) $this->mediaUrl($payload['video_url'], 'video/', $user);
+        if (isset($payload['image_urls']) && !is_array($payload['image_urls'])) throw new ApiError('Image URLs must be an array.');
+        foreach ($payload['image_urls'] ?? [] as $url) $this->mediaUrl($url, 'image/', $user);
         if ($kind === 'boats') {
             $type = $this->get(Validation::id($payload['boat_type_id'] ?? 0, 'boat_type_id'), 'boat_types');
             if (empty($payload['serial_number'])) throw new ApiError('Boat serial_number is required.');
@@ -116,6 +118,7 @@ class Catalog
                 if (isset($ids[$id])) throw new ApiError('Lesson IDs must be unique.');
                 $ids[$id] = true;
                 Validation::text($lesson['title'] ?? '', 'lesson title', 200);
+                if (!empty($lesson['video_url'])) $this->mediaUrl($lesson['video_url'], 'video/', $user);
                 Validation::integer($lesson['duration_seconds'] ?? 0, 'duration_seconds', 1, 86400);
             }
             foreach ($payload['questions'] ?? [] as $question) {
@@ -123,6 +126,17 @@ class Catalog
                 Validation::integer($question['answer'], 'answer', 0, count($question['options']) - 1);
             }
         }
+    }
+
+    private function mediaUrl($url, $mimePrefix, array $user)
+    {
+        if (!is_string($url)) throw new ApiError('Invalid media URL.');
+        if (preg_match('#^https?://#i', $url)) return;
+        if (!preg_match('#^/api/v1/files/([1-9][0-9]*)$#D', $url, $match)) throw new ApiError('Invalid media URL.');
+        $file = $this->db->one('SELECT * FROM uploads WHERE id=?', [Validation::id($match[1])]);
+        if (!$file || $file['is_private'] || strpos($file['mime'], $mimePrefix) !== 0) throw new ApiError('A public uploaded media file of the correct type is required.');
+        // Publishing a reference must not make somebody else's unpublished upload readable.
+        (new FileStore($this->db))->read($file['id'], $user);
     }
 
     private function aggregate(array $row, $public, $lock = false)

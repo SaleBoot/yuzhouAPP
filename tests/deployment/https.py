@@ -115,6 +115,25 @@ class Client:
                 return found
         raise AcceptanceFailure("Ledger scope exceeds acceptance pagination bound")
 
+    def upload_video(self, token, tag):
+        video = (pathlib.Path(__file__).parent.parent / "fixtures/black-1s.mp4").read_bytes()
+        boundary = "YuzhouMedia" + secrets.token_hex(16)
+        body = (
+            f'--{boundary}\r\nContent-Disposition: form-data; name="private"\r\n\r\n0\r\n'
+            f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{tag}.mp4"\r\n'
+            "Content-Type: video/mp4\r\n\r\n"
+        ).encode("ascii") + video + f"\r\n--{boundary}--\r\n".encode("ascii")
+        status, _, raw = self.request("/api/v1/uploads", "POST", body, token,
+                                      {"Content-Type": "multipart/form-data; boundary=" + boundary})
+        self.check(status == 200, "Synthetic media upload failed")
+        response = json.loads(raw)
+        self.check(response["code"] == 0, "Synthetic media upload envelope failed")
+        result = response["data"]
+        self.check(result["private"] is False and result["mime"] == "video/mp4"
+                   and result["sha256"] == hashlib.sha256(video).hexdigest(), "Public video upload metadata mismatch")
+        self.check(re.fullmatch(r"/api/v1/files/[1-9][0-9]*", result["url"]) is not None, "Noncanonical uploaded video URL")
+        return result, video
+
 
 def synthetic_pdf(tag):
     text = "Synthetic Yuzhou HTTPS acceptance only - not a legal contract. " + tag
@@ -181,6 +200,7 @@ def run(accounts, client):
     client.check(bootstrap.get("environment") == "test" and bootstrap.get("is_test_environment") is True
                  and bootstrap.get("test_payments_enabled") is True, "Only explicit deployed test payment mode is allowed")
     client.check(bootstrap.get("services", {}).get("payment") == "unconfigured", "Real provider configuration is outside this script")
+    client.check(bootstrap.get("services", {}).get("sms") == "unconfigured", "Configured SMS is outside this synthetic script")
     health = client.api("health")
     client.check(health.get("database") == "mysql" and health.get("framework") == "ThinkPHP 5.1.41 LTS", "Deployed runtime baseline mismatch")
     client.stage = "five demo role authentication"
@@ -188,6 +208,7 @@ def run(accounts, client):
     for role in ROLES:
         session = client.api("auth/login", "POST", {"username": role + ".demo", "password": accounts["password"]})
         client.check(session["user"]["role"] == role and isinstance(session["token"], str), "Demo role authentication mismatch")
+        client.check(isinstance(session["user"].get("phone_bound"), bool), "Verified phone status is missing")
         sessions[role] = session
     platform, merchant, agency, broker = (sessions[role]["token"] for role in ROLES[:4])
     outsider = sessions["consumer"]["token"]
@@ -199,6 +220,12 @@ def run(accounts, client):
     bps = int(settings["distribution"]["broker_bps"])
     client.check(int(settings["version"]) > 0 and 0 < bps <= 10000 and 4000 * bps // 10000 > 0,
                  "An existing test rule yielding commission on 4000 cents is required; script does not configure it")
+    client.stage = "unconfigured SMS refuses send and verification"
+    for endpoint, body in (
+        ("auth/sms", {"phone": "13900000000", "purpose": "login"}),
+        ("auth/sms/verify", {"phone": "13900000000", "purpose": "login", "challenge_id": "a" * 64, "code": "000001"}),
+    ):
+        client.check(client.api(endpoint, "POST", body, expected=503) is None, "Unconfigured SMS returned a challenge or session")
     html_and_secret_boundaries(client)
 
     # All business mutations below create or update only this new random fixture family.
@@ -209,6 +236,30 @@ def run(accounts, client):
     customer = client.api("auth/register", "POST", {"username": customer_name, "password": customer_password,
                                                     "nickname": "合成HTTPS验收消费者 " + tag})
     customer_token, customer_id = customer["token"], int(customer["user"]["id"])
+    client.stage = "canonical public media publication and range delivery"
+    video_file, video = client.upload_video(customer_token, tag + "_black_video")
+    status, _, _ = client.request(video_file["url"])
+    client.check(status == 403, "Unpublished public video is anonymously readable")
+    client.api("resources/posts", "POST", {"title": "Synthetic inaccessible media rejection " + tag,
+               "payload": {"content": "Synthetic media boundary", "video_url": video_file["url"]}}, outsider, expected=403)
+    pending_post = client.api("resources/posts", "POST", {"title": "合成HTTPS视频 " + tag,
+                              "payload": {"content": "One-second black synthetic acceptance clip", "video_url": video_file["url"]}}, customer_token)
+    client.check(pending_post["status"] == "pending", "Consumer video bypassed moderation")
+    status, _, _ = client.request(video_file["url"])
+    client.check(status == 403, "Pending video became publicly readable")
+    published_post = client.api(f"resources/posts/{pending_post['id']}", "PATCH",
+                               {"version": pending_post["version"], "status": "published"}, platform)
+    status, headers, raw = client.request(video_file["url"])
+    client.check(status == 200 and raw == video and "video/mp4" in headers.get("Content-Type", ""),
+                 "Published canonical video bytes are unavailable")
+    status, headers, raw = client.request(video_file["url"], headers={"Range": "bytes=0-15"})
+    client.check(status == 206 and raw == video[:16] and headers.get("Content-Range") == f"bytes 0-15/{len(video)}",
+                 "Published video range delivery failed")
+    client.api(f"resources/posts/{pending_post['id']}", "PATCH",
+               {"version": published_post["version"], "status": "archived"}, platform)
+    status, _, _ = client.request(video_file["url"])
+    client.check(status == 403, "Archived video retains anonymous access")
+    client.stage = "new synthetic customer and private PDF"
     uploaded, pdf = client.upload_pdf(broker, tag + "_contract")
     for token, expected in ((broker, 200), (None, 403), (outsider, 403), (merchant, 403)):
         status, headers, raw = client.request(uploaded["url"], token=token)

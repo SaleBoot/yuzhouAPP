@@ -212,12 +212,12 @@ onShow(() => {
   position: relative;
   padding: 0;
   overflow: hidden;
-  background: #174563;
+  background: #216cf7;
 }
 .hero-image {
   width: 100%;
   height: 100%;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 .hero-copy {
   position: absolute;
@@ -225,13 +225,13 @@ onShow(() => {
   z-index: 1;
 }
 .hero-title {
-  font-size: 40rpx;
+  font-size: 36rpx;
   font-weight: 700;
   margin: 12rpx 0;
 }
 .hero-sub {
   font-size: 24rpx;
-  color: #e1eef4;
+  color: #fff;
 }
 .hero-kicker {
   font-size: 19rpx;
@@ -260,7 +260,7 @@ onShow(() => {
   align-items: center;
   justify-content: space-between;
   padding: 18rpx 24rpx;
-  box-shadow: 0 8rpx 28rpx #09233f22;
+  box-shadow: 0 4rpx 20rpx #0000000a;
   background: white;
   border-radius: 20rpx;
   z-index: 6;
@@ -271,14 +271,14 @@ onShow(() => {
   font-size: 24rpx;
 }
 .tabs text {
-  font-size: 34rpx;
-  font-weight: 700;
-  margin-right: 32rpx;
-  color: #95a0ab;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-right: 24rpx;
+  color: #999;
 }
 .tabs text.active {
-  color: #09233f;
-  border-bottom: 6rpx solid #f4c44f;
+  color: #216cf7;
+  border-bottom: 4rpx solid #216cf7;
   padding-bottom: 12rpx;
 }
 </style>

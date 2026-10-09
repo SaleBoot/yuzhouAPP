@@ -26,7 +26,9 @@ for (const [source, target] of [
   ['apps/map/dist', 'public/boat-map'],
   ['backend', 'backend'],
   ['database', 'database'],
-  ['deploy', 'deploy']
+  ['data/test-catalog', 'data/test-catalog'],
+  ['deploy', 'deploy'],
+  ['scripts/import-test-catalog.php', 'deploy/import-test-catalog.php']
 ]) {
   const sourcePath = path.join(root, source);
   if (!existsSync(sourcePath)) throw new Error(`缺少产物 ${source}，请先构建`);

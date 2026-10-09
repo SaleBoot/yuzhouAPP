@@ -183,6 +183,46 @@ check($gift && $invite && (int)$db->scalar('SELECT COUNT(*) FROM enrollments') =
 blocked(function () use ($community, $gift, $consumer) { $community->fulfillReward($gift['id'], ['notes' => 'Not authorized'], $consumer); }, 403, 'Only platform confirms real gift fulfillment');
 $community->fulfillReward($gift['id'], ['notes' => 'Synthetic shipment confirmation'], $platform);
 blocked(function () use ($community, $gift, $platform) { $community->fulfillReward($gift['id'], ['notes' => 'Duplicate'], $platform); }, 409, 'Gift fulfillment cannot repeat');
+$otherCourse = $cat->save('courses', ['title' => 'Other progress course', 'payload' => ['lessons' => [
+    ['id' => 'L1', 'title' => 'Other course first lesson', 'duration_seconds' => 100],
+    ['id' => 'L2', 'title' => 'Other course second lesson', 'duration_seconds' => 100]]]], $platform);
+$community->progress(['course_id' => $otherCourse['id'], 'lesson_id' => 'L1', 'position_seconds' => 1], $consumer);
+$community->progress(['course_id' => $otherCourse['id'], 'lesson_id' => 'L2', 'position_seconds' => 2], $consumer);
+$community->progress(['course_id' => $otherCourse['id'], 'lesson_id' => 'L1', 'position_seconds' => 3], $u['outsider']);
+$progressRows = $community->progressList([], $consumer);
+$progressTitles = []; foreach ($progressRows['items'] as $row) $progressTitles[$row['course_id'] . ':' . $row['lesson_id']] = [$row['course_title'], $row['lesson_title']];
+check($progressRows['total'] === 3 && $progressTitles[$course['id'] . ':L1'] === ['Free test course', 'Lesson']
+    && $progressTitles[$otherCourse['id'] . ':L1'] === ['Other progress course', 'Other course first lesson']
+    && $progressTitles[$otherCourse['id'] . ':L2'] === ['Other progress course', 'Other course second lesson'], 'Progress titles match both course and lesson, including reused lesson keys');
+$progressPage = $community->progressList(['page' => 2, 'page_size' => 1], $consumer);
+check($progressPage['total'] === 3 && $progressPage['page'] === 2 && $progressPage['page_size'] === 1 && count($progressPage['items']) === 1
+    && $progressPage['items'][0]['course_title'] === 'Other progress course' && $progressPage['items'][0]['lesson_title'] === 'Other course first lesson', 'Progress title enrichment preserves page boundaries');
+$outsiderSession = (new Auth($db))->login(['username' => 'test_outsider', 'password' => 'Synthetic-test-1234'], 'progress-fixture');
+$outsiderProgress = (new yuzhou\Api($db))->dispatch('GET', 'learning/progress', [], ['user_id' => $consumer['id']], $outsiderSession['token']);
+check($outsiderProgress['total'] === 1 && count($outsiderProgress['items']) === 1 && (int)$outsiderProgress['items'][0]['user_id'] === (int)$u['outsider']['id']
+    && $outsiderProgress['items'][0]['lesson_title'] === 'Other course first lesson', 'Progress API enriches only the caller even when another user is requested');
+$renamedLessons = $otherCourse['payload']['lessons']; $renamedLessons[0]['title'] = 'Renamed first lesson';
+$cat->save('courses', ['version' => $otherCourse['version'], 'title' => 'Archived renamed course', 'status' => 'archived', 'payload' => ['lessons' => $renamedLessons]], $platform, $otherCourse['id']);
+$archivedProgress = $community->progressList(['page' => 2, 'page_size' => 1], $consumer)['items'][0];
+check($archivedProgress['course_title'] === 'Archived renamed course' && $archivedProgress['lesson_title'] === 'Renamed first lesson', 'Archived learning history reads current titles without copying names');
+$countingProgressDb = new class($db->pdo) extends Database {
+    public $reads = 0;
+    public function run($sql, array $params = []) { $this->reads++; return parent::run($sql, $params); }
+};
+$countingProgress = new Community($countingProgressDb);
+$countingProgress->progressList([], $consumer); $allProgressReads = $countingProgressDb->reads;
+$countingProgressDb->reads = 0; $countingProgress->progressList(['page_size' => 1], $consumer);
+check($allProgressReads === 3 && $countingProgressDb->reads === 3, 'Title enrichment uses one batch join regardless of page item count');
+$countingProgressDb->reads = 0; $emptyProgress = $countingProgress->progressList([], $broker);
+check($emptyProgress['items'] === [] && $emptyProgress['total'] === 0 && $countingProgressDb->reads === 2, 'Empty own progress preserves pagination without an extra title query');
+// Only this isolated fixture simulates an orphan from a legacy import; normal foreign keys forbid removing studied lessons.
+$removedLesson = $db->one('SELECT * FROM course_lessons WHERE course_id=? AND lesson_key=?', [$otherCourse['id'], 'L2']);
+$db->pdo->exec('PRAGMA foreign_keys=OFF');
+try {
+    $db->run('DELETE FROM course_lessons WHERE id=?', [$removedLesson['id']]);
+    $missingProgress = $community->progressList(['page_size' => 1], $consumer)['items'][0];
+    check($missingProgress['course_title'] === 'Archived renamed course' && $missingProgress['lesson_title'] === null, 'Missing legacy lesson returns null title rather than an internal key');
+} finally { $db->insert('course_lessons', $removedLesson); $db->pdo->exec('PRAGMA foreign_keys=ON'); }
 $auth = new Auth($db); $code = $auth->invitation($consumer)['invitation_code'];
 $growthBefore = (int)$db->scalar('SELECT growth_points FROM users WHERE id=?', [$consumer['id']]);
 $auth->register(['username' => 'new_invited', 'password' => 'Synthetic-test-1234', 'invitation_code' => $code], 'fixture-invited');

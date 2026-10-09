@@ -30,7 +30,7 @@
       ></view
     ><view class="card section"
       v-if="monthlyTarget"
-      ><view class="card-head">公司 {{ monthlyTarget.month }} 销售目标</view><view class="small muted section">当月实收净额 ¥{{ money(monthlyTarget.actual_net_paid_cents) }}</view><template v-if="monthlyTarget.configured"><view class="small section">目标 ¥{{ money(monthlyTarget.target_amount_cents) }}</view><progress class="section" :percent="targetProgress" activeColor="#09233f" /></template><view v-else class="small muted section">公司尚未设置本月目标</view></view>
+      ><view class="card-head">公司 {{ monthlyTarget.month }} 销售目标</view><view class="small muted section">当月实收净额 ¥{{ money(monthlyTarget.actual_net_paid_cents) }}</view><template v-if="monthlyTarget.configured"><view class="small section">目标 ¥{{ money(monthlyTarget.target_amount_cents) }}</view><progress class="section" :percent="targetProgress" activeColor="#216cf7" /></template><view v-else class="small muted section">公司尚未设置本月目标</view></view>
     <view class="card section"
       ><view class="grid four"
         ><view
@@ -124,11 +124,14 @@ onShow(load);
   font-size: 22rpx;
 }
 .gold-button {
-  background: #f4c44f;
-  border-radius: 16rpx;
-  color: #09233f;
-  font-size: 27rpx;
-  line-height: 3;
+  background: #fff;
+  border: 2rpx solid #fff;
+  border-radius: 44rpx;
+  color: #216cf7;
+  font-size: 30rpx;
+  line-height: 84rpx;
+  height: 88rpx;
+  box-sizing: border-box;
   padding: 0 26rpx;
   margin-left: 0;
   display: inline-block;

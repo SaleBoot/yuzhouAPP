@@ -22,7 +22,8 @@
           mode="aspectFill" /></view
       ><button class="secondary" :disabled="busy" @click="attach">
         ＋ 添加图片或视频</button
-      ><view v-if="video" class="notice small section">已上传视频</view></view
+      ><video v-if="videoPreview" class="section" :src="videoPreview" controls />
+      <view v-if="video" class="notice small section">已上传视频，审核通过后公开展示</view></view
     ><view class="notice small section"
       >动态提交后由平台审核，审核通过后将在发现页展示。</view
     ><button
@@ -45,24 +46,25 @@ import {
   requireLogin,
   tab,
 } from "@shared/api.js";
+import { publicPostAttachment } from "@shared/post-boat.js";
 const previews = ref([]);
 const title = ref(""),
   content = ref(""),
   images = ref([]),
   video = ref(""),
+  videoPreview = ref(""),
   busy = ref(false);
 async function attach() {
   if (!requireLogin() || busy.value) return;
   busy.value = true;
   try {
-    const f = await chooseUpload({ purpose: "post" });
-    if (
-      (f.mime || f.mime_type)?.startsWith("video/") ||
-      f.original_name?.endsWith(".mp4")
-    )
-      video.value = f.url;
-    else {
-      images.value.push(f.url);
+    const f = await chooseUpload({ purpose: "post", private: false });
+    const attachment = publicPostAttachment(f);
+    if (attachment.video) {
+      video.value = attachment.url;
+      videoPreview.value = f.local_path || "";
+    } else {
+      images.value.push(attachment.url);
       previews.value.push(f.local_path || media(f.url));
     }
   } catch (e) {
