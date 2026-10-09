@@ -25,6 +25,10 @@ export function money(cents) {
   return cents === undefined || cents === null ? '—' : new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(Number(cents) / 100)
 }
 
+export function displayTitle(value) {
+  return typeof value === 'string' ? value.replace(/（演示(?:版)?）$/u, '').replace(/ · 演示1号$/u, ' · 1号') : value
+}
+
 export function dateTime(value) {
   if (!value) return '—'
   const date = typeof value === 'number' || /^\d{10}$/.test(String(value)) ? new Date(Number(value) * 1000) : new Date(value)

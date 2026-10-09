@@ -9,9 +9,46 @@ import re
 import shutil
 import subprocess
 import xml.etree.ElementTree as ET
+from zipfile import ZipFile
 
 if not __debug__:
     raise SystemExit('Optimized Python disables package safety checks; run without -O or PYTHONOPTIMIZE.')
+
+CORE_FEATURES = {
+    'Navigator': 'io.dcloud.feature.ui.navigator.NavigatorUIFeatureImpl',
+    'NativeUI': 'io.dcloud.feature.ui.nativeui.NativeUIFeatureImpl',
+    'Console': 'io.dcloud.feature.pdr.LoggerFeatureImpl',
+}
+
+
+def assert_core_features(root):
+    for name, implementation in CORE_FEATURES.items():
+        matches = root.findall("features/feature[@name='" + name + "']")
+        assert len(matches) == 1 and matches[0].get('value') == implementation, 'Missing or invalid DCloud core feature: ' + name
+
+
+def configure_modules(root):
+    features, services = root.find('features'), root.find('services')
+    assert features is not None and services is not None, 'Invalid official DCloud module properties'
+    allowed = {'Device', 'File', 'Storage', 'Cache', 'Camera', 'Gallery', 'UI', 'Downloader', 'Uploader', 'Zip', 'Runtime', 'VideoPlayer', 'XMLHttpRequest', 'NativeObj', 'Invocation'} | CORE_FEATURES.keys()
+    for feature in list(features):
+        if feature.attrib.get('name') not in allowed:
+            features.remove(feature)
+    for service in list(services):
+        if service.attrib.get('name') != 'Downloader':
+            services.remove(service)
+    assert_core_features(root)
+
+
+def verify_apk_modules(apk):
+    with ZipFile(apk) as package:
+        assert_core_features(ET.fromstring(package.read('assets/data/dcloud_properties.xml')))
+        dex_files = [package.read(name) for name in package.namelist() if re.fullmatch(r'classes(?:[2-9]|[1-9][0-9]+)?\.dex', name)]
+        for name, implementation in CORE_FEATURES.items():
+            descriptor = ('L' + implementation.replace('.', '/') + ';').encode()
+            assert any(descriptor in dex for dex in dex_files), 'APK lacks DCloud core implementation: ' + name
+
+
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument('app', choices=['consumer', 'broker'])
@@ -63,15 +100,7 @@ if app_assets.exists():
 shutil.copytree(resources, app_assets)
 (main / 'assets/data/dcloud_control.xml').write_text('<hbuilder><apps><app appid="' + identity['appid'] + '" appver=""/></apps></hbuilder>')
 properties = ET.parse(main / 'assets/data/dcloud_properties.xml')
-features = properties.getroot().find('features')
-allowed = {'Device', 'File', 'Storage', 'Cache', 'Camera', 'Gallery', 'UI', 'Downloader', 'Uploader', 'Zip', 'Runtime', 'VideoPlayer', 'XMLHttpRequest', 'NativeObj', 'Invocation'}
-for feature in list(features):
-    if feature.attrib.get('name') not in allowed:
-        features.remove(feature)
-services = properties.getroot().find('services')
-for service in list(services):
-    if service.attrib.get('name') != 'Downloader':
-        services.remove(service)
+configure_modules(properties.getroot())
 properties.write(main / 'assets/data/dcloud_properties.xml', encoding='utf-8', xml_declaration=True)
 libs = app / 'libs'
 if libs.exists():
@@ -80,7 +109,7 @@ libs.mkdir()
 for name in ['lib.5plus.base-release.aar', 'uniapp-v8-release.aar', 'android-gif-drawable-1.2.29.aar', 'oaid_sdk_1.0.25.aar', 'breakpad-build-release.aar', 'install-apk-release.aar', 'media-release.aar', 'weex_videoplayer-release.aar']:
     shutil.copy2(template / 'libs' / name, libs / name)
 package = identity['android_package']
-label = '驭舟测试版' if args.app == 'consumer' else '驭舟经纪人测试版'
+label = manifest['name']
 (main / 'res/values/strings.xml').write_text('<resources><string name="app_name">' + label + '</string></resources>')
 (main / 'res/drawable').mkdir(exist_ok=True)
 shutil.copy2(ROOT / 'apps' / args.app / 'src/static/yacht.jpg', main / 'res/drawable/yuzhou_test.jpg')
@@ -141,6 +170,7 @@ print(safe_output[-12000:])
 if result.returncode:
     raise SystemExit(result.returncode)
 apk = app / 'build/outputs/apk/release/app-release.apk'
+verify_apk_modules(apk)
 verified = subprocess.run([str(args.android_sdk / 'build-tools/36.0.0/apksigner'), 'verify', '--verbose', '--print-certs', str(apk)], env=env, check=True, capture_output=True, text=True)
 assert 'v2 scheme (APK Signature Scheme v2): true' in verified.stdout, 'APK v2 signature is required'
 certificate = re.search(r'Signer #1 certificate SHA-256 digest: ([0-9a-f]+)', verified.stdout)
@@ -158,6 +188,6 @@ git_status = subprocess.run(['git', 'status', '--porcelain'], cwd=ROOT, capture_
 if git_head.returncode or git_head.stdout.strip() != source_commit or git_status.returncode or git_status.stdout.strip():
     raise SystemExit('Source changed during the build; the APK is not approved for this commit.')
 shutil.copy2(apk, destination)
-receipt = {'app': args.app, 'appid': identity['appid'], 'package': package, 'api_base': api_base, 'apk': str(destination), 'sha256': hashlib.sha256(destination.read_bytes()).hexdigest(), 'signature_v2_verified': True, 'permissions': permissions, 'source_commit': source_commit, 'installed_test': False, 'store_release': False}
+receipt = {'app': args.app, 'appid': identity['appid'], 'package': package, 'name': label, 'version_name': version_name, 'version_code': version_code, 'api_base': api_base, 'apk': str(destination), 'sha256': hashlib.sha256(destination.read_bytes()).hexdigest(), 'signature_v2_verified': True, 'core_features_verified': CORE_FEATURES, 'permissions': permissions, 'source_commit': source_commit, 'installed_test': False, 'store_release': False}
 destination.with_suffix('.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
 print(json.dumps(receipt, ensure_ascii=False))

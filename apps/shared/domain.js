@@ -38,6 +38,11 @@ export function money(cents = 0) {
 export function state(value) {
   return STATES[value] || value || "待处理";
 }
+export function displayTitle(value) {
+  return typeof value === "string"
+    ? value.replace(/（演示(?:版)?）$/u, "").replace(/ · 演示1号$/u, " · 1号")
+    : value;
+}
 export function cents(value) {
   if (!/^\d+(\.\d{1,2})?$/.test(String(value)))
     throw new Error("请输入有效金额，最多两位小数");

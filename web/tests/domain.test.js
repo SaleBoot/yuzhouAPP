@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { entryRole, centsFromInput, basisPointsFromInput, safeAttachmentPath, visibleKinds } from '../src/domain.js'
+import { entryRole, centsFromInput, basisPointsFromInput, safeAttachmentPath, visibleKinds, displayTitle } from '../src/domain.js'
 
 test('each management entrance has an explicit role; unknown path grants none', () => {
   assert.equal(entryRole('/agency/orders'), 'agency')
@@ -23,4 +23,13 @@ test('money and commission percentages are exact integer minor units', () => {
 test('private attachments cannot forward bearer tokens to arbitrary origins', () => {
   assert.equal(safeAttachmentPath('/api/v1/files/123'), '/api/v1/files/123')
   for (const path of ['https://evil.test/api/v1/files/123', '//evil.test/a', '/uploads/a.pdf', '/api/v1/../secret']) assert.throws(() => safeAttachmentPath(path))
+})
+
+test('old order item titles display without version labels and preserve the snapshot', () => {
+  for (const [original, displayed] of [['航海防水包（演示）', '航海防水包'], ['年度船艇保养（演示版）', '年度船艇保养'], ['JS-910B · 演示1号', 'JS-910B · 1号']]) {
+    const snapshot = { title: original }
+    assert.equal(displayTitle(snapshot.title), displayed)
+    assert.equal(snapshot.title, original)
+  }
+  for (const text of ['用户分享演示视频', '航海（演示）课程', 'JS-910B · 演示2号']) assert.equal(displayTitle(text), text)
 })

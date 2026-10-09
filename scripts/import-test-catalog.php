@@ -116,9 +116,9 @@ class TestCatalogImport
                         'daily_price_cents' => 10000, 'deposit_cents' => 20000, 'vr_url' => $boat['vr_url'], 'image_urls' => $image ? [$image] : []];
                     if (isset($boat['width_m'])) $payload['width_m'] = $boat['width_m'];
                     $typeId = $save('boat_types', 'ourideas_3d', $boat['external_id'], ['title' => $boat['name'], 'price_cents' => 10000, 'payload' => $payload]);
-                    $boatId = $save('boats', 'ourideas_3d', $boat['external_id'], ['title' => $boat['name'] . ' · 演示1号', 'price_cents' => 100000000,
-                        'payload' => ['boat_type_id' => $typeId, 'serial_number' => 'YZ-TEST-3D-' . $boat['external_id'], 'location' => '演示码头',
-                            'image_urls' => $image ? [$image] : [], 'description' => '用于测试预订和履约的演示实体，价格与库存仅供测试。']]);
+                    $boatId = $save('boats', 'ourideas_3d', $boat['external_id'], ['title' => $boat['name'] . ' · 1号', 'price_cents' => 100000000,
+                        'payload' => ['boat_type_id' => $typeId, 'serial_number' => 'YZ-TEST-3D-' . $boat['external_id'], 'location' => '码头待确认',
+                            'image_urls' => $image ? [$image] : [], 'description' => '船艇详情、交付地点与可用时间以预订确认为准。']]);
                     $report['boat_type_ids'][$boat['external_id']] = $typeId;
                     $report['boat_ids'][$boat['external_id']] = $boatId;
                 }

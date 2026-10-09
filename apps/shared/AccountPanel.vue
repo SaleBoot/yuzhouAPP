@@ -126,7 +126,7 @@ import TicketCode from "./TicketCode.vue";
 import EnrollmentCancel from "./EnrollmentCancel.vue";
 import { ref, computed, reactive, watch } from "vue";
 import { request, post, go, media, notify, requireLogin, session } from "./api.js";
-import { dateTime, ORDER_TYPES } from "./domain.js";
+import { dateTime, ORDER_TYPES, displayTitle } from "./domain.js";
 const props = defineProps({ kind: String });
 const labels = {
   favorites: "我的收藏",
@@ -205,7 +205,7 @@ async function load() {
   }
 }
 function orderLabel(order) {
-  return `${order.order_no} · ${order.items?.map((item) => item.title).filter(Boolean).join("、") || ORDER_TYPES[order.type] || "订单"}`;
+  return `${order.order_no} · ${order.items?.map((item) => displayTitle(item.title || item.name)).filter(Boolean).join("、") || ORDER_TYPES[order.type] || "订单"}`;
 }
 function selectOrder(event) {
   if (busy.value || loading.value || ordersLoading.value || ordersError.value || error.value) return;

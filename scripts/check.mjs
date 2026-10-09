@@ -21,6 +21,8 @@ for (const file of phpFiles) {
 console.log(`PHP语法检查：${phpFiles.length}个自有文件。`);
 const releaseTest = spawnSync(process.execPath, ['--test', 'tests/release.test.mjs'], { cwd: root, stdio: 'inherit' });
 if (releaseTest.status !== 0) process.exit(releaseTest.status || 1);
+const androidModulesTest = spawnSync('python3', ['-B', 'tests/native/test_android_modules.py'], { cwd: root, stdio: 'inherit' });
+if (androidModulesTest.status !== 0) process.exit(androidModulesTest.status || 1);
 const installerTest = spawnSync('python3', ['tests/deploy/test_install_release.py'], { cwd: root, stdio: 'inherit' });
 if (installerTest.status !== 0) process.exit(installerTest.status || 1);
 const backupTest = spawnSync('python3', ['-B', 'tests/deploy/test_backup.py'], { cwd: root, stdio: 'inherit' });
@@ -48,6 +50,8 @@ if (result.status !== 0) process.exit(result.status || 1);
 result = spawnSync('php', ['tests/backend/media.php'], { cwd: root, stdio: 'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);
 result = spawnSync('php', ['tests/backend/catalog-import.php'], { cwd: root, stdio: 'inherit' });
+if (result.status !== 0) process.exit(result.status || 1);
+result = spawnSync('php', ['tests/backend/catalog-copy.php'], { cwd: root, stdio: 'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);
 result = spawnSync('php', ['tests/backend/sms.php'], { cwd: root, stdio: 'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);

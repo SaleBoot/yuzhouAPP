@@ -2,11 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { displayTitle } from "./domain.js";
 const require = createRequire(new URL("../consumer/package.json", import.meta.url));
 const { ref, reactive, computed } = require("vue");
 const source = await readFile(new URL("./AccountPanel.vue", import.meta.url), "utf8");
 const script = source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import[\s\S]*?;\n/gm, "");
-const setup = new Function("dependencies", `const { ref, reactive, computed, watch, defineProps, request, post, go, media, notify, requireLogin, session, dateTime, ORDER_TYPES, uni } = dependencies; ${script}; return { load, loadOrders, create, selectOrder, unfavorite, form, items, error, loading, busy, orders, ordersPage, ordersLoading, ordersError, moreOrders, selectedOrder, orderLabels, removing };`);
+const setup = new Function("dependencies", `const { ref, reactive, computed, watch, defineProps, request, post, go, media, notify, requireLogin, session, dateTime, ORDER_TYPES, displayTitle, uni } = dependencies; ${script}; return { load, loadOrders, create, selectOrder, unfavorite, form, items, error, loading, busy, orders, ordersPage, ordersLoading, ordersError, moreOrders, selectedOrder, orderLabels, removing };`);
 const order = (id, extra = {}) => ({ id, order_no: `YZ-TEST-${id}`, customer_id: 7, status: "completed", type: "mall", items: [{ title: "合成商品" }], ...extra });
 function harness({ kind = "reviews", orders = [], reviews = [], favorites = [], request: override, post: postOverride } = {}) {
   const props = reactive({ kind }), calls = [], notices = [], toasts = [];
@@ -30,7 +31,7 @@ function harness({ kind = "reviews", orders = [], reviews = [], favorites = [], 
     },
     session: () => ({ user: { id: 7 } }), requireLogin: () => true,
     notify: error => notices.push(error.message), uni: { showToast: toast => toasts.push(toast) },
-    go: () => {}, media: value => value, dateTime: () => "", ORDER_TYPES: { mall: "周边商城" },
+    go: () => {}, media: value => value, dateTime: () => "", ORDER_TYPES: { mall: "周边商城" }, displayTitle,
   });
   return { state, props, calls, notices, toasts };
 }
@@ -47,6 +48,17 @@ test("评价使用本人已完成订单和业务名称，不再输入内部订�
   state.selectOrder({ detail: { value: "0" } });
   assert.equal(state.form.order_id, null);
   assert.doesNotMatch(source, /v-model="form.order_id"|填写订单ID|已完成订单ID/);
+});
+test("评价订单名称清理历史版本后缀，保存的项目快照保持原值", async () => {
+  for (const [original, displayed] of [["航海防水包（演示）", "航海防水包"], ["年度船艇保养（演示版）", "年度船艇保养"], ["JS-910B · 演示1号", "JS-910B · 1号"]]) {
+    const snapshot = order(1, { items: [{ title: original }] });
+    const { state } = harness({ orders: [snapshot] });
+    await state.load();
+    assert.equal(state.orderLabels.value[1], `YZ-TEST-1 · ${displayed}`);
+    assert.equal(snapshot.items[0].title, original);
+    assert.equal(state.orders.value[0].items[0].title, original);
+  }
+  for (const text of ["用户分享演示视频", "航海（演示）课程", "JS-910B · 演示2号"]) assert.equal(displayTitle(text), text);
 });
 test("评价排除第 100 条之后的已评价订单，订单 picker 可继续分页", async () => {
   const orders = Array.from({ length: 101 }, (_, i) => order(i + 1));

@@ -23,8 +23,7 @@
           :key="item.id"
           class="list-item"
           ><text>{{
-            item.title ||
-            item.name ||
+            displayTitle(item.title || item.name) ||
             `船艇 ${item.boat_id || item.resource_id}`
           }}</text
           ><text>× {{ item.quantity || 1 }}</text></view
@@ -312,7 +311,7 @@ import {
   notify,
   uuid,
 } from "./api.js";
-import { money, state, cents, dateTime, ORDER_TYPES } from "./domain.js";
+import { money, state, cents, dateTime, ORDER_TYPES, displayTitle } from "./domain.js";
 const props = defineProps({ id: [String, Number], broker: Boolean });
 const order = ref(null),
   contracts = ref([]),

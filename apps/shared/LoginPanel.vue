@@ -43,11 +43,7 @@
       /></view>
       <view class="row small agreement" role="checkbox" :aria-checked="String(agreed)" tabindex="0" @click="agreed = !agreed" @keydown.enter="agreed = !agreed" @keydown.space.prevent="agreed = !agreed"
         ><text>{{ agreed ? "☑" : "☐" }}</text
-        ><text>{{
-          development
-            ? "我了解这是开发测试环境"
-            : "我已阅读并同意服务条款和隐私政策"
-        }}</text></view
+        ><text>我已阅读并同意服务条款和隐私政策</text></view
       >
       <SmsPanel v-if="mode === 'sms'" :purpose="registering ? 'register' : 'login'" :allowed="agreed" @busy="smsBusy = $event" @verified="smsVerified" />
       <button v-else class="primary" :loading="busy" :disabled="busy" @click="submit">
@@ -59,23 +55,13 @@
         }}</button></view
       >
       <view v-if="error" class="error">{{ error }}</view>
-      <view v-if="development" class="notice small"
-        >本机开发测试请使用开发环境生成的测试账号。平台数据和外部能力由实际服务配置决定。</view
-      >
     </view>
   </view>
 </template>
 <script setup>
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref } from "vue";
 import { post, saveSession, notify, tab, request } from "./api.js";
 import SmsPanel from "./SmsPanel.vue";
-const development = ref(import.meta.env.DEV);
-onMounted(async () => {
-  try {
-    const b = await request("/bootstrap");
-    development.value = Boolean(b.is_test_environment);
-  } catch {}
-});
 const props = defineProps({ broker: Boolean });
 const form = reactive({
   username: "",
@@ -91,13 +77,7 @@ const registering = ref(false),
   error = ref("");
 async function submit() {
   if (!agreed.value)
-    return notify(
-      new Error(
-        development.value
-          ? "请先确认开发测试环境提示"
-          : "请先同意服务条款和隐私政策",
-      ),
-    );
+    return notify(new Error("请先同意服务条款和隐私政策"));
   if (!form.username.trim() || form.password.length < 8)
     return notify(new Error("请填写账号及至少8位密码"));
   busy.value = true;

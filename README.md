@@ -14,7 +14,7 @@ npm run dev
 
 网页管理端 `http://127.0.0.1:5173/admin/platform`、`/admin/merchant`、`/admin/agency`；用户预览 `http://127.0.0.1:5174/consumer/`；经纪人预览 `http://127.0.0.1:5175/broker/`。API 位于 `http://127.0.0.1:8088/api/v1`。
 
-五个合成测试账号的用户名及随机口令保存在 `backend/storage/dev-accounts.json`。该文件、环境配置、数据库、上传文件和签名文件不会进入 Git 或发布目录。测试资料均明确标注为演示，不能用于证明真实商家资质。
+本地初始化账号的用户名及随机口令保存在 `backend/storage/dev-accounts.json`；已部署站点当前账号保存在私有部署记录中，以实际数据库为准。账号文件、环境配置、数据库、上传文件和签名文件不会进入 Git 或发布目录。公开界面使用产品名称，合成资料不能用于证明真实商家资质。
 
 开发或测试库可执行 `php scripts/import-test-catalog.php` 导入19个船型、对应演示船艇和两条资讯；重复导入保留已有记录和编辑，不重置账号。生产环境拒绝执行。
 

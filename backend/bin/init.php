@@ -30,11 +30,11 @@ try {
     if (!$password || strlen($password) < 12) throw new RuntimeException('Set SEED_PASSWORD with at least 12 characters; it is never printed.');
     $db->transaction(function () use ($db, $password) {
         $now = time();
-        $merchantOrg = $db->insert('organizations', ['name' => '演示船艇商家（测试）', 'kind' => 'merchant', 'status' => 'approved', 'payload' => '{}', 'created_at' => $now]);
-        $agencyOrg = $db->insert('organizations', ['name' => '演示经纪公司（测试）', 'kind' => 'agency', 'status' => 'approved', 'payload' => '{}', 'created_at' => $now]);
+        $merchantOrg = $db->insert('organizations', ['name' => '驭舟船艇商家', 'kind' => 'merchant', 'status' => 'approved', 'payload' => '{}', 'created_at' => $now]);
+        $agencyOrg = $db->insert('organizations', ['name' => '驭舟经纪公司', 'kind' => 'agency', 'status' => 'approved', 'payload' => '{}', 'created_at' => $now]);
         $users = [];
         foreach (['platform' => null, 'consumer' => null, 'broker' => $agencyOrg, 'merchant' => $merchantOrg, 'agency' => $agencyOrg] as $role => $orgId) {
-            $id = $db->insert('users', ['username' => $role . '.demo', 'password_hash' => password_hash($password, PASSWORD_DEFAULT), 'nickname' => '演示 ' . $role,
+            $id = $db->insert('users', ['username' => $role . '.demo', 'password_hash' => password_hash($password, PASSWORD_DEFAULT), 'nickname' => ['platform' => '平台管理员', 'consumer' => '航海爱好者', 'broker' => '经纪人', 'merchant' => '商家', 'agency' => '经纪公司管理员'][$role],
                 'role' => $role, 'org_id' => $orgId, 'status' => 'active', 'member_until' => $role === 'consumer' ? (new DateTimeImmutable())->modify('+6 months')->getTimestamp() : 0,
                 'growth_points' => 0, 'identity_status' => 'unverified', 'created_at' => $now, 'updated_at' => $now]);
             $users[$role] = $db->one('SELECT * FROM users WHERE id=?', [$id]);
@@ -47,27 +47,27 @@ try {
             'mime' => 'image/png', 'size_bytes' => strlen($png), 'sha256' => hash('sha256', $png), 'is_private' => 1, 'created_at' => $now]);
         // Synthetic test identity, not a verified business license or real customer record.
         $credit = '91370200MA3YY0001D';
-        $db->insert('merchants', ['credit_code' => $credit, 'organization_id' => $merchantOrg, 'legal_name' => '演示商家（合成测试资料）', 'license_file_id' => $license, 'status' => 'approved', 'created_at' => $now]);
+        $db->insert('merchants', ['credit_code' => $credit, 'organization_id' => $merchantOrg, 'legal_name' => '商家（合成测试资料）', 'license_file_id' => $license, 'status' => 'approved', 'created_at' => $now]);
         $catalog = new Catalog($db);
         $create = function ($kind, $body, $owner) use ($catalog, $users) {
             $row = $catalog->save($kind, $body, $owner);
             if ($row['status'] !== 'published') $row = $catalog->save($kind, ['version' => $row['version'], 'status' => 'published'], $users['platform'], $row['id']);
             return $row;
         };
-        $type = $create('boat_types', ['title' => '驭舟 42 休闲游艇（演示）', 'price_cents' => 280000, 'payload' => ['category' => 'yacht', 'length_m' => '12.8', 'capacity' => 10, 'daily_price_cents' => 280000,
-            'deposit_cents' => 500000, 'parameters' => ['beam_m' => 3.9, 'draft_m' => 1.1, 'power_hp' => 380, 'material' => '复合材料'], 'description' => '合成演示船型；实际船艇与价格由管理端录入。', 'image_urls' => [], 'vr_url' => '']], $users['merchant']);
-        for ($i = 1; $i <= 3; $i++) $create('boats', ['title' => '驭舟 42 · ' . $i . '号（演示）', 'price_cents' => 268000000, 'payload' => ['boat_type_id' => $type['id'], 'serial_number' => 'DEMO-YZ-42-' . $i, 'location' => '演示码头', 'image_urls' => []]], $users['merchant']);
-        $create('upgrades', ['title' => '航电与舒适升级（演示）', 'price_cents' => 680000, 'payload' => ['boat_type_id' => $type['id'], 'description' => '管理端可配置可选设备与实际报价。', 'options' => [['id' => 'navigation', 'title' => '导航设备', 'price_cents' => 180000], ['id' => 'comfort', 'title' => '舒适座舱', 'price_cents' => 260000]]]], $users['merchant']);
-        $create('maintenance', ['title' => '年度船艇保养（演示）', 'price_cents' => 120000, 'payload' => ['boat_type_id' => $type['id'], 'description' => '保养项目和履约由相应经营主体确认。']], $users['merchant']);
-        foreach ([['航海防水包（演示）', 9900], ['船用救生衣（演示）', 19900], ['航海指南（演示）', 5900]] as $product) $create('products', ['title' => $product[0], 'price_cents' => $product[1], 'payload' => ['stock' => 50, 'description' => '平台直营测试商品', 'image_urls' => []]], $users['platform']);
-        $coupon = $create('coupons', ['title' => '新客体验券（演示）', 'payload' => ['discount_cents' => 1000, 'min_amount_cents' => 5000, 'expires_at' => date('Y-m-d H:i:s', $now + 90 * 86400), 'stock' => 100, 'order_types' => ['mall']]], $users['platform']);
-        $create('events', ['title' => '周末航海体验（演示）', 'price_cents' => 0, 'payload' => ['starts_at' => date('Y-m-d H:i:s', $now + 14 * 86400), 'capacity' => 20, 'location' => '演示码头', 'description' => '免费合成活动，用于测试报名与电子票核销。']], $users['platform']);
-        $create('courses', ['title' => '航海安全入门（演示）', 'payload' => ['description' => '免费课程；请管理端上传实际教学视频。', 'pass_score' => 60,
+        $type = $create('boat_types', ['title' => '驭舟 42 休闲游艇', 'price_cents' => 280000, 'payload' => ['category' => 'yacht', 'length_m' => '12.8', 'capacity' => 10, 'daily_price_cents' => 280000,
+            'deposit_cents' => 500000, 'parameters' => ['beam_m' => 3.9, 'draft_m' => 1.1, 'power_hp' => 380, 'material' => '复合材料'], 'description' => '休闲游艇，支持船型参数查看、预订与咨询。', 'image_urls' => [], 'vr_url' => '']], $users['merchant']);
+        for ($i = 1; $i <= 3; $i++) $create('boats', ['title' => '驭舟 42 · ' . $i . '号', 'price_cents' => 268000000, 'payload' => ['boat_type_id' => $type['id'], 'serial_number' => 'DEMO-YZ-42-' . $i, 'location' => '码头待确认', 'image_urls' => []]], $users['merchant']);
+        $create('upgrades', ['title' => '航电与舒适升级', 'price_cents' => 680000, 'payload' => ['boat_type_id' => $type['id'], 'description' => '管理端可配置可选设备与实际报价。', 'options' => [['id' => 'navigation', 'title' => '导航设备', 'price_cents' => 180000], ['id' => 'comfort', 'title' => '舒适座舱', 'price_cents' => 260000]]]], $users['merchant']);
+        $create('maintenance', ['title' => '年度船艇保养', 'price_cents' => 120000, 'payload' => ['boat_type_id' => $type['id'], 'description' => '保养项目和履约由相应经营主体确认。']], $users['merchant']);
+        foreach ([['航海防水包', 9900], ['船用救生衣', 19900], ['航海指南', 5900]] as $product) $create('products', ['title' => $product[0], 'price_cents' => $product[1], 'payload' => ['stock' => 50, 'description' => '航海出行用品', 'image_urls' => []]], $users['platform']);
+        $coupon = $create('coupons', ['title' => '新客体验券', 'payload' => ['discount_cents' => 1000, 'min_amount_cents' => 5000, 'expires_at' => date('Y-m-d H:i:s', $now + 90 * 86400), 'stock' => 100, 'order_types' => ['mall']]], $users['platform']);
+        $create('events', ['title' => '周末航海体验', 'price_cents' => 0, 'payload' => ['starts_at' => date('Y-m-d H:i:s', $now + 14 * 86400), 'capacity' => 20, 'location' => '码头待确认', 'description' => '活动详情与集合地点以报名确认为准。']], $users['platform']);
+        $create('courses', ['title' => '航海安全入门', 'payload' => ['description' => '航海安全基础知识，出航前了解救生与天气条件。', 'pass_score' => 60,
             'lessons' => [['id' => 'safety', 'title' => '安全基础', 'video_url' => '', 'duration_seconds' => 120]],
             'questions' => [['question' => '出航前应先检查哪些内容？', 'options' => ['救生与天气条件', '仅船体颜色'], 'answer' => 0], ['question' => '救生衣应怎样使用？', 'options' => ['合身并按规定佩戴', '只放在行李中'], 'answer' => 0]]]], $users['platform']);
-        $post = $catalog->save('posts', ['title' => '欢迎来到驭舟（演示）', 'payload' => ['content' => '这里是独立测试环境，船艇、商品和活动均为合成演示资料。真实交易服务尚未配置。', 'image_urls' => []]], $users['consumer']);
+        $post = $catalog->save('posts', ['title' => '欢迎来到驭舟', 'payload' => ['content' => '欢迎来到驭舟航海社区！在这里分享航海见闻、交流船艇使用经验，也可以发布你的出海故事。一起发现更广阔的水上生活。', 'image_urls' => []]], $users['consumer']);
         (new Community($db))->reviewPost($post['id'], ['status' => 'published'], $users['platform']);
-        $db->insert('customers', ['user_id' => (int)$users['consumer']['id'], 'broker_id' => (int)$users['broker']['id'], 'org_id' => $agencyOrg, 'name' => '演示消费者', 'notes' => '合成CRM演示资料', 'stage' => 'new', 'created_at' => $now, 'updated_at' => $now]);
+        $db->insert('customers', ['user_id' => (int)$users['consumer']['id'], 'broker_id' => (int)$users['broker']['id'], 'org_id' => $agencyOrg, 'name' => '航海爱好者', 'notes' => '合成CRM资料', 'stage' => 'new', 'created_at' => $now, 'updated_at' => $now]);
     });
     echo "Synthetic development catalog and five demo roles created; no external service or real transaction was invoked.\n";
 } catch (Throwable $error) {

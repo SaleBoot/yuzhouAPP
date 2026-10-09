@@ -49,7 +49,7 @@ for (const app of ['consumer', 'broker']) {
   cpSync(apk, path.join(output, 'public', target));
   androidPackages[app] = { path: target, sha256: receipt.sha256, signature_v2_verified: true, installed_test: receipt.installed_test, store_release: false };
 }
-const downloads = Object.keys(androidPackages).length ? '<section aria-label="Android临时测试安装包"><h2>Android 测试版</h2><p>使用临时签名，仅供体验。设备验收仍在进行，请勿用于真实交易。</p><nav>' + Object.entries(androidPackages).map(([app, info]) => `<a href="/${info.path}" download>${app === 'consumer' ? '用户端' : '经纪人端'}安装包<small>Android 临时测试版</small></a>`).join('') + '</nav></section>' : '';
+const downloads = Object.keys(androidPackages).length ? '<section aria-label="Android安装包"><h2>下载驭舟 App</h2><nav>' + Object.entries(androidPackages).map(([app, info]) => `<a href="/${info.path}" download>${app === 'consumer' ? '用户端' : '经纪人端'}安装包<small>Android</small></a>`).join('') + '</nav></section>' : '';
 writeFileSync(path.join(output, 'public/index.html'), readFileSync(path.join(root, 'deploy/landing.html'), 'utf8').replace('<!-- ANDROID_TEST_DOWNLOADS -->', downloads));
 const files = [];
 function inventory(dir) {

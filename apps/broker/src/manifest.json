@@ -1,9 +1,9 @@
 {
-  "name": "驭舟销售",
+  "name": "驭舟经纪人",
   "appid": "__UNI__59A80C3",
   "description": "驭舟船艇服务",
-  "versionName": "1.0.1",
-  "versionCode": "101",
+  "versionName": "1.0.2",
+  "versionCode": "102",
   "transformPx": false,
   "vueVersion": "3",
   "h5": {
@@ -11,7 +11,7 @@
       "mode": "hash",
       "base": "/broker/"
     },
-    "title": "驭舟销售"
+    "title": "驭舟经纪人"
   },
   "app-plus": {
     "usingComponents": true,
