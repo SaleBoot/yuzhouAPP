@@ -1,16 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { publicPostAttachment, findBoatFavorite, toggleBoatFavorite } from "./post-boat.js";
 
 test("media display resolves canonical H5 files without changing stored or temporary URLs", () => {
   const source = readFileSync(new URL("./api.js", import.meta.url), "utf8");
   const body = source.match(/export function media\(path\) \{([\s\S]*?)\n\}/)[1];
   const h5 = new Function("BASE", "window", "path", body);
-  const native = new Function("BASE", "path", body.replace(/\/\/ #ifdef H5[\s\S]*?\/\/ #endif/, ""));
+  const native = runInNewContext(`(function(BASE, path) { ${body.replace(/\/\/ #ifdef H5[\s\S]*?\/\/ #endif/, "")} })`);
   const window = { location: { origin: "https://local.test" } };
   assert.equal(h5("/api/v1", window, "/api/v1/files/8"), "https://local.test/api/v1/files/8");
   assert.equal(native("https://native.test/api/v1", "/api/v1/files/8"), "https://native.test/api/v1/files/8");
+  assert.equal(native("https://native.test:8443/api/v1", "/uploads/boat.jpg"), "https://native.test:8443/uploads/boat.jpg");
+  assert.equal(native("https://native.test/api/v1", "//cdn.test/boat.jpg"), "https://cdn.test/boat.jpg");
   for (const path of ["https://external.test/video.mp4", "blob:local-video", "data:image/png;base64,test", "file:///tmp/video.mp4", "_doc/video.mp4", "/consumer/static/yacht.jpg", "/api/v1/reports/dividends.xlsx", "/api/v1/files/0", undefined])
     assert.equal(h5("/api/v1", window, path), path);
   for (const path of ["https://external.test/video.mp4", "blob:local-video", "file:///tmp/video.mp4", "_doc/video.mp4"])

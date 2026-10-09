@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>驭舟更新</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f8f8f8;color:#163047;font:16px system-ui,-apple-system,sans-serif}
+    main{max-width:480px;margin:10vh auto;padding:24px}.card{padding:28px 24px;background:#fff;border-radius:20px;box-shadow:0 6px 24px #16304706}
+    h1{font-size:26px;margin:0 0 16px}p{color:#718198;line-height:1.7;margin:12px 0}#status{min-height:54px;color:#163047}
+    button{width:100%;min-height:48px;margin-top:20px;border:0;border-radius:999px;background:linear-gradient(90deg,#4bc8ff,#216cf7);color:white;font:600 17px system-ui;cursor:pointer}
+    button:disabled{opacity:.55;cursor:default}button:focus-visible{outline:3px solid #163047;outline-offset:4px}
+  </style>
+</head>
+<body>
+  <main><section class="card"><h1 id="title">驭舟更新</h1><p id="version"></p><p id="status" role="status" aria-live="polite">请在驭舟 App 内打开此页面。</p><button id="update" type="button" disabled>正在检查更新</button><p>更新完成后会重新打开 App，请先完成当前操作。</p></section></main>
+  <script>
+    "use strict";
+    const ORIGIN = "https://yuzhou.ourideas.top";
+    const APPS = {
+      __proto__: null,
+      __UNI__E148E73: {id: "consumer", name: "驭舟", package: "top.ourideas.yuzhou.consumer"},
+      __UNI__59A80C3: {id: "broker", name: "驭舟经纪人", package: "top.ourideas.yuzhou.broker"}
+    };
+    const button = document.getElementById("update");
+    const status = document.getElementById("status");
+    let target = null;
+    let busy = false;
+    function requireValue(ok, message) { if (!ok) throw new Error(message); }
+    function versionCode(value) {
+      requireValue((typeof value === "number" || typeof value === "string") && /^[1-9]\d*$/.test(String(value)), "无法确认当前版本，请重新打开 App 后重试。");
+      const code = Number(value);
+      requireValue(Number.isSafeInteger(code), "版本信息不正确，已停止更新。");
+      return code;
+    }
+    function metadata(data, appid, current) {
+      const app = APPS[appid];
+      requireValue(app && current && current.appid === appid, "此页面只支持驭舟 App，请从 App 内打开。");
+      const item = data && data.apps && data.apps[appid];
+      requireValue(item && item.appid === appid && item.package === app.package && /^\d+\.\d+\.\d+$/.test(item.version_name), "更新信息不正确，已停止更新。");
+      requireValue(Number.isSafeInteger(item.version_code) && item.version_code > 0 && Number.isSafeInteger(item.bytes) && item.bytes > 0 && item.bytes <= 100 * 1024 * 1024 && /^[a-f0-9]{64}$/.test(item.sha256) && /^[a-f0-9]{40}$/.test(item.source_commit), "更新信息不完整，已停止更新。");
+      const url = new URL(item.url, ORIGIN);
+      requireValue(url.href === ORIGIN + "/app-updates/" + app.id + "-" + item.version_name + ".wgt", "更新地址不正确，已停止更新。");
+      requireValue(item.compiler_version === "5.26" && /^5\.26(?:\.|$)/.test(plus.runtime.uniVersion || ""), "当前 App 运行环境不支持此次资源更新。");
+      requireValue(versionCode(current.versionCode) < item.version_code, "当前已是最新版本，无需更新。");
+      return Object.freeze({...item, url: url.href});
+    }
+    function property(appid) {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("读取 App 版本超时，请重新打开 App 后重试。")), 15000);
+        plus.runtime.getProperty(appid, info => { clearTimeout(timer); resolve(info); });
+      });
+    }
+    async function check() {
+      if (busy) return;
+      busy = true; target = null; button.disabled = true; status.textContent = "正在检查更新…";
+      try {
+        requireValue(location.origin === ORIGIN, "请从驭舟 App 的官方更新入口打开。");
+        requireValue(window.plus && plus.runtime && APPS[plus.runtime.appid], "此页面只支持驭舟 App，请从 App 内打开。");
+        requireValue(window.crypto && crypto.subtle && plus.downloader && plus.io, "当前环境无法安全校验更新，请重新打开 App 后重试。");
+        const appid = plus.runtime.appid;
+        const current = await property(appid);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 20000);
+        let data;
+        try {
+          const response = await fetch("/app-updates/latest.json", {cache: "no-store", credentials: "omit", redirect: "error", signal: controller.signal});
+          requireValue(response.ok, "暂时无法获取更新，请检查网络后重试。");
+          data = await response.json();
+        } catch (_) { throw new Error("暂时无法获取更新，请检查网络后重试。"); }
+        finally { clearTimeout(timer); }
+        target = metadata(data, appid, current);
+        document.getElementById("title").textContent = APPS[appid].name + "更新";
+        document.getElementById("version").textContent = "当前版本 " + current.version + " · 新版本 " + target.version_name;
+        status.textContent = "更新已准备好，点击下方按钮开始。";
+        button.textContent = "更新并重新打开";
+      } catch (error) {
+        status.textContent = error.message || "检查更新失败，请检查网络后重试。";
+        button.textContent = "重新检查";
+      } finally { busy = false; button.disabled = !window.plus; }
+    }
+    function download(item) {
+      return new Promise((resolve, reject) => {
+        const base = "_doc/yuzhou-update/" + item.appid + "-" + item.version_name;
+        const task = plus.downloader.createDownload(item.url, {filename: base + ".wgt", timeout: 60, retry: 0}, (file, code) => {
+          try {
+            requireValue(Number.isInteger(code) && code >= 200 && code < 300, "下载失败，请检查网络后重试。");
+            const path = String(file.filename || "");
+            const absoluteBase = plus.io.convertLocalFileSystemURL(base);
+            const allowed = [base];
+            if (absoluteBase) allowed.push(absoluteBase, "file://" + absoluteBase);
+            requireValue(allowed.some(prefix => path.startsWith(prefix) && /^(?:\(\d+\))?\.wgt$/.test(path.slice(prefix.length))), "下载文件位置不正确，已停止更新。");
+            resolve(path);
+          } catch (error) { reject(error); }
+        });
+        task.start();
+      });
+    }
+    function readFile(path, item) {
+      return new Promise((resolve, reject) => {
+        const fail = () => reject(new Error("无法读取更新文件，请重试。"));
+        plus.io.resolveLocalFileSystemURL(path, entry => entry.file(file => {
+          if (file.size !== item.bytes || file.size > 100 * 1024 * 1024) return reject(new Error("更新文件大小不匹配，已停止安装，请重试。"));
+          const reader = new plus.io.FileReader();
+          reader.onload = event => resolve({size: file.size, data: event.target.result});
+          reader.onerror = fail; reader.onabort = fail;
+          reader.readAsDataURL(file);
+        }, fail), fail);
+      });
+    }
+    async function verifyFile(path, item) {
+      const file = await readFile(path, item);
+      requireValue(file.size === item.bytes && typeof file.data === "string" && /^data:[^,]*;base64,/.test(file.data), "更新文件不完整，已停止安装，请重试。");
+      const binary = atob(file.data.slice(file.data.indexOf(",") + 1));
+      requireValue(binary.length === item.bytes, "更新文件大小不匹配，已停止安装，请重试。");
+      const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+      requireValue(sha256 === item.sha256, "更新文件校验失败，已停止安装，请重新下载。");
+    }
+    function install(path, item) {
+      return new Promise((resolve, reject) => plus.runtime.install(path, {force: false}, info => {
+        try {
+          requireValue(info && info.appid === item.appid && info.version === item.version_name && versionCode(info.versionCode) === item.version_code, "安装结果与目标版本不一致，请重新打开 App 检查。");
+          resolve();
+        } catch (error) { reject(error); }
+      }, () => reject(new Error("安装更新失败，原有版本仍可使用，请重试。"))));
+    }
+    async function update() {
+      if (busy) return;
+      if (!target) return check();
+      busy = true; button.disabled = true;
+      try {
+        const item = target;
+        requireValue(plus.runtime.appid === item.appid, "App 身份已改变，已停止更新。");
+        requireValue(versionCode((await property(item.appid)).versionCode) < item.version_code, "当前已是最新版本，无需更新。");
+        status.textContent = "正在下载更新…";
+        const path = await download(item);
+        status.textContent = "正在校验更新文件…";
+        await verifyFile(path, item);
+        status.textContent = "正在安装更新，请勿关闭 App…";
+        await install(path, item);
+        status.textContent = "更新完成，正在重新打开…";
+        plus.runtime.restart();
+      } catch (error) { status.textContent = error.message || "更新失败，请重试。"; }
+      finally { busy = false; button.disabled = false; }
+    }
+    button.addEventListener("click", update);
+    document.addEventListener("plusready", check, false);
+    if (window.plus) check();
+  </script>
+</body>
+</html>

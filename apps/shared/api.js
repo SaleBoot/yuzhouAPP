@@ -24,8 +24,11 @@ export function token() {
   return session()?.token || session()?.access_token || "";
 }
 export function media(path) {
-  if (path?.startsWith("/") && BASE.startsWith("http"))
-    return new URL(path, BASE).href;
+  if (path?.startsWith("/") && BASE.startsWith("http")) {
+    // App service runs without the browser URL constructor.
+    const origin = BASE.split("/").slice(0, 3).join("/");
+    return path.startsWith("//") ? `${BASE.split(":")[0]}:${path}` : `${origin}${path}`;
+  }
   // #ifdef H5
   // Uni H5 otherwise adds its /consumer/ or /broker/ router base to media URLs.
   if (/^\/api\/v1\/files\/[1-9]\d*$/.test(path || ""))
