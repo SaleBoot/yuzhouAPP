@@ -1,10 +1,19 @@
 <template>
-  <web-view v-if="valid" :src="url" /><view v-else class="page error"
+  <web-view v-if="valid" :src="resolved" /><view v-else class="page error"
     >链接无效，请返回重试。</view
   >
 </template>
 <script setup>
 import { computed } from "vue";
 const props = defineProps({ url: String });
-const valid = computed(() => /^https?:\/\//i.test(props.url || ""));
+const resolved = computed(() => {
+  const url = props.url || "";
+  if (/^https?:\/\//i.test(url)) return url;
+  try {
+    return decodeURIComponent(url);
+  } catch {
+    return "";
+  }
+});
+const valid = computed(() => /^https?:\/\//i.test(resolved.value));
 </script>

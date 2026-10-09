@@ -5,6 +5,27 @@ import { runInNewContext } from "node:vm";
 import { createRequire } from "node:module";
 import { publicPostAttachment, findBoatFavorite, toggleBoatFavorite } from "./post-boat.js";
 
+test("看船浏览页只解码路由编码，保留已完整 URL 的参数编码并拒绝非法链接", () => {
+  const source = readFileSync(new URL("./Viewer.vue", import.meta.url), "utf8");
+  const script = source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import[\s\S]*?;\n/gm, "");
+  const { reactive, computed } = createRequire(new URL("../consumer/package.json", import.meta.url))("vue");
+  const props = reactive({ url: "" });
+  const { resolved, valid } = new Function("defineProps", "computed", `${script}; return { resolved, valid };`)(() => props, computed);
+  const url = "https://yuzhou.ourideas.top/app-updates/?return=%2Fpages%2Fhome&title=a%26b";
+  for (const value of [url, encodeURIComponent(url)]) {
+    props.url = value;
+    assert.equal(resolved.value, url);
+    assert.equal(valid.value, true);
+  }
+  for (const value of ["", undefined, "%", "https%3A%2F%2Fexample.test%ZZ", "javascript:alert(1)", encodeURIComponent("javascript:alert(1)"), encodeURIComponent(encodeURIComponent(url))]) {
+    props.url = value;
+    assert.equal(valid.value, false);
+  }
+  props.url = "%";
+  assert.equal(resolved.value, "");
+  assert.match(source, /<web-view v-if="valid" :src="resolved"/);
+});
+
 test("首页船艇租售入口切回租船并滚动到现有列表，当前已是租船也有反馈", () => {
   const source = readFileSync(new URL("../consumer/src/pages/home.vue", import.meta.url), "utf8");
   const script = source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import[\s\S]*?;\n/gm, "");
