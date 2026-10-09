@@ -2,7 +2,26 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
+import { createRequire } from "node:module";
 import { publicPostAttachment, findBoatFavorite, toggleBoatFavorite } from "./post-boat.js";
+
+test("首页船艇租售入口切回租船并滚动到现有列表，当前已是租船也有反馈", () => {
+  const source = readFileSync(new URL("../consumer/src/pages/home.vue", import.meta.url), "utf8");
+  const script = source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import[\s\S]*?;\n/gm, "");
+  const { ref, computed } = createRequire(new URL("../consumer/package.json", import.meta.url))("vue");
+  const scrolls = [];
+  const { scenes, mode } = new Function("ref", "computed", "onShow", "uni", `${script}; return { scenes, mode };`)(ref, computed, () => {}, { pageScrollTo: options => scrolls.push(options) });
+  const scene = scenes.find(item => item.label === "船艇租售");
+  mode.value = "buy";
+  scene.action();
+  assert.equal(mode.value, "rent");
+  scene.action();
+  assert.deepEqual(scrolls, [
+    { selector: "#boat-catalog", duration: 300 },
+    { selector: "#boat-catalog", duration: 300 },
+  ]);
+  assert.match(source, /<view id="boat-catalog" class="row spread section"\s*>\s*<view class="tabs"/);
+});
 
 test("media display resolves canonical H5 files without changing stored or temporary URLs", () => {
   const source = readFileSync(new URL("./api.js", import.meta.url), "utf8");

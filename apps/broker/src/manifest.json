@@ -2,8 +2,8 @@
   "name": "驭舟经纪人",
   "appid": "__UNI__59A80C3",
   "description": "驭舟船艇服务",
-  "versionName": "1.0.3",
-  "versionCode": "103",
+  "versionName": "1.0.4",
+  "versionCode": "104",
   "transformPx": false,
   "vueVersion": "3",
   "h5": {

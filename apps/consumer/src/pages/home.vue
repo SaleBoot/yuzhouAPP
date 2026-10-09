@@ -35,7 +35,7 @@
         ><text>{{ s.label }}</text></view
       ></view
     >
-    <view class="row spread section"
+    <view id="boat-catalog" class="row spread section"
       ><view class="tabs"
         ><text :class="{ active: mode === 'rent' }" @click="mode = 'rent'"
           >租船</text
@@ -151,6 +151,7 @@ const scenes = [
     icon: "⌁",
     action: () => {
       mode.value = "rent";
+      uni.pageScrollTo({ selector: "#boat-catalog", duration: 300 });
     },
   },
   {
