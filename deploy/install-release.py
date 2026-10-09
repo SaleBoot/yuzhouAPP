@@ -88,7 +88,9 @@ def main():
         if pending.is_symlink(): pending.unlink()
         pending.symlink_to(release)
         pending.replace(current)
-        VHOST.write_bytes((release / 'deploy/nginx.conf.example').read_bytes())
+        # An immutable PHP entry avoids FPM realpath caches retaining the old current symlink.
+        conf = (release / 'deploy/nginx.conf.example').read_text().replace('/www/wwwroot/yuzhou/current/backend/public/index.php', str(release / 'backend/public/index.php'))
+        VHOST.write_text(conf)
         run(NGINX, '-t')
         run(NGINX, '-s', 'reload')
         for attempt in range(3):

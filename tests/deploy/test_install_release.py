@@ -47,7 +47,7 @@ class InstallerTests(unittest.TestCase):
         for name in self.units:
             (self.systemd / name).write_bytes(b'old-unit')
             (self.release / 'deploy' / name).write_bytes(b'new-unit')
-        (self.release / 'deploy/nginx.conf.example').write_bytes(b'new-site')
+        (self.release / 'deploy/nginx.conf.example').write_bytes(b'new-site\nfastcgi_param SCRIPT_FILENAME /www/wwwroot/yuzhou/current/backend/public/index.php;\n')
         (self.release / 'deploy/preflight.php').write_text('<?php /* synthetic */')
         (self.release / 'database/migrations').mkdir(parents=True)
         self.migration = self.release / 'database/migrations/007-synthetic-mysql.sql'
@@ -166,7 +166,7 @@ class InstallerTests(unittest.TestCase):
     def test_success_writes_receipt_atomically_and_activates_only_owned_paths(self):
         INSTALLER.main()
         self.assertEqual((self.root / 'current').resolve(), self.release)
-        self.assertEqual(self.vhost.read_bytes(), b'new-site')
+        self.assertEqual(self.vhost.read_text(), 'new-site\nfastcgi_param SCRIPT_FILENAME ' + str(self.release / 'backend/public/index.php') + ';\n')
         receipt = json.loads((self.shared / 'deployment.json').read_text())
         self.assertEqual(receipt['release_id'], 'synthetic-new')
         self.assertFalse(receipt['database_shared_with_existing_site'])
