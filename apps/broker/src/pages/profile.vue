@@ -26,6 +26,8 @@
         ><text>我的客户</text><text>›</text></view
       ><view class="list-item" @click="tab('orders')"
         ><text>合同与履约</text><text>›</text></view
+      ><view class="list-item" @click="go('viewer', { url: 'https://yuzhou.ourideas.top/app-updates/' })"
+        ><text>应用更新</text><text>›</text></view
       ></view
     ><PhoneBinding v-if="user" :user="user" @bound="refreshUser" />
     <view class="notice small section"

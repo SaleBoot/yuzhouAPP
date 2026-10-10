@@ -84,6 +84,7 @@ const entries = [
   { title: "通知消息", action: () => go("account", { kind: "notifications" }) },
   { title: "意见反馈", action: () => go("account", { kind: "feedback" }) },
   { title: "交付评价", action: () => go("account", { kind: "reviews" }) },
+  { title: "应用更新", action: () => go("viewer", { url: "https://yuzhou.ourideas.top/app-updates/" }) },
 ];
 async function refreshUser() {
   error.value = "";

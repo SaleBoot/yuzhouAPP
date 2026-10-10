@@ -24,6 +24,13 @@ server {
         add_header Referrer-Policy strict-origin-when-cross-origin always;
         add_header X-Frame-Options SAMEORIGIN always;
     }
+    location ^~ /boat-map/ {
+        alias /www/wwwroot/yuzhou/shared/boat-map/;
+        add_header Cache-Control "no-store" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header X-Frame-Options SAMEORIGIN always;
+    }
     location ~ /\. { deny all; }
     location ~ \.php$ { return 404; }
     location ^~ /api/ {

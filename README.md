@@ -29,6 +29,8 @@ npm --prefix apps/broker run build:app
 
 `build:app` 生成 UniApp 原生资源；APK、iOS 模拟器包、签名 IPA 的打包及设备验证需单独记录，资源构建成功不等于安装包验收。
 
+App 全量资源热更新入口为 `https://yuzhou.ourideas.top/app-updates/`，必须在 App 内打开。用户端旧版可点击首页“应用更新”，经纪人端旧版可通过“地图找船 → 应用更新”进入；1.0.6 起两端个人页均提供“应用更新”。每个 WGT 记录 AppID、版本、编译器、源提交、大小和 SHA-256，校验通过并点击确认后安装，不重新生成 APK。地图静态入口和 App 资源分别发布，后端继续使用其实际部署提交。
+
 ## 业务规则与文档
 
 - 商家以 18 位统一社会信用代码为实际主键；[数据库说明](docs/database.md)含数据字典、外键和关系图。

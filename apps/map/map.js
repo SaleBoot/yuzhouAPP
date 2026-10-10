@@ -1,6 +1,7 @@
 import { locatedBoats, boatPath } from "./model.js";
 const client = new URLSearchParams(location.search).get("client") === "broker" ? "broker" : "consumer";
 const native = new URLSearchParams(location.search).get("native") === "1";
+document.getElementById("app-update").hidden = !native;
 const status = document.getElementById("status");
 const list = document.getElementById("boats");
 const note = document.getElementById("provider-note");
