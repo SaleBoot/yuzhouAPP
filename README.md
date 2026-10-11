@@ -4,9 +4,9 @@
 
 ## 开发
 
-源码仓库为 [SaleBoot/yuzhouAPP](https://github.com/SaleBoot/yuzhouAPP)。`develop` 用于日常开发，`main` 保存验证后的交付源码。克隆后执行 `git switch develop`；同步前执行 `git pull --ff-only`。提交和推送不会自动部署，网站发布与 App 资源热更新仍分别核对源提交、版本和 SHA-256。
+原 UniApp 源码仓库已更名为 [SaleBoot/yuzhouAPP-old](https://github.com/SaleBoot/yuzhouAPP-old)。`develop` 用于日常开发，`main` 保存验证后的交付源码。克隆后执行 `git switch develop`；同步前执行 `git pull --ff-only`。提交和推送不会自动部署，网站发布与 App 资源热更新仍分别核对源提交、版本和 SHA-256。
 
-需要 Node.js、npm 和 PHP（pdo_sqlite、pdo_mysql、bcmath、mbstring、fileinfo、zip）。
+需要 Node.js、npm 和 PHP（pdo_sqlite、pdo_mysql、bcmath、mbstring、fileinfo、zip、curl）。云端若默认 npm 缓存目录不可写，可设置 `npm_config_cache=/tmp/yuzhou-npm-cache` 后执行安装命令。
 
 ```sh
 npm run setup
@@ -28,6 +28,8 @@ npm --prefix apps/broker run build:app
 ```
 
 `build:app` 生成 UniApp 原生资源；APK、iOS 模拟器包、签名 IPA 的打包及设备验证需单独记录，资源构建成功不等于安装包验收。
+
+iOS 两端资源交接、官方 SDK 准备和 Mac 上的签名命令见 [iOS 测试包构建](docs/ios-testing-build.md)。本次云端的验证结果与限制见 [2026-10-11 验证记录](docs/cloud-validation-20261011.md)。
 
 App 全量资源热更新入口为 `https://yuzhou.ourideas.top/app-updates/`，必须在 App 内打开。用户端旧版可点击首页“应用更新”，经纪人端旧版可通过“地图找船 → 应用更新”进入；1.0.6 起两端个人页均提供“应用更新”。每个 WGT 记录 AppID、版本、编译器、源提交、大小和 SHA-256，校验通过并点击确认后安装，不重新生成 APK。地图静态入口和 App 资源分别发布，后端继续使用其实际部署提交。
 

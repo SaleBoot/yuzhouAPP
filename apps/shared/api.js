@@ -138,10 +138,19 @@ export function request(path, { method = "GET", data, authToken } = {}) {
     }),
   );
 }
-export const list = (kind, filters = {}) =>
-  request(`/resources/${kind}?${query({ page_size: 100, ...filters })}`).then(
-    (data) => (data.items || []).map(resource),
-  );
+export async function list(kind, filters = {}) {
+  const items = new Map();
+  const singlePage = filters.page !== undefined;
+  for (let page = Number(filters.page || 1); ; page++) {
+    const data = await request(`/resources/${kind}?${query({ page_size: 100, ...filters, page })}`);
+    if (!Array.isArray(data?.items) || !Number.isSafeInteger(data.total) || data.total < 0 || data.page !== page || !Number.isSafeInteger(data.page_size) || data.page_size < 1)
+      throw new Error("资源列表返回信息不完整，请重试");
+    const before = items.size;
+    for (const item of data.items) items.set(item.id, resource(item));
+    if (singlePage || page * data.page_size >= data.total) return [...items.values()];
+    if (!data.items.length || items.size === before) throw new Error("资源列表分页返回异常，请重试");
+  }
+}
 export const detail = (kind, id) =>
   request(`/resources/${kind}/${encodeURIComponent(id)}`).then(resource);
 export const post = (path, data = {}) =>

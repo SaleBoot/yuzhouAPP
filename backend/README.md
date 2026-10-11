@@ -2,7 +2,9 @@
 
 后端使用锁定的 ThinkPHP 5.1.41 LTS，业务代码兼容 PHP 7.2，API、后台和两个 App 分离。正式数据库为 MySQL 5.7/InnoDB；SQLite 仅用于 development/test 的持久化联调和测试。数据库、配置、上传、缓存和账号独立于现有创意岛。
 
-运行依赖：PHP 7.2 的 PDO/PDO MySQL、BCMath、mbstring、fileinfo、JSON、OpenSSL、zip 扩展；本地测试另外需要 PDO SQLite。框架已经固定保存在 `thinkphp/`，不需要在线安装包；不要对现有 PHP 或框架执行升级。
+运行依赖：PHP 7.2 的 PDO/PDO MySQL、BCMath、mbstring、fileinfo、JSON、OpenSSL、zip 扩展；阿里云短信适配还需要 cURL，本地测试另外需要 PDO SQLite。框架已经固定保存在 `thinkphp/`，不需要在线安装包；不要对现有 PHP 或框架执行升级。
+
+本地新版 PHP 的弃用诊断由自有入口适配器忽略，警告和实际异常仍交给框架处理。独立异常处理器只记录异常类和文件位置，不依赖原站点日志类；路由不存在返回 JSON 404，内部异常返回不含私密详情的 JSON 500。这不改变锁定框架，也不替代生产 PHP 7.2/MySQL 的实际验证。
 
 `backend/.env.example` 是空秘密配置模板。`APP_URL`、`CORS_ORIGINS` 和 `VR_BASE_URL` 由部署配置提供。VR 外链使用既有 3D 平台；每条船的 `vr_url` 必须另行映射真实模型。运行库和私有上传应放在站点文档根目录之外。Web 文档根目录只能是 `backend/public`。
 
@@ -19,6 +21,7 @@
 验证入口：
 
 ```sh
+php tests/backend/runtime-errors.php
 php tests/backend/run.php
 php tests/backend/communication.php
 php tests/backend/operations.php

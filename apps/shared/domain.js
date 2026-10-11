@@ -76,13 +76,17 @@ export function validateOrder(form) {
     throw new Error("数量应为正整数");
   return { ...form, quantity: Number(form.quantity) };
 }
-export function dateTime(value, full = true) {
-  if (!value) return "—";
-  const date = new Date(
+function dateValue(value) {
+  return new Date(
     typeof value === "number" || /^\d+$/.test(String(value))
       ? Number(value) * (Number(value) < 1e12 ? 1000 : 1)
-      : value,
+      // SQL datetime strings are not a supported Date format on iOS/WebKit.
+      : typeof value === "string" ? value.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/, "$1T$2") : value,
   );
+}
+export function dateTime(value, full = true) {
+  if (!value) return "—";
+  const date = dateValue(value);
   if (Number.isNaN(date.getTime())) return String(value);
   const day = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   return full
@@ -94,7 +98,7 @@ export function memberActive(user) {
     user?.is_member ??
     Boolean(
       user?.member_until &&
-      new Date(dateTime(user.member_until) + ":00") > new Date(),
+      dateValue(user.member_until) > new Date(),
     )
   );
 }

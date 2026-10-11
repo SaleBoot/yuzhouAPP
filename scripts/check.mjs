@@ -23,6 +23,8 @@ const releaseTest = spawnSync(process.execPath, ['--test', 'tests/release.test.m
 if (releaseTest.status !== 0) process.exit(releaseTest.status || 1);
 const androidModulesTest = spawnSync('python3', ['-B', 'tests/native/test_android_modules.py'], { cwd: root, stdio: 'inherit' });
 if (androidModulesTest.status !== 0) process.exit(androidModulesTest.status || 1);
+const iosPackagingTest = spawnSync('python3', ['-B', 'tests/native/test_ios_packaging.py'], { cwd: root, stdio: 'inherit' });
+if (iosPackagingTest.status !== 0) process.exit(iosPackagingTest.status || 1);
 const appUpdateTest = spawnSync(process.execPath, ['--test', 'tests/native/app-update.test.mjs'], { cwd: root, stdio: 'inherit' });
 if (appUpdateTest.status !== 0) process.exit(appUpdateTest.status || 1);
 const installerTest = spawnSync('python3', ['tests/deploy/test_install_release.py'], { cwd: root, stdio: 'inherit' });
@@ -33,7 +35,9 @@ const httpsFixtureTest = spawnSync('python3', ['tests/deployment/test_https.py']
 if (httpsFixtureTest.status !== 0) process.exit(httpsFixtureTest.status || 1);
 const tests = path.join(root, 'tests/backend/run.php');
 if (!existsSync(tests)) throw new Error('缺少后端业务测试');
-let result = spawnSync('php', [tests], { cwd: root, stdio: 'inherit' });
+let result = spawnSync('php', ['tests/backend/runtime-errors.php'], { cwd: root, stdio: 'inherit' });
+if (result.status !== 0) process.exit(result.status || 1);
+result = spawnSync('php', [tests], { cwd: root, stdio: 'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);
 result = spawnSync('php', ['tests/backend/communication.php'], { cwd: root, stdio: 'inherit' });
 if (result.status !== 0) process.exit(result.status || 1);

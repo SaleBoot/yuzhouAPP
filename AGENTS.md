@@ -4,7 +4,7 @@
 
 ## 仓库与分支
 
-- 唯一源码远端为 https://github.com/SaleBoot/yuzhouAPP；日常开发使用 `develop`，验证后的交付源码进入 `main`。
+- 原 UniApp 源码远端已更名为 https://github.com/SaleBoot/yuzhouAPP-old；日常开发使用 `develop`，验证后的交付源码进入 `main`。另一 Flutter 仓库不作为本项目的 WGT 或 iOS 原生资源来源。
 - 保留提交历史，拉取使用 `--ff-only`，不强制推送。不将 GitHub 推送视为站点部署或真机验收。
 - 网页、后端和 App 热更新各自保留实际部署提交与哈希；不因为分支更新而重建安装包或自动覆盖在线环境。
 
