@@ -88,7 +88,7 @@
               ? t('当前日期可预约，提交后由服务端锁定船艇')
               : t('当前日期库存不足，请调整日期或数量')
           }}<view v-for="boat in availableBoats" :key="boat.id" class="small">{{
-            boat.title || boat.serial_number || t('船艇 {id}', { id: boat.id })
+            resourceName(boat) || boat.serial_number || t('船艇 {id}', { id: boat.id })
           }}</view></view
         ><ServiceScheduleFields
           v-if="['boat_upgrade', 'maintenance'].includes(form.type)"
@@ -112,14 +112,14 @@
           ><picker
             :range="[
               t('不使用优惠券'),
-              ...coupons.map((c) => c.title || c.name || t('优惠券')),
+              ...coupons.map((c) => resourceName(c) || t('优惠券')),
             ]"
             :value="couponIndex"
             @change="couponIndex = Number($event.detail.value)"
             ><view class="picker-value"
               >{{
                 couponIndex
-                  ? coupons[couponIndex - 1]?.title || t('已选择优惠券')
+                  ? resourceName(coupons[couponIndex - 1]) || t('已选择优惠券')
                   : t('不使用优惠券')
               }}
               ▾</view
@@ -157,6 +157,7 @@ import {
   notify,
   requireLogin,
   fallbackBoat,
+  resourceName,
 } from "@shared/api.js";
 import {
   ORDER_TYPES,

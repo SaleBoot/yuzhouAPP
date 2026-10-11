@@ -57,6 +57,36 @@ with tempfile.TemporaryDirectory(prefix='yuzhou-http-') as tmp:
         token=data['data']['token']
         status,headers,data=parsed('/api/v1/auth/register',method='POST',body={'username':'http.outsider','password':secrets.token_urlsafe(18)})
         outsider=data['data']['token']
+        status,headers,data=parsed('/api/v1/auth/login',method='POST',body={'username':'platform.demo','password':env['SEED_PASSWORD']})
+        check(status==200 and data['data']['user']['role']=='platform','Platform authenticates for the regular advertising workflow')
+        platform_token=data['data']['token']
+        image=__import__('base64').b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=')
+        image_boundary='YuzhouImageBoundary'+secrets.token_hex(8)
+        image_body=(f'--{image_boundary}\r\nContent-Disposition: form-data; name="private"\r\n\r\n0\r\n--{image_boundary}\r\nContent-Disposition: form-data; name="file"; filename="advert.png"\r\nContent-Type: image/png\r\n\r\n'.encode()+image+f'\r\n--{image_boundary}--\r\n'.encode())
+        status,headers,data=parsed('/api/v1/uploads',method='POST',body=image_body,token=platform_token,headers={'Content-Type':'multipart/form-data; boundary='+image_boundary})
+        check(status==200 and not data['data']['private'] and data['data']['mime']=='image/png','Regular multipart upload stores an advertising picture as public media')
+        advert_image=data['data']['url']
+        advert={'title':'按日租船','status':'draft','payload':{'placement':'home','sort_order':10,'target_url':'/pages/boat?id=1&mode=rent','title_en':'Rent for a day','description':'查看船艇','description_en':'Explore the boat','image_urls':[advert_image]}}
+        status,headers,data=parsed('/api/v1/resources/banners',method='POST',body=advert,token=platform_token)
+        check(status==200 and data['data']['status']=='draft','Platform saves a bilingual advertising draft through the regular API')
+        advert_id=data['data']['id']; advert_version=data['data']['version']
+        status,headers,data=parsed('/api/v1/resources/banners?mine=true&status=draft',token=platform_token)
+        check(status==200 and [item['id'] for item in data['data']['items']]==[advert_id],'Platform draft filter returns the newly saved draft')
+        status,headers,raw=request(advert_image)
+        check(status==403,'Unpublished advertising upload is still inaccessible anonymously')
+        status,headers,data=parsed('/api/v1/resources/banners?placement=home')
+        check(status==200 and data['data']['total']==0,'Advertising draft is not visible in the public App placement')
+        status,headers,data=parsed('/api/v1/resources/banners/'+str(advert_id),method='PATCH',body={'version':advert_version,'status':'published'},token=platform_token)
+        check(status==200 and data['data']['version']==advert_version+1,'Publishing updates the draft with optimistic version validation')
+        advert_version=data['data']['version']
+        status,headers,data=parsed('/api/v1/resources/banners?placement=home')
+        check(status==200 and data['data']['total']==1 and data['data']['items'][0]['payload']['title_en']=='Rent for a day','Published advert reaches the App API with English copy and the original destination')
+        status,headers,raw=request(advert_image)
+        check(status==200 and raw==image,'Published advert makes exactly its uploaded image publicly readable')
+        status,headers,data=parsed('/api/v1/resources/banners/'+str(advert_id),method='PATCH',body={'version':advert_version,'status':'archived'},token=platform_token)
+        check(status==200,'Platform can withdraw its advertising through the regular workflow')
+        status,headers,data=parsed('/api/v1/resources/banners?placement=home')
+        check(status==200 and data['data']['total']==0,'Withdrawn advertising disappears from the App API')
         boundary='YuzhouTestBoundary'+secrets.token_hex(8)
         pdf=b'%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n'
         body=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="test-contract.pdf"\r\nContent-Type: application/pdf\r\n\r\n'.encode()+pdf+f'\r\n--{boundary}--\r\n'.encode())

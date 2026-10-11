@@ -17,6 +17,8 @@
   <script>
     "use strict";
     const language = new URLSearchParams(location.search || "").get("lang") === "en" ? "en" : "zh-Hans";
+    const requiredPage = new URLSearchParams(location.search || "").get("required") === "1";
+    const minimumVersion = new URLSearchParams(location.search || "").get("minimum");
     const EN = {
       __proto__: null,
       "驭舟": "Yuzhou",
@@ -27,6 +29,10 @@
       "请在驭舟 App 内打开此页面。": "Open this page in the Yuzhou app.",
       "正在检查更新": "Checking for updates",
       "更新完成后会重新打开 App，请先完成当前操作。": "The app restarts after updating. Finish your current activity first.",
+      "本次更新必须完成后才能继续使用，更新完成将自动重新打开。": "This required update must finish before you continue. The app will restart automatically.",
+      "正在自动更新，请保持网络连接。": "Updating automatically. Stay connected.",
+      "更新尚未完成，请检查网络后重试。": "The required update is unfinished. Check your connection and retry.",
+      "所需更新暂未就绪，请稍后重试。": "The required update is not ready yet. Please retry later.",
       "无法确认当前版本，请重新打开 App 后重试。": "Unable to confirm the current version. Reopen the app and try again.",
       "版本信息不正确，已停止更新。": "Invalid version information. Update stopped.",
       "此页面只支持驭舟 App，请从 App 内打开。": "This page supports only Yuzhou apps. Open it from the app.",
@@ -83,6 +89,16 @@
     const status = document.getElementById("status");
     let target = null;
     let busy = false;
+    let restarting = false;
+    let locked = false;
+    function lockRequired() {
+      if (locked) return;
+      locked = true;
+      document.getElementById("notice").textContent = t("本次更新必须完成后才能继续使用，更新完成将自动重新打开。");
+      const view = plus.webview.currentWebview();
+      view.setStyle({popGesture: "none"});
+      plus.key.addEventListener("backbutton", () => {});
+    }
     function requireValue(ok, message) { if (!ok) throw new Error(message); }
     function versionCode(value) {
       requireValue((typeof value === "number" || typeof value === "string") && /^[1-9]\d*$/.test(String(value)), t("无法确认当前版本，请重新打开 App 后重试。"));
@@ -96,10 +112,15 @@
       const item = data && data.apps && data.apps[appid];
       requireValue(item && item.appid === appid && item.package === app.package && /^\d+\.\d+\.\d+$/.test(item.version_name), t("更新信息不正确，已停止更新。"));
       requireValue(Number.isSafeInteger(item.version_code) && item.version_code > 0 && Number.isSafeInteger(item.bytes) && item.bytes > 0 && item.bytes <= 100 * 1024 * 1024 && /^[a-f0-9]{64}$/.test(item.sha256) && /^[a-f0-9]{40}$/.test(item.source_commit), t("更新信息不完整，已停止更新。"));
+      requireValue(item.mandatory === undefined || typeof item.mandatory === "boolean", t("更新信息不正确，已停止更新。"));
+      if (requiredPage && minimumVersion !== null) {
+        const minimum = versionCode(minimumVersion);
+        requireValue(item.version_code >= minimum || versionCode(current.versionCode) >= minimum, t("所需更新暂未就绪，请稍后重试。"));
+      }
       const url = new URL(item.url, ORIGIN);
       requireValue(url.href === ORIGIN + "/app-updates/" + app.id + "-" + item.version_name + ".wgt", t("更新地址不正确，已停止更新。"));
       requireValue(item.compiler_version === "5.26" && /^5\.26(?:\.|$)/.test(plus.runtime.uniVersion || ""), t("当前 App 运行环境不支持此次资源更新。"));
-      requireValue(versionCode(current.versionCode) < item.version_code, t("当前已是最新版本，无需更新。"));
+      if (versionCode(current.versionCode) >= item.version_code) return null;
       return Object.freeze({...item, url: url.href});
     }
     function property(appid) {
@@ -109,11 +130,13 @@
       });
     }
     async function check() {
-      if (busy) return;
+      if (busy || restarting) return;
+      let latest = false;
       busy = true; target = null; button.disabled = true; status.textContent = t("正在检查更新…");
       try {
         requireValue(location.origin === ORIGIN, t("请从驭舟 App 的官方更新入口打开。"));
         requireValue(window.plus && plus.runtime && APPS[plus.runtime.appid], t("此页面只支持驭舟 App，请从 App 内打开。"));
+        if (requiredPage) lockRequired();
         requireValue(window.crypto && crypto.subtle && plus.downloader && plus.io, t("当前环境无法安全校验更新，请重新打开 App 后重试。"));
         const appid = plus.runtime.appid;
         const current = await property(appid);
@@ -127,6 +150,14 @@
         } catch (_) { throw new Error(t("暂时无法获取更新，请检查网络后重试。")); }
         finally { clearTimeout(timer); }
         target = metadata(data, appid, current);
+        if (!target) {
+          latest = true;
+          status.textContent = t("当前已是最新版本，无需更新。");
+          button.textContent = t("当前已是最新版本，无需更新。");
+          if (requiredPage) plus.webview.currentWebview().close("none");
+          return;
+        }
+        if (target.mandatory === true) lockRequired();
         document.getElementById("title").textContent = t("{name}更新", {name: t(APPS[appid].name)});
         document.getElementById("version").textContent = t("当前版本 {current} · 新版本 {target}", {current: current.version, target: target.version_name});
         status.textContent = t("更新已准备好，点击下方按钮开始。");
@@ -134,7 +165,8 @@
       } catch (error) {
         status.textContent = errorMessage(error, "检查更新失败，请检查网络后重试。");
         button.textContent = t("重新检查");
-      } finally { busy = false; button.disabled = !window.plus; }
+      } finally { busy = false; button.disabled = !window.plus || latest; }
+      if (target && (requiredPage || target.mandatory === true)) await update();
     }
     function download(item) {
       return new Promise((resolve, reject) => {
@@ -184,7 +216,7 @@
       }, () => reject(new Error(t("安装更新失败，原有版本仍可使用，请重试。")))));
     }
     async function update() {
-      if (busy) return;
+      if (busy || restarting) return;
       if (!target) return check();
       busy = true; button.disabled = true;
       try {
@@ -198,9 +230,17 @@
         status.textContent = t("正在安装更新，请勿关闭 App…");
         await install(path, item);
         status.textContent = t("更新完成，正在重新打开…");
+        restarting = true;
         plus.runtime.restart();
       } catch (error) { status.textContent = errorMessage(error, "更新失败，请重试。"); }
-      finally { busy = false; button.disabled = false; }
+      finally {
+        busy = false; button.disabled = restarting;
+        if (!restarting && locked) {
+          document.getElementById("notice").textContent = t("更新尚未完成，请检查网络后重试。");
+          button.textContent = t("重新检查");
+          target = null;
+        }
+      }
     }
     button.addEventListener("click", update);
     document.addEventListener("plusready", check, false);

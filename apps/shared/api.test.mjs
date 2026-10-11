@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { t, getLocale } from "./i18n.js";
 import { runInNewContext } from "node:vm";
 
-function apiHarness(response, { native = false } = {}) {
+function apiHarness(response, { native = false, locale = "zh-Hans" } = {}) {
   const calls = [], storage = new Map(), enabled = [];
   const source = readFileSync(new URL("./api.js", import.meta.url), "utf8")
     .split("\n").filter((line) => {
@@ -13,8 +13,8 @@ function apiHarness(response, { native = false } = {}) {
       if (line === "// #endif") { enabled.pop(); return false; }
       return enabled.every(Boolean) && !line.startsWith("import ");
     }).join("\n").replaceAll("import.meta.env", "env").replace(/^export /gm, "");
-  const api = runInNewContext(`${source}; ({ list, media });`, {
-    t, getLocale, env: {}, URL, window: { location: { origin: "https://h5.test" } },
+  const api = runInNewContext(`${source}; ({ list, media, resource, resourceName });`, {
+    t, getLocale: () => locale, env: {}, URL, window: { location: { origin: "https://h5.test" } },
     uni: {
       getStorageSync: (key) => storage.get(key),
       request(options) {
@@ -29,6 +29,33 @@ function apiHarness(response, { native = false } = {}) {
   return { api, calls };
 }
 const resource = (id) => ({ id, title: `实船 ${id}`, price_cents: id * 100, payload: { boat_type_id: 1, image_urls: [`/api/v1/files/${id}`] } });
+
+test("public resource English copy changes display fields and preserves canonical title, payload, id and price", () => {
+  const item = { id: 36, title: "航海指南", price_cents: 2500, payload: { title_en: "Sailing guide", description: "学习航海知识", description_en: "Learn about sailing", content: "中文正文", content_en: "English article", stock: 8, image_urls: ["/api/v1/files/22"] } };
+  const before = JSON.stringify(item);
+  const english = apiHarness(() => {}, { locale: "en", native: true }).api.resource(item);
+  assert.equal(english.name, "Sailing guide"); assert.equal(english.description, "Learn about sailing"); assert.equal(english.content, "English article");
+  assert.equal(english.title, "航海指南"); assert.equal(english.payload, item.payload); assert.equal(english.id, 36); assert.equal(english.price_cents, 2500); assert.equal(english.stock, 8);
+  assert.equal(english.image_url, "https://yuzhou.ourideas.top/api/v1/files/22"); assert.equal(JSON.stringify(item), before);
+  const chinese = apiHarness(() => {}, { locale: "zh-Hans" }).api.resource(item);
+  assert.equal(chinese.name, "航海指南"); assert.equal(chinese.description, "学习航海知识"); assert.equal(chinese.content, "中文正文");
+  const legacy = apiHarness(() => {}, { locale: "en" }).api.resource({ ...item, payload: { description: "已有中文介绍", content: "已有中文正文" } });
+  assert.equal(legacy.name, "航海指南"); assert.equal(legacy.description, "已有中文介绍"); assert.equal(legacy.content, "已有中文正文");
+});
+
+test("coupon, cart and booking display names localize raw public resources without changing claims or prices", () => {
+  const english = apiHarness(() => {}, { locale: "en" }).api;
+  const chinese = apiHarness(() => {}, { locale: "zh-Hans" }).api;
+  const coupon = { id: 7, title: "租船优惠券", payload: { title_en: "Boat rental coupon", discount_cents: 2000 } };
+  const flattenedClaim = { ...coupon, ...coupon.payload, id: 45, status: "available", coupon_id: 7, coupon };
+  const product = { id: 9, title: "航海指南", price_cents: 2500, payload: { title_en: "Sailing guide", stock: 8 } };
+  const boat = { id: 38, title: "实船一号", serial_number: "YZ-38", payload: { title_en: "Boat number one" } };
+  const values = [coupon, flattenedClaim, product, boat], before = JSON.stringify(values);
+  assert.deepEqual(values.map(item => english.resourceName(item)), ["Boat rental coupon", "Boat rental coupon", "Sailing guide", "Boat number one"]);
+  assert.deepEqual(values.map(item => chinese.resourceName(item)), ["租船优惠券", "租船优惠券", "航海指南", "实船一号"]);
+  assert.equal(english.resourceName({ title: "历史中文券" }), "历史中文券"); assert.equal(english.resourceName(null), "");
+  assert.equal(JSON.stringify(values), before); assert.equal(flattenedClaim.id, 45); assert.equal(flattenedClaim.status, "available"); assert.equal(product.price_cents, 2500);
+});
 
 test("目录和实船选择器加载第 100 条之后的资源并保留筛选条件", async () => {
   const records = Array.from({ length: 101 }, (_, index) => resource(index + 1));

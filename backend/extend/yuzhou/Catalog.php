@@ -40,6 +40,7 @@ class Catalog
                 $where .= ' AND (owner_id=? OR (org_id=? AND org_id>0) OR id IN (SELECT ep.event_id FROM event_participants ep JOIN merchants m ON m.credit_code=ep.merchant_credit_code WHERE m.organization_id=?))'; $params[] = (int)$user['id']; $params[] = (int)$user['org_id']; $params[] = (int)$user['org_id'];
             }
         } else { $where .= ' AND status=?'; $params[] = 'published'; }
+        if ($kind === 'banners' && !empty($query['status'])) { $where .= ' AND status=?'; $params[] = Validation::choice($query['status'], ['draft', 'pending', 'published', 'rejected', 'archived'], 'status'); }
         if (!empty($query['search'])) { $where .= ' AND title LIKE ?'; $params[] = '%' . Validation::text($query['search'], 'search', 100) . '%'; }
         if ($kind === 'banners' && !empty($query['placement'])) { $where .= ' AND id IN (SELECT resource_id FROM banners WHERE placement=?)'; $params[] = Validation::choice($query['placement'], ['home', 'shop', 'learning', 'community'], 'placement'); }
         $order = $kind === 'posts' ? 'COALESCE((SELECT is_pinned FROM post_metadata WHERE post_id=resources.id),0) DESC,id DESC' : ($kind === 'banners' ? '(SELECT sort_order FROM banners WHERE resource_id=resources.id) ASC,id DESC' : 'id DESC');
@@ -66,6 +67,7 @@ class Catalog
             if ($kind === 'courses') $price = 0;
             $payload = $body['payload'] ?? ($old ? $old['payload'] : []);
             if (!is_array($payload) || strlen(json_encode($payload)) > 100000) throw new ApiError('Invalid resource payload.');
+            foreach (['title_en' => 200, 'description_en' => 20000, 'content_en' => 20000] as $key => $max) if (array_key_exists($key, $payload)) $payload[$key] = Validation::text($payload[$key], $key, $max, false);
             if ($kind === 'posts' && $user['role'] !== 'platform' && (($payload['post_type'] ?? 'forum') !== 'forum' || !empty($payload['is_pinned']))) throw new ApiError('Official news and pinning require platform management.', 403, 403);
             $this->validatePayload($kind, $payload, $user);
             $status = $user['role'] === 'platform' ? ($body['status'] ?? ($old ? $old['status'] : 'published')) : 'pending';
@@ -74,6 +76,11 @@ class Catalog
                 $status = 'pending';
             }
             Validation::choice($status, ['draft', 'pending', 'published', 'rejected', 'archived'], 'status');
+            if ($kind === 'banners') {
+                foreach (['title_en' => 200, 'description' => 500, 'description_en' => 500] as $key => $max) if (isset($payload[$key])) $payload[$key] = Validation::text($payload[$key], $key, $max, false);
+                if ($status === 'published' && (empty($payload['image_urls']) || empty($payload['title_en']))) throw new ApiError('Published banners require an image and an English title.');
+                if ($status === 'published' && !empty($payload['description']) && empty($payload['description_en'])) throw new ApiError('Add the English banner description before publishing.');
+            }
             $merchant = null;
             if ($user['role'] === 'merchant') {
                 $merchant = $this->db->one('SELECT credit_code FROM merchants WHERE organization_id=? AND status=?', [(int)$user['org_id'], 'approved']);
@@ -212,7 +219,8 @@ class Catalog
             case 'growth_products': $this->domain('growth_products', $id, ['points_price' => Validation::integer($payload['points_price'] ?? 0, 'points_price', 1, 1000000), 'stock' => (int)($payload['stock'] ?? 0)]); break;
             case 'banners':
                 $target = Validation::text($payload['target_url'] ?? '', 'target_url', 500);
-                if (!preg_match('#^https?://#i', $target) && !preg_match('#^/[^/]#', $target)) throw new ApiError('Banner target must be HTTP or a local application path.');
+                $http = preg_match('#^https?://#i', $target) && filter_var($target, FILTER_VALIDATE_URL);
+                if (!$http && !preg_match('#^/pages/[a-z-]+(?:\?[^\s\#]*)?$#D', $target)) throw new ApiError('Banner target must be an HTTP URL or /pages/application-page path.');
                 $this->domain('banners', $id, ['placement' => Validation::choice($payload['placement'] ?? 'home', ['home', 'shop', 'learning', 'community'], 'placement'), 'target_url' => $target, 'sort_order' => Validation::integer($payload['sort_order'] ?? 0, 'sort_order', 0, 10000)]);
                 break;
             case 'posts':

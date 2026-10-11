@@ -24,11 +24,11 @@
         ></view
       ></BannerStrip
     >
-    <view class="row spread section" @click="external(vrBaseUrl)"
-      ><text class="card-head">{{ t('智能 3D 看船') }}</text
-      ><text class="link small">{{ t('进入看船平台 ↗') }}</text></view
+    <view class="row spread section home-entry" @click="external(vrBaseUrl)"
+      ><view class="card-head home-entry-title">{{ t('智能 3D 看船') }}</view
+      ><view class="link small home-entry-link">{{ t('进入看船平台 ↗') }}</view></view
     >
-    <view class="row spread section" @click="go('map')"><text class="card-head">{{ t('地图找船') }}</text><text class="link small">{{ t('查看船艇位置 ›') }}</text></view>
+    <view class="row spread section home-entry" @click="go('map')"><view class="card-head home-entry-title">{{ t('地图找船') }}</view><view class="link small home-entry-link">{{ t('查看船艇位置 ›') }}</view></view>
     <view class="grid scene-grid"
       ><view v-for="s in scenes" :key="s.label" class="scene" @click="s.action"
         ><text class="tile-icon">{{ s.icon }}</text
@@ -207,6 +207,23 @@ onShow(() => {
 });
 </script>
 <style scoped>
+.home-entry {
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12rpx 20rpx;
+}
+.home-entry-title {
+  flex: 1 1 240rpx;
+  min-width: 0;
+  margin-bottom: 0;
+  overflow-wrap: normal;
+}
+.home-entry-link {
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 0;
+  white-space: nowrap;
+}
 .hero {
   min-height: 310rpx;
   position: relative;

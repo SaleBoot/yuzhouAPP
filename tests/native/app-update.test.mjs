@@ -16,7 +16,7 @@ const release = {
 
 function page(options = {}) {
   const elements = Object.fromEntries(["title", "version", "status", "update", "notice"].map(id => [id, {textContent: "", disabled: true, addEventListener() {}}]));
-  const calls = {fetch: 0, downloads: [], readers: 0, installs: [], restarts: 0};
+  const calls = {fetch: 0, downloads: [], readers: 0, installs: [], restarts: 0, styles: [], back: [], closes: 0};
   const item = {...release, ...options.release};
   const current = {appid: options.appid || appid, version: "1.0.2", versionCode: "102", ...options.current};
   const local = "_doc/yuzhou-update/" + item.appid + "-" + item.version_name + ".wgt";
@@ -40,6 +40,8 @@ function page(options = {}) {
   vm.createContext(context);
   vm.runInContext(script, context, {filename: "app-update.html"});
   context.plus = {
+    webview: {currentWebview: () => ({setStyle: style => calls.styles.push(style), close: () => {calls.closes++;}})},
+    key: {addEventListener: (event, callback) => calls.back.push({event, callback})},
     runtime: {
       appid: current.appid, uniVersion: options.uniVersion === undefined ? "5.26.0" : options.uniVersion,
       getProperty: (id, callback) => {assert.equal(id, current.appid); callback(current);},
@@ -82,6 +84,78 @@ test("requires known AppID and official origin before fetching metadata", async 
     assert.equal(p.calls.installs.length, 0);
     assert.equal(p.calls.restarts, 0);
   }
+});
+
+test("required releases automatically verify, install and restart for both apps and languages", async () => {
+  for (const search of ["", "?lang=en", "?required=1&lang=en"]) {
+    for (const app of [
+      {appid, package: "top.ourideas.yuzhou.consumer", url: "/app-updates/consumer-1.0.3.wgt"},
+      {appid: "__UNI__59A80C3", package: "top.ourideas.yuzhou.broker", url: "/app-updates/broker-1.0.3.wgt"},
+    ]) {
+      const p = page({search, appid: app.appid, release: {...app, mandatory: true}});
+      await p.check(); await p.update(); await p.check();
+      assert.equal(p.calls.installs.length, 1);
+      assert.equal(p.calls.installs[0].settings.force, false);
+      assert.equal(p.calls.restarts, 1);
+      assert.equal(p.elements.update.disabled, true);
+      assert.equal(p.calls.styles[0].popGesture, "none");
+      assert.equal(p.calls.back[0].event, "backbutton");
+    }
+  }
+});
+
+test("required page with a current or newer resource version closes without download or restart", async () => {
+  for (const versionCode of ["103", "104"]) {
+    const p = page({search: "?required=1", current: {versionCode}, release: {mandatory: true}});
+    await p.check();
+    assert.equal(p.calls.closes, 1);
+    assert.equal(p.calls.downloads.length, 0);
+    assert.equal(p.calls.restarts, 0);
+  }
+});
+
+test("failed required updates keep the update page locked and provide a new verified retry", async () => {
+  for (const options of [
+    {fetchError: true}, {downloadCode: 500}, {fileBytes: Buffer.alloc(bytes.length, 7)},
+    {installError: true}, {installed: {versionCode: "102"}},
+  ]) {
+    const p = page({search: "?required=1&lang=en", release: {mandatory: true}, ...options});
+    await p.check();
+    const firstFetch = p.calls.fetch;
+    await p.update();
+    assert.equal(p.calls.fetch, firstFetch + 1);
+    assert.equal(p.calls.restarts, 0);
+    assert.equal(p.calls.closes, 0);
+    assert.equal(p.calls.back.length, 1);
+    assert.equal(p.elements.update.disabled, false);
+    assert.equal(p.elements.update.textContent, "Check again");
+    assert.doesNotMatch(p.elements.status.textContent, /[\u3400-\u9fff]/);
+  }
+});
+
+test("mandatory flag must be an actual boolean and cannot bypass identity or hash checks", async () => {
+  for (const release of [{mandatory: "true"}, {mandatory: true, package: "other.app"}, {mandatory: true, sha256: "bad"}]) {
+    const p = page({release}); await p.check();
+    assert.equal(p.calls.installs.length, 0);
+    assert.equal(p.calls.downloads.length, 0);
+    assert.equal(p.calls.restarts, 0);
+  }
+});
+
+test("persisted minimum prevents rolled-back metadata closing and reopening a required window", async () => {
+  for (const search of ["?required=1&minimum=104", "?required=1&minimum=104&lang=en"]) {
+    const p = page({search, current: {versionCode: "103"}, release: {mandatory: true}});
+    await p.check(); await p.update();
+    assert.equal(p.calls.closes, 0);
+    assert.equal(p.calls.restarts, 0);
+    assert.equal(p.calls.downloads.length, 0);
+    assert.equal(p.elements.update.disabled, false);
+    assert.match(p.elements.status.textContent, /暂未就绪|not ready/);
+  }
+  const done = page({search: "?required=1&minimum=103", current: {versionCode: "103"}, release: {version_code: 102}});
+  await done.check();
+  assert.equal(done.calls.closes, 1);
+  assert.equal(done.calls.restarts, 0);
 });
 
 test("checks metadata and waits for the user before downloading", async () => {

@@ -42,6 +42,10 @@ export const query = (data = {}) =>
     .filter(([, v]) => v !== undefined && v !== null && v !== "")
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join("&");
+export function resourceName(item) {
+  if (!item) return "";
+  return getLocale() === "en" ? item.payload?.title_en || item.title_en || item.title || item.name || "" : item.title || item.name || "";
+}
 export function resource(item) {
   return item
     ? {
@@ -49,7 +53,11 @@ export function resource(item) {
         ...(item.payload || {}),
         price_cents: item.price_cents,
         id: item.id,
-        name: item.title,
+        title: item.title,
+        payload: item.payload,
+        name: resourceName(item),
+        description: getLocale() === "en" ? item.payload?.description_en || item.payload?.description || item.description : item.payload?.description || item.description,
+        content: getLocale() === "en" ? item.payload?.content_en || item.payload?.content || item.content : item.payload?.content || item.content,
         image_url: media(
           item.payload?.image_urls?.[0] ||
             item.payload?.image_url ||

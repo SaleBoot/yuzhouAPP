@@ -32,7 +32,7 @@
         ></view
       ><view class="coupon-copy"
         ><view class="card-head">{{
-          coupon.title || coupon.coupon?.title || t('驭舟优惠券')
+          resourceName(coupon) || resourceName(coupon.coupon) || t('驭舟优惠券')
         }}</view
         ><view class="small muted"
           >{{ t('有效期 {date}', { date: coupon.expires_at || coupon.payload?.expires_at || t('以券详情为准') }) }}</view
@@ -60,7 +60,7 @@ import LoginPrompt from "@shared/LoginPrompt.vue";
 import { t } from "@shared/i18n.js";
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { request, list, post, notify, requireLogin } from "@shared/api.js";
+import { request, list, post, notify, requireLogin, resourceName } from "@shared/api.js";
 import { money, ORDER_TYPES } from "@shared/domain.js";
 const coupons = ref([]),
   claimMode = ref(false),

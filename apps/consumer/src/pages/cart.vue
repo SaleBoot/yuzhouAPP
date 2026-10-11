@@ -11,7 +11,7 @@
           mode="aspectFill"
           class="thumb"
         /><view class="flex"
-          ><view class="card-head">{{ item.product?.title }}</view
+          ><view class="card-head">{{ resourceName(item.product) }}</view
           ><view class="price">¥{{ money(item.product?.price_cents) }}</view
           ><view class="small muted">{{ t('数量 {count}', { count: item.quantity }) }}</view></view
         ></view
@@ -57,6 +57,7 @@ import {
   go,
   requireLogin,
   fallbackBoat,
+  resourceName,
 } from "@shared/api.js";
 import { money } from "@shared/domain.js";
 const items = ref([]),

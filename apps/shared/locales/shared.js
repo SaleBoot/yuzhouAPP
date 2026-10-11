@@ -233,5 +233,7 @@ export default {
   "二层甲板室层高": "Deck 2 headroom",
   "三层甲板室层高": "Deck 3 headroom",
   "主机功率（马力）": "Engine power (hp)",
-  "登录状态已改变，请重新打开页面": "Your sign-in session changed. Reopen this page."
+  "登录状态已改变，请重新打开页面": "Your sign-in session changed. Reopen this page.",
+  "暂时无法检查更新，请联网后重新打开。": "Unable to check for updates. Reopen the app when connected.",
+  "更新页面加载失败，请检查网络后重试。": "The update page could not load. Check your connection and retry."
 };

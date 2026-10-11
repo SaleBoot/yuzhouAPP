@@ -38,7 +38,7 @@ async function main(){
   boatType=await api(platform.token,'/resources/boat_types/'+boatType.id,'PATCH',{version:boatType.version,status:'published'})
   const admin=await context();await admin.goto(webOrigin+'/admin/merchant');await admin.getByLabel('登录账号').fill('merchant.demo');await admin.getByLabel('密码',{exact:true}).fill(secrets.password);await admin.getByRole('button',{name:'登录管理后台'}).click()
   await admin.getByRole('button',{name:'实体船艇',exact:true}).click();await admin.getByRole('button',{name:'＋ 新增船艇',exact:true}).click()
-  await admin.getByLabel('名称',{exact:false}).fill(title);await admin.getByLabel('所属船型 ID').selectOption(String(boatType.id));await admin.getByLabel('船艇唯一编号').fill(run);await admin.getByLabel('泊位/港口').fill('合成开发坐标，非真实泊位');await admin.getByLabel('价格（元）').fill('14567.89')
+  await admin.locator('#resource-title').fill(title);await admin.getByLabel('所属船型 ID').selectOption(String(boatType.id));await admin.getByLabel('船艇唯一编号').fill(run);await admin.getByLabel('泊位/港口').fill('合成开发坐标，非真实泊位');await admin.getByLabel('价格（元）').fill('14567.89')
   await admin.getByLabel('纬度（WGS84）').fill('91');assert.equal(await admin.getByLabel('纬度（WGS84）').evaluate(input=>input.validity.rangeOverflow),true)
   await admin.getByLabel('纬度（WGS84）').fill('24.123456');await admin.getByLabel('发布状态').selectOption('pending');await admin.getByRole('button',{name:'保存',exact:true}).click()
   await admin.getByRole('alert').filter({hasText:'须成对'}).waitFor()
