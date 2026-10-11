@@ -11,59 +11,56 @@
       ><view class="row spread"
         ><view class="title">{{ boat.name }}</view
         ><button class="secondary small favorite-control" :disabled="favoriteBusy" :aria-pressed="favoriteKnown ? String(saved) : undefined" @click="favorite">{{
-          favoriteBusy ? "读取收藏中…" : !favoriteKnown ? "重试收藏状态" : saved ? "♥ 已收藏" : "♡ 收藏"
+          favoriteBusy ? t('读取收藏中…') : !favoriteKnown ? t('重试收藏状态') : saved ? t('♥ 已收藏') : t('♡ 收藏')
         }}</button></view
       ><view v-if="favoriteError" class="notice small section" role="alert">{{ favoriteError }}</view
-      ><view v-if="boat.model_code" class="subtitle section">船型型号 · {{ boat.model_code }}</view
+      ><view v-if="boat.model_code" class="subtitle section">{{ t('船型型号 · {model}', { model: boat.model_code }) }}</view
       ><view v-if="mode === 'buy'" class="price section"
-        >实船报价<text class="small muted"> · 选择船艇后查看售价</text></view
+        >{{ t('实船报价') }}<text class="small muted">{{ t('· 选择船艇后查看售价') }}</text></view
       ><view v-else class="price section"
         >¥{{ money(boat.daily_price_cents || boat.price_cents)
-        }}<text class="small muted">/天</text></view
+        }}<text class="small muted">{{ t('/天') }}</text></view
       ><view class="card section"
-        ><view class="card-head">看船方式</view
+        ><view class="card-head">{{ t('看船方式') }}</view
         ><view class="actions"
           ><button
             v-if="boat.vr_url || boat.model_url || boat.three_d_url"
             class="primary"
             @click="external(boat.vr_url || boat.model_url || boat.three_d_url)"
-          >
-            本船 3D</button
-          ><button class="primary" @click="external(vrBaseUrl)">
-            3D 看船平台
-          </button></view
+          >{{ t('本船 3D') }}</button
+          ><button class="primary" @click="external(vrBaseUrl)">{{ t('3D 看船平台') }}</button></view
         ></view
-      ><view v-if="instance" class="card section"><view class="card-head">{{ instance.name }}</view><view class="small muted section">{{ instance.serial_number || "" }} · {{ instance.location || instance.city || "已录入位置的实船" }}</view><view class="price section">实船售价 ¥{{ money(instance.price_cents) }}</view></view
+      ><view v-if="instance" class="card section"><view class="card-head">{{ instance.name }}</view><view class="small muted section">{{ instance.serial_number || "" }} · {{ instance.location || instance.city || t('已录入位置的实船') }}</view><view class="price section">{{ t('实船售价 ¥{amount}', { amount: money(instance.price_cents) }) }}</view></view
       ><view class="card section"
-        ><view class="card-head">核心参数</view
+        ><view class="card-head">{{ t('核心参数') }}</view
         ><view class="grid stats" :style="{ gridTemplateColumns: hasSpeed ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)' }"
           ><view
             ><text class="value">{{ metricText(boat.length_m, 'm', true) }}</text
-            ><text class="muted small">全长</text></view
+            ><text class="muted small">{{ t('全长') }}</text></view
           ><view
             ><text class="value"
               >{{ metricText(boat.width_m || boat.parameters?.beam_m, 'm', true) }}</text
-            ><text class="muted small">宽度</text></view
+            ><text class="muted small">{{ t('宽度') }}</text></view
           ><view
-            ><text class="value">{{ metricText(boat.capacity, '人', true) }}</text
-            ><text class="muted small">核定人数</text></view
+            ><text class="value">{{ metricText(boat.capacity, t('人'), true) }}</text
+            ><text class="muted small">{{ t('核定人数') }}</text></view
           ><view v-if="hasSpeed"
-            ><text class="value">{{ metricText(boat.speed_knots, '节') }}</text
-            ><text class="muted small">航速</text></view
+            ><text class="value">{{ metricText(boat.speed_knots, t('节')) }}</text
+            ><text class="muted small">{{ t('航速') }}</text></view
           ></view
         ><view v-for="parameter in parameters" :key="parameter.key" class="list-item">
-          <text class="muted small">{{ parameter.label }}</text>
+          <text class="muted small">{{ t(parameter.label) }}</text>
           <text class="article">{{ parameter.value }}</text>
         </view>
         </view
       ><view class="card section"
-        ><view class="card-head">船艇介绍</view
-        ><view class="article">{{ boat.description || "详情待商家完善" }}</view
+        ><view class="card-head">{{ t('船艇介绍') }}</view
+        ><view class="article">{{ boat.description || t('详情待商家完善') }}</view
         ><view class="small muted section">{{
           boat.location || boat.city || ""
         }}</view></view
       ><view class="card section"
-        ><view class="card-head">专属选配</view
+        ><view class="card-head">{{ t('专属选配') }}</view
         ><view
           v-for="option in boat.options || []"
           :key="option.id || option.name"
@@ -71,28 +68,27 @@
           ><text>{{ option.name || option.title }}</text
           ><text>¥{{ money(option.price_cents) }}</text></view
         ><view v-if="!boat.options?.length" class="small muted"
-          >配置和交付细节可向销售咨询。</view
+          >{{ t('配置和交付细节可向销售咨询。') }}</view
         ><button
           class="secondary section"
           @click="go('appointment', { resource_id: boat.id })"
-        >
-          预约看船
-        </button></view
+        >{{ t('预约看船') }}</button></view
       ></view
     ><view class="bottom-bar"
       ><text class="small" @click="go('chat', { resource_id: boat.id })"
-        >咨询销售</text
-      ><text class="small" @click="compare">加入对比</text
+        >{{ t('咨询销售') }}</text
+      ><text class="small" @click="compare">{{ t('加入对比') }}</text
       ><button class="primary" @click="book">
-        {{ mode === "buy" ? "配置购买" : "立即预约" }}
+        {{ mode === "buy" ? t('配置购买') : t('立即预约') }}
       </button></view
     ></view
   >
   <view v-else class="page"
-    ><view class="empty">{{ error || "船艇加载中…" }}</view></view
+    ><view class="empty">{{ error || t('船艇加载中…') }}</view></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onLoad, onShow } from "@dcloudio/uni-app";
 import {
@@ -133,7 +129,7 @@ onLoad(async (q) => {
     ]);
     if (q.instance_id) {
       const actual = await detail("boats", q.instance_id);
-      if (Number(actual.boat_type_id) !== Number(b.id)) throw new Error("实船与船型不匹配，请返回地图重试");
+      if (Number(actual.boat_type_id) !== Number(b.id)) throw new Error(t("实船与船型不匹配，请返回地图重试"));
       instance.value = actual;
     }
     boat.value = b;
@@ -175,7 +171,7 @@ async function favorite() {
     const row = await toggleBoatFavorite(request, boat.value.id, favoriteId.value);
     favoriteId.value = row?.id || null;
     uni.showToast({
-      title: saved.value ? "已收藏" : "已取消收藏",
+      title: t(saved.value ? "已收藏" : "已取消收藏"),
       icon: "none",
     });
   } catch (e) {
@@ -189,7 +185,7 @@ async function favorite() {
 function compare() {
   const ids = uni.getStorageSync("yuzhou_compare") || [];
   if (!ids.includes(boat.value.id)) {
-    if (ids.length >= 3) return notify(new Error("一次最多对比三艘"));
+    if (ids.length >= 3) return notify(new Error(t("一次最多对比三艘")));
     ids.push(boat.value.id);
     uni.setStorageSync("yuzhou_compare", ids);
   }
@@ -233,8 +229,8 @@ function book() {
   text-align: center;
 }
 .value {
-  font-weight: 700;
-  font-size: 29rpx;
+  font-weight: 500;
+  font-size: 27rpx;
 }
 .bottom-bar button {
   flex: 1;

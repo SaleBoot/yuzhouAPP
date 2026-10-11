@@ -1,7 +1,7 @@
 <template>
   <view class="page"
-    ><view class="title">航海生活</view
-    ><view class="subtitle">从船艇配置，到每一次出行</view
+    ><view class="title">{{ t('航海生活') }}</view
+    ><view class="subtitle">{{ t('从船艇配置，到每一次出行') }}</view
     ><BannerStrip placement="shop" />
     <view class="chips"
       ><text
@@ -12,10 +12,10 @@
           kind = tab.kind;
           load();
         "
-        >{{ tab.title }}</text
+        >{{ t(tab.title) }}</text
       ></view
     ><view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t('重试') }}</text></view
     ><view class="grid"
       ><view
         v-for="item in items"
@@ -33,18 +33,19 @@
             item.price_cents
               ? `¥${money(item.price_cents)}`
               : kind === "events"
-                ? "免费活动"
-                : "询价"
+                ? t('免费活动')
+                : t('询价')
           }}</text
           ><text class="round-action">↗</text></view
         ></view
       ></view
     ><view v-if="!items.length && !error" class="empty">{{
-      loading ? "正在加载…" : "暂无已发布内容"
+      loading ? t('正在加载…') : t('暂无已发布内容')
     }}</view></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import BannerStrip from "@shared/BannerStrip.vue";

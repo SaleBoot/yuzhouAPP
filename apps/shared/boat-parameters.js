@@ -1,19 +1,20 @@
+import { t } from './i18n.js';
 const labels = {
   length_m: "总长（米）", waterline_length_m: "水线长（米）",
   width_m: "船宽（米）", beam_m: "船宽（米）", depth_m: "型深（米）",
   draft_m: "吃水（米）", displacement_t: "排水量（吨）",
-  power_kw: "主机功率（千瓦）", speed_knots: "航速（节）",
+  power_hp: "主机功率（马力）", power_kw: "主机功率（千瓦）", speed_knots: "航速（节）",
   design_speed: "设计航速", capacity: "核定人数", material: "材质",
   features: "特点", propulsion: "动力形式", navigation_area: "航区",
   certificate_type: "证书类型", fuel_capacity_l: "燃油箱（升）",
   model_code: "船型型号", notes: "备注", "动机形式": "动力形式", "成员定额": "乘员定额",
 };
 const hidden = new Set(["provider", "external_id", "source", "source_url", "source_note", "来源", "来源说明", "采集说明"]);
-const label = key => labels[key] || key;
+const label = key => t(labels[key] || key);
 
 export function parameterText(value) {
   if (value === null || value === undefined || value === "") return "—";
-  if (typeof value === "boolean") return value ? "是" : "否";
+  if (typeof value === "boolean") return value ? t("是") : t("否");
   if (typeof value === "number") return Number.isFinite(value) ? String(value) : "—";
   if (Array.isArray(value)) return value.map(parameterText).join("、") || "—";
   if (typeof value === "object")
@@ -46,5 +47,5 @@ export function boatParameterValue(boat, key) {
 
 export function metricText(value, unit = "", zeroUnknown = false) {
   if (value === null || value === undefined || value === "" || (zeroUnknown && Number(value) <= 0)) return "—";
-  return `${parameterText(value)}${unit}`;
+  return `${parameterText(value)}${t(unit)}`;
 }

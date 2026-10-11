@@ -1,16 +1,16 @@
 <template>
   <view class="page"
-    ><view class="title">积分商城</view
-    ><view class="subtitle">使用实际成长积分兑换平台礼品</view>
+    ><LoginPrompt /><view class="title">{{ t('积分商城') }}</view
+    ><view class="subtitle">{{ t('使用实际成长积分兑换平台礼品') }}</view>
     <view class="hero section"
-      ><view class="small">可用积分</view
+      ><view class="small">{{ t('可用积分') }}</view
       ><view class="title">{{ balance === null ? "—" : balance }}</view
       ><view class="small section"
-        >兑换记录生成后，由平台安排实际履约。</view
+        >{{ t('兑换记录生成后，由平台安排实际履约。') }}</view
       ></view
     >
     <view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t('重试') }}</text></view
     >
     <view class="grid section"
       ><view v-for="item in products" :key="item.id" class="card"
@@ -20,42 +20,40 @@
           mode="aspectFill"
         /><view class="card-head section">{{ item.name }}</view
         ><view class="small muted">{{ item.description }}</view
-        ><view class="price section">{{ item.points_price }} 积分</view
-        ><view class="small muted">库存 {{ item.stock }}</view
+        ><view class="price section">{{ t('{count} 积分', { count: item.points_price }) }}</view
+        ><view class="small muted">{{ t('库存 {count}', { count: item.stock }) }}</view
         ><button
           class="primary section"
           :disabled="busy || item.stock < 1"
           @click="redeem(item)"
-        >
-          兑换一件
-        </button></view
+        >{{ t('兑换一件') }}</button></view
       ></view
     >
-    <view v-if="!products.length && !error" class="empty">暂无可兑换礼品</view>
+    <view v-if="!products.length && !error" class="empty">{{ t('暂无可兑换礼品') }}</view>
     <view class="card section"
-      ><view class="card-head">我的兑换</view
+      ><view class="card-head">{{ t('我的兑换') }}</view
       ><view v-for="item in redemptions" :key="item.id" class="redemption"
         ><view class="row spread"
-          ><text>{{ snapshot(item).title || "积分兑换" }}</text
+          ><text>{{ snapshot(item).title || t('积分兑换') }}</text
           ><text class="badge">{{
-            states[item.status] || item.status
+            t(states[item.status] || item.status)
           }}</text></view
         ><view class="small muted section"
-          >{{ item.points }} 积分 · {{ dateTime(item.created_at) }}</view
+          >{{ t('{count} 积分 · {date}', { count: item.points, date: dateTime(item.created_at) }) }}</view
         ><view v-if="item.notes" class="small muted">{{ item.notes }}</view
         ><button
           v-if="item.status === 'pending_fulfillment'"
           class="secondary section"
           :disabled="busy"
           @click="cancel(item)"
-        >
-          取消兑换并返还积分
-        </button></view
-      ><view v-if="!redemptions.length" class="empty">暂无兑换记录</view></view
+        >{{ t('取消兑换并返还积分') }}</button></view
+      ><view v-if="!redemptions.length" class="empty">{{ t('暂无兑换记录') }}</view></view
     >
   </view>
 </template>
 <script setup>
+import LoginPrompt from "@shared/LoginPrompt.vue";
+import { t } from "@shared/i18n.js";
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import {
@@ -89,7 +87,7 @@ function snapshot(item) {
   }
 }
 async function load() {
-  if (!requireLogin()) return;
+  if (!requireLogin(false)) { balance.value = null; products.value = []; redemptions.value = []; keys.clear(); error.value = ""; return; }
   error.value = "";
   try {
     const [g, p, r] = await Promise.all([
@@ -116,7 +114,7 @@ async function redeem(item) {
     });
     keys.delete(item.id);
     await load();
-    uni.showToast({ title: "兑换已提交，待平台履约", icon: "none" });
+    uni.showToast({ title: t("兑换已提交，待平台履约"), icon: "none" });
   } catch (e) {
     notify(e);
   } finally {
@@ -131,7 +129,7 @@ async function cancel(item) {
       notes: "客户取消待履约兑换",
     });
     await load();
-    uni.showToast({ title: "已取消并返还积分", icon: "none" });
+    uni.showToast({ title: t("已取消并返还积分"), icon: "none" });
   } catch (e) {
     notify(e);
   } finally {

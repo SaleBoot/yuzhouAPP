@@ -4,11 +4,13 @@
     <web-view :src="url" />
     <!-- #endif -->
     <!-- #ifdef H5 -->
-    <iframe ref="frame" :src="url" title="地图找船" class="map-frame" allow="geolocation 'none'; camera 'none'; microphone 'none'" />
+    <iframe ref="frame" :src="url" :title="t('地图找船')" class="map-frame" allow="geolocation 'none'; camera 'none'; microphone 'none'" />
     <!-- #endif -->
   </view>
 </template>
 <script setup>
+import { t } from './i18n.js';
+
 import { ref, onMounted, onUnmounted } from "vue";
 import { go } from "./api.js";
 import { validDetailMessage } from "../map/model.js";

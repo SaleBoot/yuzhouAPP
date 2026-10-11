@@ -1,64 +1,62 @@
 <template>
   <view class="page"
-    ><view class="title">{{ labels[kind] }}</view
+    ><LoginPrompt /><view class="title">{{ t(labels[kind]) }}</view
     ><view class="subtitle">{{
-      hints[kind] || "与你的航海生活有关的记录"
+      t(hints[kind] || "与你的航海生活有关的记录")
     }}</view
     ><view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t("重试") }}</text></view
     ><view v-if="creatable" class="card section"
       ><view class="card-head">{{
         kind === "feedback"
-          ? "提交反馈"
+          ? t("提交反馈")
           : kind === "reviews"
-            ? "评价交付"
-            : "添加记录"
+            ? t("评价交付")
+            : t("添加记录")
       }}</view
       ><view class="formline"
         ><text class="form-label">{{
-          kind === "boat-records" ? "船艇名称" : "标题"
+          t(kind === "boat-records" ? "船艇名称" : "标题")
         }}</text
-        ><input v-model="form.title" placeholder="填写标题" /></view
+        ><input v-model="form.title" :placeholder="t('填写标题')" /></view
       ><view v-if="kind === 'reviews'" class="formline"
-        ><text class="form-label">已完成订单</text
+        ><text class="form-label">{{ t("已完成订单") }}</text
         ><picker
           :range="orderLabels"
           :value="orders.findIndex((order) => order.id === form.order_id) + 1"
           :disabled="loading || ordersLoading || busy || !orders.length || !!ordersError || !!error"
           @change="selectOrder"
           ><view class="picker-value">{{
-            selectedOrder ? orderLabel(selectedOrder) : "选择要评价的订单 ▾"
+            selectedOrder ? orderLabel(selectedOrder) : t("选择要评价的订单 ▾")
           }}</view></picker
-        ><view v-if="ordersError" class="error">{{ ordersError }} <text class="link" @click="loadOrders">重试</text></view
-        ><view v-else-if="loading || ordersLoading" class="small muted">正在加载已完成订单…</view
-        ><view v-else-if="!orders.length && !error" class="small muted">{{ moreOrders ? "当前页暂无可评价订单，可加载更多" : "暂无待评价的已完成订单" }}</view
-        ><button v-if="moreOrders && !ordersError" class="secondary section" :loading="ordersLoading" :disabled="ordersLoading || loading || busy" @click="loadOrders">加载更多已完成订单</button></view
+        ><view v-if="ordersError" class="error">{{ t(ordersError) }} <text class="link" @click="loadOrders">{{ t("重试") }}</text></view
+        ><view v-else-if="loading || ordersLoading" class="small muted">{{ t("正在加载已完成订单…") }}</view
+        ><view v-else-if="!orders.length && !error" class="small muted">{{ t(moreOrders ? "当前页暂无可评价订单，可加载更多" : "暂无待评价的已完成订单") }}</view
+        ><button v-if="moreOrders && !ordersError" class="secondary section" :loading="ordersLoading" :disabled="ordersLoading || loading || busy" @click="loadOrders">{{ t("加载更多已完成订单") }}</button></view
       ><view v-if="kind === 'reminders'" class="formline"
-        ><text class="form-label">提醒日期</text
+        ><text class="form-label">{{ t("提醒日期") }}</text
         ><picker
           mode="date"
           :value="form.date"
           @change="form.date = $event.detail.value"
           ><view class="picker-value">{{
-            form.date || "选择日期"
+            form.date || t("选择日期")
           }}</view></picker
         ></view
       ><view v-if="kind === 'boat-records'" class="formline"
-        ><text class="form-label">船艇编号</text
-        ><input v-model="form.serial_number" placeholder="填写船艇编号" /></view
+        ><text class="form-label">{{ t("船艇编号") }}</text
+        ><input v-model="form.serial_number" :placeholder="t('填写船艇编号')" /></view
       ><view v-if="kind === 'reviews'" class="formline"
-        ><text class="form-label">评分（1至5）</text
+        ><text class="form-label">{{ t("评分（1至5）") }}</text
         ><picker
           :range="[1, 2, 3, 4, 5]"
           :value="form.rating - 1"
           @change="form.rating = Number($event.detail.value) + 1"
-          ><view class="picker-value">{{ form.rating }} 星 ▾</view></picker
+          ><view class="picker-value">{{ t("{rating} 星 ▾", { rating: form.rating }) }}</view></picker
         ></view
       ><view class="formline">
-        <textarea v-model="form.content" placeholder="详细说明" /></view
-      ><button class="primary" :loading="busy" :disabled="busy || (kind === 'reviews' && (!selectedOrder || loading || ordersLoading || !!ordersError || !!error))" @click="create">
-        提交
-      </button></view
+        <textarea v-model="form.content" :placeholder="t('详细说明')" /></view
+      ><button class="primary" :loading="busy" :disabled="busy || (kind === 'reviews' && (!selectedOrder || loading || ordersLoading || !!ordersError || !!error))" @click="create"> {{ t("提交") }} </button></view
     ><view
       v-for="item in items"
       :key="item.id"
@@ -70,10 +68,10 @@
           item.resource?.title ||
           item.event_title ||
           item.payload?.title ||
-          labels[kind]
+          t(labels[kind])
         }}</text
         ><text class="small muted">{{
-          recordStates[item.status] || item.status || ""
+          t(recordStates[item.status] || item.status || "")
         }}</text></view
       ><view class="article small">{{
         item.payload?.content ||
@@ -85,7 +83,7 @@
       ><view
         v-if="kind === 'feedback' && item.payload?.reply"
         class="notice section"
-        ><view class="small">平台回复</view
+        ><view class="small">{{ t("平台回复") }}</view
         ><view class="article">{{ item.payload.reply }}</view
         ><view class="small muted">{{
           dateTime(item.payload.replied_at)
@@ -101,9 +99,9 @@
         "
         :code="item.ticket_code || item.code"
       /><view v-if="kind === 'enrollments' && ['active', 'checked_in'].includes(item.status)" class="notice section"
-        >报名码 {{ item.ticket_code || item.code || "待生成" }}</view
+        >{{ t("报名码 {code}", { code: item.ticket_code || item.code || t("待生成") }) }}</view
       ><EnrollmentCancel v-if="kind === 'enrollments'" :enrollment="item" @cancelled="load" />
-      <button v-if="kind === 'enrollments' && item.order_id" class="secondary section" @click.stop="go('order', { id: item.order_id })">查看活动订单</button>
+      <button v-if="kind === 'enrollments' && item.order_id" class="secondary section" @click.stop="go('order', { id: item.order_id })">{{ t("查看活动订单") }}</button>
       <view v-if="item.resource?.payload?.image_urls?.[0]" class="section"
         ><image
           :src="media(item.resource.payload.image_urls[0])"
@@ -113,15 +111,15 @@
         v-if="kind === 'notifications' && !item.read_at"
         class="secondary section"
         @click.stop="read(item.id)"
-      >
-        标记已读
-      </button><button v-if="kind === 'favorites'" class="secondary section" :loading="removing === item.id" :disabled="removing !== null" @click.stop="unfavorite(item)">取消收藏</button></view
+      > {{ t("标记已读") }} </button><button v-if="kind === 'favorites'" class="secondary section" :loading="removing === item.id" :disabled="removing !== null" @click.stop="unfavorite(item)">{{ t("取消收藏") }}</button></view
     ><view v-if="!items.length && !error" class="empty">{{
-      loading ? "正在加载…" : "暂无记录"
+      t(loading ? "正在加载…" : "暂无记录")
     }}</view></view
   >
 </template>
 <script setup>
+import { t } from "./i18n.js";
+import LoginPrompt from "./LoginPrompt.vue";
 import TicketCode from "./TicketCode.vue";
 import EnrollmentCancel from "./EnrollmentCancel.vue";
 import { ref, computed, reactive, watch } from "vue";
@@ -174,12 +172,22 @@ const creatable = computed(() =>
   ["boat-records", "reminders", "feedback", "reviews"].includes(props.kind),
 );
 const selectedOrder = computed(() => orders.value.find((order) => order.id === form.order_id));
-const orderLabels = computed(() => ["请选择已完成订单", ...orders.value.map(orderLabel)]);
+const orderLabels = computed(() => [t("请选择已完成订单"), ...orders.value.map(orderLabel)]);
 const moreOrders = computed(() => ordersPage.value * 100 < ordersTotal.value);
 let loadVersion = 0;
 watch(() => props.kind, load, { immediate: true });
 async function load() {
-  if (!props.kind || !requireLogin()) return;
+  if (!props.kind) return;
+  if (!requireLogin(false)) {
+    loadVersion++;
+    items.value = [];
+    orders.value = [];
+    ordersPage.value = ordersTotal.value = 0;
+    error.value = ordersError.value = "";
+    loading.value = ordersLoading.value = false;
+    form.order_id = null;
+    return;
+  }
   const kind = props.kind, version = ++loadVersion;
   loading.value = true;
   error.value = "";
@@ -205,7 +213,7 @@ async function load() {
   }
 }
 function orderLabel(order) {
-  return `${order.order_no} · ${order.items?.map((item) => displayTitle(item.title || item.name)).filter(Boolean).join("、") || ORDER_TYPES[order.type] || "订单"}`;
+  return `${order.order_no} · ${order.items?.map((item) => displayTitle(item.title || item.name)).filter(Boolean).join("、") || t(ORDER_TYPES[order.type] || "订单")}`;
 }
 function selectOrder(event) {
   if (busy.value || loading.value || ordersLoading.value || ordersError.value || error.value) return;
@@ -255,7 +263,7 @@ async function create() {
     form.content = "";
     form.order_id = null;
     await load();
-    uni.showToast({ title: "已保存", icon: "success" });
+    uni.showToast({ title: t("已保存"), icon: "success" });
   } catch (e) {
     if (props.kind === "reviews" && e.message === "此订单已评价。") {
       orders.value = orders.value.filter((order) => order.id !== form.order_id);
@@ -274,7 +282,7 @@ async function unfavorite(item) {
     if (result?.deleted !== true) throw new Error("未能确认取消收藏，请刷新后重试");
     items.value = items.value.filter((record) => record.id !== item.id);
     await load();
-    uni.showToast({ title: "已取消收藏", icon: "success" });
+    uni.showToast({ title: t("已取消收藏"), icon: "success" });
   } catch (e) {
     notify(e);
   } finally {

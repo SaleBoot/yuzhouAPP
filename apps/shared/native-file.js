@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // System PDF import keeps private contracts in the application's document folder.
 export function choosePdf() {
   if (plus.os.name === "iOS") return chooseIosPdf();
@@ -15,7 +16,7 @@ export function choosePdf() {
       }
       activity.onActivityResult = previous;
       if (result !== -1 || !data) {
-        reject(new Error("已取消文件选择"));
+        reject(new Error(t("已取消文件选择")));
         return;
       }
       let input,
@@ -28,7 +29,7 @@ export function choosePdf() {
         const resolver = activity.getContentResolver();
         plus.android.importClass(resolver);
         input = resolver.openInputStream(uri);
-        if (!input) throw new Error("无法读取选中的PDF");
+        if (!input) throw new Error(t("无法读取选中的PDF"));
         plus.android.importClass(input);
         const FileOutputStream = plus.android.importClass(
           "java.io.FileOutputStream",
@@ -40,21 +41,21 @@ export function choosePdf() {
         const Arrays = plus.android.importClass("java.lang.reflect.Array");
         const Byte = plus.android.importClass("java.lang.Byte");
         const bytes = Arrays.newInstance(Byte.TYPE, 8192);
-        if (!bytes) throw new Error("系统无法创建文件读取缓冲区");
+        if (!bytes) throw new Error(t("系统无法创建文件读取缓冲区"));
         let count,
           total = 0;
         while ((count = input.read(bytes)) !== -1) {
           if (!Number.isInteger(count) || count < 1 || count > 8192)
-            throw new Error("系统未正确返回PDF读取结果");
+            throw new Error(t("系统未正确返回PDF读取结果"));
           total += count;
-          if (total > 50 * 1024 * 1024) throw new Error("PDF不能超过50MB");
+          if (total > 50 * 1024 * 1024) throw new Error(t("PDF不能超过50MB"));
           output.write(bytes, 0, count);
         }
-        if (!total) throw new Error("选中的PDF为空");
+        if (!total) throw new Error(t("选中的PDF为空"));
         complete = true;
         resolve(target);
       } catch (error) {
-        reject(new Error(`PDF导入失败：${error.message || error}`));
+        reject(new Error(t("PDF导入失败：{message}", { message: error.message || error })));
       } finally {
         try {
           output?.close();
@@ -77,7 +78,7 @@ export function choosePdf() {
       activity.startActivityForResult(intent, requestCode);
     } catch (error) {
       activity.onActivityResult = previous;
-      reject(new Error(`无法打开PDF选择器：${error.message || error}`));
+      reject(new Error(t("无法打开PDF选择器：{message}", { message: error.message || error })));
     }
   });
 }
@@ -85,12 +86,12 @@ export function choosePdf() {
 let iosPicker = null;
 let iosDelegate = null;
 function chooseIosPdf() {
-  if (iosPicker) return Promise.reject(new Error("PDF选择器已经打开"));
+  if (iosPicker) return Promise.reject(new Error(t("PDF选择器已经打开")));
   return new Promise((resolve, reject) => {
     try {
       const invoke = (...args) => plus.ios.invoke(...args);
       const Picker = plus.ios.importClass("UIDocumentPickerViewController");
-      if (!Picker) throw new Error("系统不支持PDF文档导入");
+      if (!Picker) throw new Error(t("系统不支持PDF文档导入"));
       const types = invoke("NSArray", "arrayWithObject:", "com.adobe.pdf");
       iosPicker = invoke(Picker, "alloc");
       iosPicker = invoke(iosPicker, "initWithDocumentTypes:inMode:", types, 0);
@@ -110,10 +111,10 @@ function chooseIosPdf() {
               target,
               null,
             );
-            if (!copied) throw new Error("无法复制选中的PDF文档");
+            if (!copied) throw new Error(t("无法复制选中的PDF文档"));
             resolve(target);
           } catch (e) {
-            reject(new Error(`PDF导入失败：${e.message || e}`));
+            reject(new Error(t("PDF导入失败：{message}", { message: e.message || e })));
           } finally {
             cleanupIos(controller);
           }
@@ -134,17 +135,17 @@ function chooseIosPdf() {
                 null,
               )
             )
-              throw new Error("无法复制选中的PDF文档");
+              throw new Error(t("无法复制选中的PDF文档"));
             resolve(target);
           } catch (e) {
-            reject(new Error(`PDF导入失败：${e.message || e}`));
+            reject(new Error(t("PDF导入失败：{message}", { message: e.message || e })));
           } finally {
             cleanupIos(controller);
           }
         },
         "documentPickerWasCancelled:": (controller) => {
           cleanupIos(controller);
-          reject(new Error("已取消文件选择"));
+          reject(new Error(t("已取消文件选择")));
         },
       });
       invoke(iosPicker, "setDelegate:", iosDelegate);
@@ -152,7 +153,7 @@ function chooseIosPdf() {
       const app = invoke("UIApplication", "sharedApplication");
       const window = invoke(app, "keyWindow");
       let presenter = invoke(window, "rootViewController");
-      if (!presenter) throw new Error("当前系统窗口尚未准备好，请返回页面重试");
+      if (!presenter) throw new Error(t("当前系统窗口尚未准备好，请返回页面重试"));
       let next;
       while ((next = invoke(presenter, "presentedViewController")))
         presenter = next;
@@ -165,7 +166,7 @@ function chooseIosPdf() {
       );
     } catch (e) {
       cleanupIos();
-      reject(new Error(`PDF导入不可用：${e.message || e}`));
+      reject(new Error(t("PDF导入不可用：{message}", { message: e.message || e })));
     }
   });
 }

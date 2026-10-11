@@ -2,40 +2,40 @@
   <view class="page"
     ><view class="profile"
       ><view class="row"
-        ><text class="avatar">{{ (user?.nickname || "舟")[0] }}</text
+        ><text class="avatar">{{ (user?.nickname || t('舟'))[0] }}</text
         ><view @click="!user && go('login')"
           ><view class="title">{{
-            user?.nickname || "登录，开启航海生活"
+            user?.nickname || t('登录，开启航海生活')
           }}</view
           ><view class="small muted">{{
             user
-              ? `驭舟编号 ${user.id} · ${user.username}`
-              : "查看订单、成长与专属权益"
+              ? t('驭舟编号 {id} · {username}', { id: user.id, username: user.username })
+              : t('查看订单、成长与专属权益')
           }}</view></view
         ></view
       ><view class="member-banner section" @click="go('membership')"
         ><view
           ><view class="card-head">{{
-            member ? "驭舟航海会员" : "驭舟会员"
+            member ? t('驭舟航海会员') : t('驭舟会员')
           }}</view
           ><view class="small">{{
             member
-              ? `有效期至 ${dateTime(user.member_until, false)}`
-              : "学习与航程，一起积累成长"
+              ? t('有效期至 {date}', { date: dateTime(user.member_until, false) })
+              : t('学习与航程，一起积累成长')
           }}</view></view
-        ><text>权益 ↗</text></view
+        ><text>{{ t('权益 ↗') }}</text></view
       ></view
     ><view class="card section"
       ><view class="row spread"
-        ><text class="card-head">我的订单</text
-        ><text class="link small" @click="go('orders')">全部订单 ›</text></view
+        ><text class="card-head">{{ t('我的订单') }}</text
+        ><text class="link small" @click="go('orders')">{{ t('全部订单 ›') }}</text></view
       ><view class="grid four"
         ><view
           v-for="label in ['待报价', '待支付', '待履约', '已完成']"
           :key="label"
           class="scene"
           @click="go('orders')"
-          ><text class="tile-icon">⌁</text><text>{{ label }}</text></view
+          ><text class="tile-icon">⌁</text><text>{{ t(label) }}</text></view
         ></view
       ></view
     ><view class="card section"
@@ -44,22 +44,25 @@
         :key="entry.title"
         class="list-item"
         @click="entry.action"
-        ><text>{{ entry.title }}</text
+        ><text>{{ t(entry.title) }}</text
         ><text class="muted">›</text></view
       ></view
-    ><PhoneBinding v-if="user" :user="user" @bound="refreshUser" />
+    ><LanguagePicker />
+    <PhoneBinding v-if="user" :user="user" @bound="refreshUser" />
     <view v-if="user" class="card section"
       ><view class="small muted"
-        >邀请码 {{ user.invite_code || "暂未分配" }}</view
-      ><button class="secondary section" @click="logout">退出登录</button></view
-    ><view v-if="error" class="error">{{ error }}</view></view
+        >{{ t('邀请码 {code}', { code: user.invite_code || t('暂未分配') }) }}</view
+      ><button class="secondary section" @click="logout">{{ t('退出登录') }}</button></view
+    ><view v-if="error" class="error">{{ t(error) }}</view></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { request, post, session, saveSession, go } from "@shared/api.js";
 import { dateTime, memberActive } from "@shared/domain.js";
+import LanguagePicker from "@shared/LanguagePicker.vue";
 import PhoneBinding from "@shared/PhoneBinding.vue";
 const user = ref(null),
   error = ref("");

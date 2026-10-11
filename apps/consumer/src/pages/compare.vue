@@ -1,8 +1,8 @@
 <template>
   <view class="page"
-    ><view class="title">船艇对比</view
-    ><view class="subtitle">相同角度，更好做决定</view
-    ><view v-if="error" class="error">{{ error }}</view
+    ><view class="title">{{ t('船艇对比') }}</view
+    ><view class="subtitle">{{ t('相同角度，更好做决定') }}</view
+    ><view v-if="error" class="error">{{ t(error) }}</view
     ><scroll-view scroll-x
       ><view class="comparison"
         ><view class="compare-col" v-for="boat in boats" :key="boat.id"
@@ -10,47 +10,45 @@
             :src="boat.image_url || fallbackBoat"
             mode="aspectFill"
           /><view class="card-head">{{ boat.name }}</view
-          ><view v-if="mode === 'buy'" class="price">实船报价</view
+          ><view v-if="mode === 'buy'" class="price">{{ t('实船报价') }}</view
           ><view v-else class="price"
             >¥{{ money(boat.daily_price_cents || boat.price_cents) }}</view
           ><view v-for="field in fields" :key="field.key" class="compare-cell"
-            ><text class="muted small">{{ field.label }}</text
-            ><view>{{ metricText(boat[field.key], field.unit, field.zeroUnknown) }}</view></view
+            ><text class="muted small">{{ t(field.label) }}</text
+            ><view>{{ metricText(boat[field.key], t(field.unit), field.zeroUnknown) }}</view></view
           ><view v-for="field in parameterFields" :key="'parameter-' + field.key" class="compare-cell">
-            <text class="muted small">{{ field.label }}</text>
+            <text class="muted small">{{ t(field.label) }}</text>
             <view>{{ boatParameterValue(boat, field.key) }}</view>
           </view>
           <view
             v-for="angle in ['总览', '正面', '俯视']"
             :key="angle"
             class="compare-cell"
-            ><text class="muted small">{{ angle }}</text
+            ><text class="muted small">{{ t(angle) }}</text
             ><image
               v-if="angleImage(boat, angle)"
               :src="angleImage(boat, angle)"
               mode="aspectFit"
               @click="preview(boat, angle)"
-            /><view v-else class="small muted">该角度图片待补充</view></view
+            /><view v-else class="small muted">{{ t('该角度图片待补充') }}</view></view
           ><button
             v-if="boat.vr_url || boat.model_url || boat.three_d_url"
             class="secondary"
             @click="external(boat.vr_url || boat.model_url || boat.three_d_url)"
-          >
-            3D 看船</button
+          >{{ t('3D 看船') }}</button
           ><button
             class="primary section"
             @click="go('boat', { id: boat.id, mode })"
-          >
-            查看船艇
-          </button></view
+          >{{ t('查看船艇') }}</button></view
         ></view
       ></scroll-view
     ><view v-if="!boats.length && !error" class="empty"
-      >在首页选择两至三艘船艇进行对比。</view
+      >{{ t('在首页选择两至三艘船艇进行对比。') }}</view
     ></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { detail, go, external, fallbackBoat } from "@shared/api.js";

@@ -1,7 +1,7 @@
 <template>
-  <view class="page">
-    <view class="title">销售报表</view
-    ><view class="subtitle">服务端统计本人负责的业务与结算记录</view>
+  <view class="page"><LoginPrompt />
+    <view class="title">{{ t("销售报表") }}</view
+    ><view class="subtitle">{{ t("服务端统计本人负责的业务与结算记录") }}</view>
     <view class="card section"
       ><view class="row"
         ><picker
@@ -9,33 +9,32 @@
           :value="fromDate"
           @change="fromDate = $event.detail.value"
           ><view class="picker-value"
-            >{{ fromDate || "开始日期" }} ▾</view
+            >{{ fromDate || t("开始日期") }} ▾</view
           ></picker
-        ><text class="small muted">至</text
+        ><text class="small muted">{{ t("至") }}</text
         ><picker
           mode="date"
           :value="toDate"
           @change="toDate = $event.detail.value"
           ><view class="picker-value"
-            >{{ toDate || "结束日期" }} ▾</view
+            >{{ toDate || t("结束日期") }} ▾</view
           ></picker
         ></view
       ><view class="actions section"
-        ><button class="primary" :disabled="loading" @click="load">
-          查询统计</button
-        ><button class="secondary" @click="reset">全部日期</button></view
+        ><button class="primary" :disabled="loading" @click="load"> {{ t("查询统计") }}</button
+        ><button class="secondary" @click="reset">{{ t("全部日期") }}</button></view
       ></view
     >
-    <view v-if="error" class="error">{{ error }}</view>
+    <view v-if="error" class="error">{{ t(error) }}</view>
     <template v-if="summary">
       <view class="grid section"
         ><view v-for="kpi in kpis" :key="kpi.label" class="card"
-          ><view class="muted small">{{ kpi.label }}</view
+          ><view class="muted small">{{ t(kpi.label) }}</view
           ><view class="kpi-value section">{{ kpi.value }}</view></view
         ></view
       >
       <view class="card section"
-        ><view class="card-head">订单状态</view
+        ><view class="card-head">{{ t("订单状态") }}</view
         ><view
           v-for="(count, status) in summary.status_counts"
           :key="status"
@@ -45,26 +44,26 @@
         ><view
           v-if="!Object.keys(summary.status_counts || {}).length"
           class="empty"
-          >此日期范围暂无订单</view
+          >{{ t("此日期范围暂无订单") }}</view
         ></view
       >
     </template>
     <view class="card section"
-      ><view class="card-head">分红记录</view
+      ><view class="card-head">{{ t("分红记录") }}</view
       ><view class="small muted section"
-        >导出权限范围内、按记录日期筛选的实际分红流水。</view
+        >{{ t("导出权限范围内、按记录日期筛选的实际分红流水。") }}</view
       ><button
         class="secondary section"
         :disabled="exporting"
         :loading="exporting"
         @click="download"
-      >
-        导出 Excel
-      </button></view
+      > {{ t("导出 Excel") }} </button></view
     >
   </view>
 </template>
 <script setup>
+import LoginPrompt from "@shared/LoginPrompt.vue";
+import { t } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import {
@@ -104,11 +103,11 @@ const kpis = computed(() =>
 );
 function filters() {
   if (fromDate.value && toDate.value && fromDate.value > toDate.value)
-    throw new Error("开始日期不能晚于结束日期");
+    throw new Error(t("开始日期不能晚于结束日期"));
   return query({ from_date: fromDate.value, to_date: toDate.value });
 }
 async function load() {
-  if (!requireLogin() || loading.value) return;
+  if (!requireLogin(false) || loading.value) return;
   loading.value = true;
   error.value = "";
   try {
@@ -130,7 +129,7 @@ async function download() {
   try {
     await exportFile(
       `/reports/dividends.xlsx?${filters()}`,
-      "驭舟分红报表.xlsx",
+      t("驭舟分红报表.xlsx"),
     );
   } catch (e) {
     notify(e);

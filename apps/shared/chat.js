@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 export async function conversationMessages(request, id, existing, current) {
   const messages = [...existing];
   let after = Number(messages[messages.length - 1]?.id || 0);
@@ -8,7 +9,7 @@ export async function conversationMessages(request, id, existing, current) {
     if (!items.length) return messages;
     for (const item of items) {
       const next = Number(item.id);
-      if (!Number.isSafeInteger(next) || next <= after) throw new Error("消息分页异常，请重试");
+      if (!Number.isSafeInteger(next) || next <= after) throw new Error(t("消息分页异常，请重试"));
       after = next;
       messages.push(item);
     }

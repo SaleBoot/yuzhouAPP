@@ -1,12 +1,12 @@
 <template>
   <view class="page"
-    ><view v-if="error" class="error">{{ error }}</view
+    ><view v-if="error" class="error">{{ t(error) }}</view
     ><template v-if="item"
       ><view class="title"
-        ><text v-if="item.is_pinned" class="badge">置顶</text>
+        ><text v-if="item.is_pinned" class="badge">{{ t('置顶') }}</text>
         {{ item.name }}</view
       ><view class="subtitle"
-        >{{ item.author_name || "航海爱好者" }} ·
+        >{{ item.author_name || t('航海爱好者') }} ·
         {{ dateTime(item.created_at) }}</view
       ><view class="card section"
         ><view class="article">{{ item.content }}</view
@@ -23,10 +23,10 @@
           controls
           class="post-image"
         /><button class="secondary section" :disabled="busy" @click="like">
-          {{ item.liked ? "♥ 已点赞" : "♡ 点赞" }} · {{ item.like_count || 0 }}
+          {{ item.liked ? t('♥ 已点赞') : t('♡ 点赞') }} · {{ item.like_count || 0 }}
         </button></view
       ><view v-if="officialReplies.length" class="card section"
-        ><view class="card-head">官方回复</view
+        ><view class="card-head">{{ t('官方回复') }}</view
         ><view
           v-for="reply in officialReplies"
           :key="reply.id"
@@ -39,29 +39,28 @@
           ></view
         ></view
       ><view class="card section"
-        ><view class="card-head">航海交流</view
+        ><view class="card-head">{{ t('航海交流') }}</view
         ><view v-for="comment in comments" :key="comment.id" class="list-item"
           ><view
             ><view class="small muted">{{
-              comment.author_name || comment.nickname || "驭舟用户"
+              comment.author_name || comment.nickname || t('驭舟用户')
             }}</view
             ><view class="article">{{ comment.content }}</view></view
           ></view
-        ><view v-if="!comments.length" class="muted small">暂时没有评论。</view
+        ><view v-if="!comments.length" class="muted small">{{ t('暂时没有评论。') }}</view
         ><view class="formline section">
           <textarea
             v-model="content"
-            placeholder="分享你的想法"
+            :placeholder="t('分享你的想法')"
             maxlength="1000"
           /></view
-        ><button class="primary" :disabled="busy" @click="send">
-          发表评论
-        </button></view
+        ><button class="primary" :disabled="busy" @click="send">{{ t('发表评论') }}</button></view
       ></template
     ></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import {
@@ -113,7 +112,7 @@ async function like() {
 }
 async function send() {
   if (!requireLogin() || busy.value) return;
-  if (!content.value.trim()) return notify(new Error("请填写评论"));
+  if (!content.value.trim()) return notify(new Error(t("请填写评论")));
   busy.value = true;
   try {
     await post(`/posts/${item.value.id}/comments`, { content: content.value });

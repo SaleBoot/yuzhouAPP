@@ -3,14 +3,16 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { displayTitle } from "./domain.js";
+import { t } from "./i18n.js";
 const require = createRequire(new URL("../consumer/package.json", import.meta.url));
 const { ref, reactive, computed } = require("vue");
 const source = await readFile(new URL("./AccountPanel.vue", import.meta.url), "utf8");
 const script = source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import[\s\S]*?;\n/gm, "");
-const setup = new Function("dependencies", `const { ref, reactive, computed, watch, defineProps, request, post, go, media, notify, requireLogin, session, dateTime, ORDER_TYPES, displayTitle, uni } = dependencies; ${script}; return { load, loadOrders, create, selectOrder, unfavorite, form, items, error, loading, busy, orders, ordersPage, ordersLoading, ordersError, moreOrders, selectedOrder, orderLabels, removing };`);
+const setup = new Function("dependencies", `const { ref, reactive, computed, watch, defineProps, request, post, go, media, notify, requireLogin, session, dateTime, ORDER_TYPES, displayTitle, t, uni } = dependencies; ${script}; return { load, loadOrders, create, selectOrder, unfavorite, form, items, error, loading, busy, orders, ordersPage, ordersLoading, ordersError, moreOrders, selectedOrder, orderLabels, removing };`);
 const order = (id, extra = {}) => ({ id, order_no: `YZ-TEST-${id}`, customer_id: 7, status: "completed", type: "mall", items: [{ title: "合成商品" }], ...extra });
 function harness({ kind = "reviews", orders = [], reviews = [], favorites = [], request: override, post: postOverride } = {}) {
   const props = reactive({ kind }), calls = [], notices = [], toasts = [];
+  let loggedIn = true;
   const state = setup({
     ref, reactive, computed, watch: () => {}, defineProps: () => props,
     request: async (path, options = {}) => {
@@ -29,12 +31,32 @@ function harness({ kind = "reviews", orders = [], reviews = [], favorites = [], 
       reviews.push({ id: reviews.length + 1, order_id: data.order_id });
       return reviews.at(-1);
     },
-    session: () => ({ user: { id: 7 } }), requireLogin: () => true,
+    session: () => ({ user: { id: 7 } }), requireLogin: () => loggedIn,
     notify: error => notices.push(error.message), uni: { showToast: toast => toasts.push(toast) },
-    go: () => {}, media: value => value, dateTime: () => "", ORDER_TYPES: { mall: "周边商城" }, displayTitle,
+    go: () => {}, media: value => value, dateTime: () => "", ORDER_TYPES: { mall: "周边商城" }, displayTitle, t,
   });
-  return { state, props, calls, notices, toasts };
+  return { state, props, calls, notices, toasts, setLoggedIn: value => { loggedIn = value; } };
 }
+
+test("退出登录后清空缓存评价和可选订单，不再请求私人记录", async () => {
+  const { state, calls, setLoggedIn } = harness({ orders: [order(1), order(2)], reviews: [{ order_id: 2 }] });
+  await state.load();
+  state.selectOrder({ detail: { value: 1 } });
+  assert.equal(state.items.value.length, 1);
+  assert.equal(state.orders.value.length, 1);
+  assert.equal(state.form.order_id, 1);
+  const requestCount = calls.length;
+  setLoggedIn(false);
+  await state.load();
+  assert.equal(calls.length, requestCount);
+  assert.deepEqual(state.items.value, []);
+  assert.deepEqual(state.orders.value, []);
+  assert.equal(state.form.order_id, null);
+  assert.equal(state.ordersPage.value, 0);
+  assert.equal(state.moreOrders.value, false);
+  assert.equal(state.loading.value, false);
+  assert.equal(state.ordersLoading.value, false);
+});
 
 test("评价使用本人已完成订单和业务名称，不再输入内部订单 ID", async () => {
   const { state, calls } = harness({ orders: [order(1), order(2, { customer_id: 8 }), order(3, { status: "paid" }), order(4)], reviews: [{ order_id: "4" }] });

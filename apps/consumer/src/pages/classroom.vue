@@ -1,14 +1,14 @@
 <template>
   <view class="page"
     ><text class="small muted">YUZHOU ACADEMY</text
-    ><view class="title">在海上，更从容</view
-    ><view class="subtitle">免费学习航海知识，积累成长与奖励</view
+    ><view class="title">{{ t('在海上，更从容') }}</view
+    ><view class="subtitle">{{ t('免费学习航海知识，积累成长与奖励') }}</view
     ><BannerStrip placement="learning"
       ><view class="hero section"
         ><view class="hero-copy"
-          ><text class="hero-kicker">航海课堂</text
-          ><view class="title">把知识带上船</view
-          ><view class="small">完成学习和考试，奖励由平台发放</view></view
+          ><text class="hero-kicker">{{ t('航海课堂') }}</text
+          ><view class="title">{{ t('把知识带上船') }}</view
+          ><view class="small">{{ t('完成学习和考试，奖励由平台发放') }}</view></view
         ></view
       ></BannerStrip
     >
@@ -18,10 +18,10 @@
         :key="cat"
         :class="['chip', { active: category === cat }]"
         @click="category = cat"
-        >{{ cat }}</text
+        >{{ t(cat) }}</text
       ></view
     ><view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t('重试') }}</text></view
     ><view
       v-for="course in displayed"
       :key="course.id"
@@ -34,19 +34,20 @@
       /><view class="flex"
         ><view class="card-head">{{ course.name }}</view
         ><view class="small muted"
-          >{{ course.category || "航海知识" }} ·
-          {{ course.lessons?.length || 0 }}课时</view
+          >{{ course.category || t('航海知识') }} ·
+          {{ t('{count}课时', { count: course.lessons?.length || 0 }) }}</view
         ><view class="row spread section"
-          ><text class="badge">免费学习</text
-          ><text class="link">开始学习 ↗</text></view
+          ><text class="badge">{{ t('免费学习') }}</text
+          ><text class="link">{{ t('开始学习 ↗') }}</text></view
         ></view
       ></view
     ><view v-if="!displayed.length && !error" class="empty">{{
-      loading ? "课堂加载中…" : "暂无已发布课程"
+      loading ? t('课堂加载中…') : t('暂无已发布课程')
     }}</view></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import BannerStrip from "@shared/BannerStrip.vue";

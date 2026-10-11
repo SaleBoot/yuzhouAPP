@@ -1,81 +1,76 @@
 <template>
   <view class="page"
-    ><view class="row spread"
-      ><view class="title">客户管理</view
+    ><LoginPrompt /><view class="row spread"
+      ><view class="title">{{ t("客户管理") }}</view
       ><text class="link" @click="adding = !adding">{{
-        adding ? "收起" : "＋ 添加客户"
+        adding ? t("收起") : t("＋ 添加客户")
       }}</text></view
-    ><view class="subtitle">客户需求与下一次行动</view
+    ><view class="subtitle">{{ t("客户需求与下一次行动") }}</view
     ><view v-if="adding" class="card section"
       ><view class="formline"
-        ><text class="form-label">客户驭舟编号</text
+        ><text class="form-label">{{ t("客户驭舟编号") }}</text
         ><input
           v-model="form.user_id"
           type="number"
-          placeholder="客户提供的驭舟编号" /></view
+          :placeholder="t('客户提供的驭舟编号')" /></view
       ><view class="formline"
-        ><text class="form-label">称呼</text
-        ><input v-model="form.name" placeholder="填写客户称呼" /></view
+        ><text class="form-label">{{ t("称呼") }}</text
+        ><input v-model="form.name" :placeholder="t('填写客户称呼')" /></view
       ><view class="formline">
         <textarea
           v-model="form.notes"
-          placeholder="需求、偏好与跟进说明"
+          :placeholder="t('需求、偏好与跟进说明')"
         /></view
-      ><button class="primary" :loading="busy" :disabled="busy" @click="create">
-        保存客户
-      </button></view
+      ><button class="primary" :loading="busy" :disabled="busy" @click="create"> {{ t("保存客户") }} </button></view
     ><view class="formline section"
-      ><input v-model="search" placeholder="搜索客户称呼" /></view
+      ><input v-model="search" :placeholder="t('搜索客户称呼')" /></view
     ><view v-for="c in filtered" :key="c.id" class="card section"
       ><view class="row spread"
         ><view class="row"
-          ><text class="avatar">{{ (c.name || "客")[0] }}</text
+          ><text class="avatar">{{ (c.name || t("客"))[0] }}</text
           ><view
             ><view class="card-head">{{ c.name }}</view
-            ><text class="muted small">驭舟编号 {{ c.user_id }}</text></view
+            ><text class="muted small">{{ t("驭舟编号 {id}", { id: c.user_id }) }}</text></view
           ></view
         ><text class="badge">{{
-          stages[c.stage] || c.stage || "新客户"
+          t(stages[c.stage] || c.stage || "新客户")
         }}</text></view
-      ><view class="article small section">{{ c.notes || "暂无跟进备注" }}</view
+      ><view class="article small section">{{ c.notes || t("暂无跟进备注") }}</view
       ><view v-if="c.tags?.length" class="chips section"><text v-for="tag in c.tags" :key="tag.id" class="chip">{{ tag.name }}</text></view
       ><view class="actions section"
-        ><button class="secondary" @click="edit(c)">跟进备注</button
+        ><button class="secondary" @click="edit(c)">{{ t("跟进备注") }}</button
         ><button
           class="secondary"
           @click="go('appointment', { customer_id: c.user_id })"
-        >
-          带看预约</button
+        > {{ t("带看预约") }}</button
         ><button
           class="primary"
           @click="go('quote', { customer_id: c.user_id })"
-        >
-          配置报价
-        </button></view
+        > {{ t("配置报价") }} </button></view
       ><view v-if="editing === c.id" class="section"
-        ><view class="small muted">客户标签</view><view class="chips section"><text v-for="tag in tags" :key="tag.id" :class="['chip', {active: selectedTags.includes(Number(tag.id))}]" @click="toggleTag(tag.id)">{{ tag.name }}</text></view><view v-if="!tags.length" class="small muted">公司尚未配置可用标签</view><button class="secondary section" :disabled="busy" @click="saveTags(c)">保存标签</button
+        ><view class="small muted">{{ t("客户标签") }}</view><view class="chips section"><text v-for="tag in tags" :key="tag.id" :class="['chip', {active: selectedTags.includes(Number(tag.id))}]" @click="toggleTag(tag.id)">{{ tag.name }}</text></view><view v-if="!tags.length" class="small muted">{{ t("公司尚未配置可用标签") }}</view><button class="secondary section" :disabled="busy" @click="saveTags(c)">{{ t("保存标签") }}</button
         ><picker
-          :range="stageOptions.map((s) => s.label)"
+          :range="stageOptions.map((s) => t(s.label))"
           :value="stageIndex"
           @change="stageIndex = Number($event.detail.value)"
           ><view class="picker-value"
-            >{{ stageOptions[stageIndex].label }} ▾</view
+            >{{ t(stageOptions[stageIndex].label) }} ▾</view
           ></picker
-        ><textarea v-model="notes" placeholder="跟进备注" /><button
+        ><textarea v-model="notes" :placeholder="t('跟进备注')" /><button
           class="secondary section"
           :disabled="busy"
           @click="save(c)"
-        >
-          保存跟进
-        </button></view
+        > {{ t("保存跟进") }} </button></view
       ></view
-    ><view v-if="!filtered.length && !error" class="empty">暂无客户</view
+    ><view v-if="!filtered.length && !error" class="empty">{{ t("暂无客户") }}</view
     ><view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t("重试") }}</text></view
     ></view
   >
 </template>
 <script setup>
+import LoginPrompt from "@shared/LoginPrompt.vue";
+import { t } from "@shared/i18n.js";
 import { ref, reactive, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { request, post, patch, go, notify, requireLogin } from "@shared/api.js";
@@ -105,7 +100,7 @@ const filtered = computed(() =>
   customers.value.filter((c) => (c.name || "").includes(search.value)),
 );
 async function load() {
-  if (!requireLogin()) return;
+  if (!requireLogin(false)) { customers.value = []; editing.value = null; selectedTags.value = []; return; }
   try {
     const [r, t] = await Promise.all([request("/customers?page_size=100"), request("/customer-tags?page_size=100")]);
     customers.value = r.items || [];
@@ -117,7 +112,7 @@ async function load() {
 }
 async function create() {
   if (!form.user_id || !form.name.trim())
-    return notify(new Error("请填写客户用户ID及称呼"));
+    return notify(new Error(t("请填写客户用户ID及称呼")));
   busy.value = true;
   try {
     await post("/customers", { ...form, user_id: Number(form.user_id) });
@@ -164,7 +159,7 @@ async function saveTags(c) {
   try {
     await request(`/customers/${c.id}/tags`, { method: "PUT", data: { tag_ids: selectedTags.value } });
     await load();
-    uni.showToast({ title: "标签已保存", icon: "success" });
+    uni.showToast({ title: t("标签已保存"), icon: "success" });
   } catch (e) { notify(e); }
   finally { busy.value = false; }
 }

@@ -19,11 +19,13 @@
     </swiper>
     <slot v-else />
     <view v-if="error" class="error small" @click="load"
-      >{{ error }} · 点击重试</view
+      >{{ t(error) }}{{ t("· 点击重试") }}</view
     >
   </view>
 </template>
 <script setup>
+import { t } from './i18n.js';
+
 import { ref, watch } from "vue";
 import { list, external, tab, notify, fallbackBoat } from "./api.js";
 const props = defineProps({ placement: { type: String, default: "home" } }),
@@ -41,7 +43,7 @@ function open(item) {
   const url = item.target_url || "";
   if (/^https?:\/\//i.test(url)) return external(url);
   const page = url.match(/^\/pages\/([a-z-]+)(?:\?|$)/)?.[1];
-  if (!page) return notify(new Error("此轮播入口尚未正确配置"));
+  if (!page) return notify(new Error(t("此轮播入口尚未正确配置")));
   const tabs =
     import.meta.env.VITE_CLIENT === "broker"
       ? ["work", "customers", "orders", "profile"]

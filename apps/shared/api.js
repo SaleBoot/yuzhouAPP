@@ -1,3 +1,4 @@
+import { t, getLocale } from './i18n.js';
 // #ifdef APP-PLUS
 import { choosePdf } from "./native-file.js";
 // #endif
@@ -59,46 +60,46 @@ export function resource(item) {
     : null;
 }
 function serviceMessage(message, code) {
-  if (message === "Phone identity already exists. Use SMS login.") return "手机号已注册，请使用验证码登录";
+  if (message === "Phone identity already exists. Use SMS login.") return t("手机号已注册，请使用验证码登录");
   const smsErrors = {
-    50311: "短信验证服务暂未开通",
-    50312: "短信平台未受理，请稍后重试",
-    50313: "短信发送结果暂无法确认，请等待冷却结束后重试",
-    40103: "验证码错误、已过期或已使用，请检查后重试",
-    40104: "手机号未绑定有效账号，请使用密码登录后绑定",
-    40903: "此手机号无法绑定当前账号，请联系平台",
-    42903: "短信请求过于频繁，请稍后重试",
+    50311: t("短信验证服务暂未开通"),
+    50312: t("短信平台未受理，请稍后重试"),
+    50313: t("短信发送结果暂无法确认，请等待冷却结束后重试"),
+    40103: t("验证码错误、已过期或已使用，请检查后重试"),
+    40104: t("手机号未绑定有效账号，请使用密码登录后绑定"),
+    40903: t("此手机号无法绑定当前账号，请联系平台"),
+    42903: t("短信请求过于频繁，请稍后重试"),
   };
   if (smsErrors[code]) return smsErrors[code];
   const translations = [
-    [/Invitation code is invalid/i, "邀请码无效"],
-    [/Activity enrollment requires approved identity materials/i, "活动报名需平台资料审核通过，请提交身份资料"],
-    [/Activity enrollment requires an active membership/i, "活动报名需有效会员，请查看会员状态"],
-    [/The enrollment changed|current ticket/i, "报名记录已更新，请刷新后重试"],
-    [/A checked-in enrollment cannot be cancelled/i, "已经签到的活动不能在此取消"],
-    [/This activity has a payment order/i, "本活动已有订单，请在订单中取消或申请退款"],
-    [/Real SMS service is not configured/i, "短信登录暂未开通"],
+    [/Invitation code is invalid/i, t("邀请码无效")],
+    [/Activity enrollment requires approved identity materials/i, t("活动报名需平台资料审核通过，请提交身份资料")],
+    [/Activity enrollment requires an active membership/i, t("活动报名需有效会员，请查看会员状态")],
+    [/The enrollment changed|current ticket/i, t("报名记录已更新，请刷新后重试")],
+    [/A checked-in enrollment cannot be cancelled/i, t("已经签到的活动不能在此取消")],
+    [/This activity has a payment order/i, t("本活动已有订单，请在订单中取消或申请退款")],
+    [/Real SMS service is not configured/i, t("短信登录暂未开通")],
     [
       /Real payment.*not configured|Payment.*not configured/i,
-      "此支付方式尚未开通，请联系平台",
+      t("此支付方式尚未开通，请联系平台"),
     ],
-    [/Points or reward stock are insufficient/i, "积分不足或礼品库存不足"],
-    [/Progress cannot decrease/i, "实际进度不能低于已保存进度"],
+    [/Points or reward stock are insufficient/i, t("积分不足或礼品库存不足")],
+    [/Progress cannot decrease/i, t("实际进度不能低于已保存进度")],
     [
       /Service appointment must be in the future/i,
-      "服务预约时间应晚于当前时间",
+      t("服务预约时间应晚于当前时间"),
     ],
-    [/Not enough boats are available/i, "所选日期的可用船艇不足"],
+    [/Not enough boats are available/i, t("所选日期的可用船艇不足")],
     [
       /This boat already has an active purchase order/i,
-      "这艘船已有购船订单，请选择其他船艇",
+      t("这艘船已有购船订单，请选择其他船艇"),
     ],
-    [/Product stock is insufficient/i, "商品库存不足"],
-    [/Authentication required|Token.*expired/i, "请重新登录后操作"],
-    [/Reservation expired/i, "预约已过期，请重新创建订单"],
+    [/Product stock is insufficient/i, t("商品库存不足")],
+    [/Authentication required|Token.*expired/i, t("请重新登录后操作")],
+    [/Reservation expired/i, t("预约已过期，请重新创建订单")],
     [
       /Quote is not available or has expired/i,
-      "报价不可用或已过期，请联系销售更新",
+      t("报价不可用或已过期，请联系销售更新"),
     ],
   ];
   return (
@@ -119,6 +120,10 @@ export function request(path, { method = "GET", data, authToken } = {}) {
       },
       timeout: 20000,
       success(res) {
+        if (authToken === undefined && bearer && bearer !== token()) {
+          reject(new Error(t("登录状态已改变，请重新打开页面")));
+          return;
+        }
         // OTP failures use 401 without expiring the current binding session.
         if (res.statusCode === 401 && bearer === token() && ![40103, 40104].includes(res.data?.code)) saveSession(null);
         if (
@@ -128,13 +133,13 @@ export function request(path, { method = "GET", data, authToken } = {}) {
         )
           resolve(res.data.data);
         else {
-          const error = new Error(serviceMessage(res.data?.message, res.data?.code) || `请求失败（${res.statusCode}）`);
+          const error = new Error(serviceMessage(res.data?.message, res.data?.code) || t("请求失败（{status}）", { status: res.statusCode }));
           error.code = res.data?.code;
           error.status = res.statusCode;
           reject(error);
         }
       },
-      fail: () => reject(new Error("暂时无法连接服务，请检查网络或服务地址")),
+      fail: () => reject(new Error(t("暂时无法连接服务，请检查网络或服务地址"))),
     }),
   );
 }
@@ -144,11 +149,11 @@ export async function list(kind, filters = {}) {
   for (let page = Number(filters.page || 1); ; page++) {
     const data = await request(`/resources/${kind}?${query({ page_size: 100, ...filters, page })}`);
     if (!Array.isArray(data?.items) || !Number.isSafeInteger(data.total) || data.total < 0 || data.page !== page || !Number.isSafeInteger(data.page_size) || data.page_size < 1)
-      throw new Error("资源列表返回信息不完整，请重试");
+      throw new Error(t("资源列表返回信息不完整，请重试"));
     const before = items.size;
     for (const item of data.items) items.set(item.id, resource(item));
     if (singlePage || page * data.page_size >= data.total) return [...items.values()];
-    if (!data.items.length || items.size === before) throw new Error("资源列表分页返回异常，请重试");
+    if (!data.items.length || items.size === before) throw new Error(t("资源列表分页返回异常，请重试"));
   }
 }
 export const detail = (kind, id) =>
@@ -160,25 +165,35 @@ export const notify = (error) => {
   const message = error?.message || error?.errMsg || String(error);
   if (/cancel/i.test(message)) return;
   uni.showToast({
-    title: message,
+    title: t(message),
     icon: "none",
     duration: 3000,
   });
 };
+let openingLogin = false;
 export function go(page, params = {}) {
-  uni.navigateTo({ url: `/pages/${page}?${query(params)}` });
+  if (page === "viewer" && params.url === "https://yuzhou.ourideas.top/app-updates/")
+    params = { ...params, url: params.url + "?lang=" + getLocale() };
+  if (page === "login") {
+    const pages = typeof getCurrentPages === "function" ? getCurrentPages() : [];
+    if (openingLogin || pages[pages.length - 1]?.route === "pages/login") return;
+    openingLogin = true;
+  }
+  uni.navigateTo({ url: `/pages/${page}?${query(params)}`,
+    complete: () => { if (page === "login") openingLogin = false; },
+  });
 }
 export function tab(page) {
   uni.switchTab({ url: `/pages/${page}` });
 }
 export function external(url) {
   if (!url || !/^https?:\/\//i.test(url))
-    return notify(new Error("暂未配置有效链接"));
+    return notify(new Error(t("暂未配置有效链接")));
   go("viewer", { url });
 }
-export function requireLogin() {
-  if (session()) return true;
-  go("login");
+export function requireLogin(redirect = true) {
+  if (token()) return true;
+  if (redirect) go("login");
   return false;
 }
 export function upload(filePath, { purpose = "contract", private: privateFile } = {}) {
@@ -194,12 +209,12 @@ export function upload(filePath, { purpose = "contract", private: privateFile } 
           const r = JSON.parse(res.data);
           if (res.statusCode >= 200 && res.statusCode < 300 && r.code === 0)
             resolve(r.data);
-          else reject(new Error(serviceMessage(r.message) || "文件上传失败"));
+          else reject(new Error(serviceMessage(r.message) || t("文件上传失败")));
         } catch {
-          reject(new Error("文件上传返回格式不正确"));
+          reject(new Error(t("文件上传返回格式不正确")));
         }
       },
-      fail: () => reject(new Error("文件上传失败，请重试")),
+      fail: () => reject(new Error(t("文件上传失败，请重试"))),
     }),
   );
 }
@@ -226,7 +241,7 @@ export async function chooseUpload(options = {}) {
   } else {
     const kind = options.file_type === "image" ? 0 : await new Promise((resolve, reject) =>
       uni.showActionSheet({
-        itemList: ["选择图片", "选择视频"],
+        itemList: [t("选择图片"), t("选择视频")],
         success: (r) => resolve(r.tapIndex),
         fail: reject,
       }),
@@ -248,7 +263,7 @@ export async function chooseUpload(options = {}) {
     );
   }
   // #endif
-  if (!path) throw new Error("未选择文件");
+  if (!path) throw new Error(t("未选择文件"));
   return { ...(await upload(path, options)), local_path: path };
 }
 export async function previewFile(id) {
@@ -261,7 +276,7 @@ export async function previewFile(id) {
     });
     if (!r.ok) {
       const data = await r.json().catch(() => ({}));
-      throw new Error(data.message || "文件下载失败");
+      throw new Error(data.message || t("文件下载失败"));
     }
     const blob = await r.blob();
     const objectUrl = URL.createObjectURL(blob);
@@ -287,7 +302,7 @@ export async function previewFile(id) {
       fail: reject,
     }),
   );
-  if (result.statusCode !== 200) throw new Error("合同下载失败");
+  if (result.statusCode !== 200) throw new Error(t("合同下载失败"));
   await new Promise((resolve, reject) =>
     uni.openDocument({
       filePath: result.tempFilePath,
@@ -307,7 +322,7 @@ export async function exportFile(path, filename, fileType = "xlsx") {
   });
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(data.message || "报表下载失败");
+    throw new Error(data.message || t("报表下载失败"));
   }
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
@@ -326,7 +341,7 @@ export async function exportFile(path, filename, fileType = "xlsx") {
       fail: reject,
     }),
   );
-  if (result.statusCode !== 200) throw new Error("报表下载失败");
+  if (result.statusCode !== 200) throw new Error(t("报表下载失败"));
   await new Promise((resolve, reject) =>
     uni.openDocument({
       filePath: result.tempFilePath,
@@ -336,7 +351,7 @@ export async function exportFile(path, filename, fileType = "xlsx") {
       fail: () =>
         reject(
           new Error(
-            "报表已下载，当前设备无法打开 Excel 文件。可使用销售 H5 下载并查看。",
+            t("报表已下载，当前设备无法打开 Excel 文件。可使用销售 H5 下载并查看。"),
           ),
         ),
     }),

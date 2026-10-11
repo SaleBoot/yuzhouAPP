@@ -2,48 +2,48 @@
   <view class="page home">
     <view class="row spread"
       ><view
-        ><text class="small muted">YUZHOU · 航海生活</text
-        ><view class="title">今天，向海出发</view></view
-      ><text class="avatar small" @click="tab('profile')">驭舟</text></view
+        ><text class="small muted">{{ t('YUZHOU · 航海生活') }}</text
+        ><view class="title">{{ t('今天，向海出发') }}</view></view
+      ><text class="avatar small" @click="tab('profile')">{{ getLocale() === 'en' ? 'Y' : t('驭舟') }}</text></view
     >
     <view class="row section"
       ><input
         v-model="search"
         class="search"
-        placeholder="搜索船型、目的地"
+        :placeholder="t('搜索船型、目的地')"
         @confirm="load"
-      /><text class="link" @click="load">搜索</text></view
+      /><text class="link" @click="load">{{ t('搜索') }}</text></view
     >
     <BannerStrip placement="home"
       ><view class="hero section"
         ><image :src="fallbackBoat" mode="aspectFill" class="hero-image" /><view
           class="hero-copy"
           ><text class="hero-kicker">YOUR NEXT VOYAGE</text
-          ><view class="hero-title">把日常，交给海风</view
-          ><text class="hero-sub">精选船艇 · 轻松预约</text></view
+          ><view class="hero-title">{{ t('把日常，交给海风') }}</view
+          ><text class="hero-sub">{{ t('精选船艇 · 轻松预约') }}</text></view
         ></view
       ></BannerStrip
     >
     <view class="row spread section" @click="external(vrBaseUrl)"
-      ><text class="card-head">智能 3D 看船</text
-      ><text class="link small">进入看船平台 ↗</text></view
+      ><text class="card-head">{{ t('智能 3D 看船') }}</text
+      ><text class="link small">{{ t('进入看船平台 ↗') }}</text></view
     >
-    <view class="row spread section" @click="go('map')"><text class="card-head">地图找船</text><text class="link small">查看船艇位置 ›</text></view>
+    <view class="row spread section" @click="go('map')"><text class="card-head">{{ t('地图找船') }}</text><text class="link small">{{ t('查看船艇位置 ›') }}</text></view>
     <view class="grid scene-grid"
       ><view v-for="s in scenes" :key="s.label" class="scene" @click="s.action"
         ><text class="tile-icon">{{ s.icon }}</text
-        ><text>{{ s.label }}</text></view
+        ><text>{{ t(s.label) }}</text></view
       ></view
     >
     <view id="boat-catalog" class="row spread section"
       ><view class="tabs"
         ><text :class="{ active: mode === 'rent' }" @click="mode = 'rent'"
-          >租船</text
+          >{{ t('租船') }}</text
         ><text :class="{ active: mode === 'buy' }" @click="mode = 'buy'"
-          >买船</text
+          >{{ t('买船') }}</text
         ></view
       ><text class="small link" @click="horizontal = !horizontal">{{
-        horizontal ? "▦ 卡片" : "☷ 列表"
+        horizontal ? t('▦ 卡片') : t('☷ 列表')
       }}</text></view
     >
     <view class="chips"
@@ -52,19 +52,19 @@
         :key="cat"
         :class="['chip', { active: category === cat }]"
         @click="category = cat"
-        >{{ cat }}</text
+        >{{ cat === "yacht" ? t('游艇') : t(cat) }}</text
       ><text
         v-if="mode === 'rent'"
         :class="['chip', { active: cheap }]"
         @click="cheap = !cheap"
-        >价格从低到高</text
+        >{{ t('价格从低到高') }}</text
       ></view
     >
     <view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t('重试') }}</text></view
     >
     <view v-if="!displayed.length && !error" class="empty">{{
-      loading ? "正在寻找你的航程…" : "暂无已发布船艇"
+      loading ? t('正在寻找你的航程…') : t('暂无已发布船艇')
     }}</view>
     <view :class="horizontal ? 'boat-list' : 'grid'"
       ><BoatCard
@@ -79,30 +79,29 @@
         @compare="toggle(boat.id)"
     /></view>
     <view v-if="compared.length" class="compare-dock"
-      ><text>已选 {{ compared.length }} 艘</text
-      ><text class="small" @click="clear">清空</text
+      ><text>{{ t('已选 {count} 艘', { count: compared.length }) }}</text
+      ><text class="small" @click="clear">{{ t('清空') }}</text
       ><button
         class="primary"
         @click="go('compare', { ids: compared.join(','), mode })"
-      >
-        开始对比
-      </button></view
+      >{{ t('开始对比') }}</button></view
     >
-    <view v-if="recommended.length" class="section"><view class="card-head">{{ personalized ? "根据收藏和浏览为你推荐" : "精选船艇" }}</view><view class="grid section"><BoatCard v-for="boat in recommended" :key="boat.id" :boat="boat" :mode="mode" @open="go('boat', { id: boat.id, mode })" /></view></view>
+    <view v-if="recommended.length" class="section"><view class="card-head">{{ personalized ? t('根据收藏和浏览为你推荐') : t('精选船艇') }}</view><view class="grid section"><BoatCard v-for="boat in recommended" :key="boat.id" :boat="boat" :mode="mode" @open="go('boat', { id: boat.id, mode })" /></view></view>
     <view v-if="news.length" class="card section"
-      ><view class="card-head">航海资讯</view
+      ><view class="card-head">{{ t('航海资讯') }}</view
       ><view
         v-for="item in news"
         :key="item.id"
         class="list-item"
         @click="go('post', { id: item.id })"
-        ><text>{{ item.is_pinned ? "置顶 · " : "" }}{{ item.name }}</text
+        ><text>{{ item.is_pinned ? t('置顶 · ') : "" }}{{ item.name }}</text
         ><text class="muted">›</text></view
       ></view
     >
   </view>
 </template>
 <script setup>
+import { t, getLocale } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import BoatCard from "@shared/BoatCard.vue";
@@ -195,7 +194,7 @@ function toggle(id) {
   if (compared.value.includes(id))
     compared.value = compared.value.filter((x) => x !== id);
   else if (compared.value.length < 3) compared.value.push(id);
-  else notify(new Error("一次最多对比三艘船艇"));
+  else notify(new Error(t("一次最多对比三艘船艇")));
   uni.setStorageSync("yuzhou_compare", compared.value);
 }
 function clear() {
@@ -209,25 +208,28 @@ onShow(() => {
 </script>
 <style scoped>
 .hero {
-  height: 310rpx;
+  min-height: 310rpx;
   position: relative;
   padding: 0;
   overflow: hidden;
   background: #216cf7;
 }
 .hero-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   opacity: 0.85;
 }
 .hero-copy {
-  position: absolute;
-  inset: 32rpx;
+  position: relative;
+  inset: auto;
+  padding: 32rpx;
   z-index: 1;
 }
 .hero-title {
-  font-size: 36rpx;
-  font-weight: 700;
+  font-size: 30rpx;
+  font-weight: 500;
   margin: 12rpx 0;
 }
 .hero-sub {
@@ -272,8 +274,8 @@ onShow(() => {
   font-size: 24rpx;
 }
 .tabs text {
-  font-size: 32rpx;
-  font-weight: 600;
+  font-size: 28rpx;
+  font-weight: 500;
   margin-right: 24rpx;
   color: #999;
 }

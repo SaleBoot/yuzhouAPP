@@ -1,17 +1,17 @@
 <template>
   <view class="page"
-    ><view class="title">分享你的航程</view
-    ><view class="subtitle">让更多人看到海上的美好</view
+    ><view class="title">{{ t('分享你的航程') }}</view
+    ><view class="subtitle">{{ t('让更多人看到海上的美好') }}</view
     ><view class="card section"
       ><view class="formline"
         ><input
           v-model="title"
-          placeholder="给这段航程起个名字"
+          :placeholder="t('给这段航程起个名字')"
           maxlength="100" /></view
       ><view class="formline">
         <textarea
           v-model="content"
-          placeholder="记录风景、经验，或一个航海故事…"
+          :placeholder="t('记录风景、经验，或一个航海故事…')"
           maxlength="10000"
         /></view
       ><view class="photo-row"
@@ -20,23 +20,21 @@
           :key="url"
           :src="media(url)"
           mode="aspectFill" /></view
-      ><button class="secondary" :disabled="busy" @click="attach">
-        ＋ 添加图片或视频</button
+      ><button class="secondary" :disabled="busy" @click="attach">{{ t('＋ 添加图片或视频') }}</button
       ><video v-if="videoPreview" class="section" :src="videoPreview" controls />
-      <view v-if="video" class="notice small section">已上传视频，审核通过后公开展示</view></view
+      <view v-if="video" class="notice small section">{{ t('已上传视频，审核通过后公开展示') }}</view></view
     ><view class="notice small section"
-      >动态提交后由平台审核，审核通过后将在发现页展示。</view
+      >{{ t('动态提交后由平台审核，审核通过后将在发现页展示。') }}</view
     ><button
       class="primary section"
       :disabled="busy"
       :loading="busy"
       @click="submit"
-    >
-      提交审核
-    </button></view
+    >{{ t('提交审核') }}</button></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref } from "vue";
 import {
   post,
@@ -76,7 +74,7 @@ async function attach() {
 async function submit() {
   if (!requireLogin() || busy.value) return;
   if (!title.value.trim() || !content.value.trim())
-    return notify(new Error("请填写标题和内容"));
+    return notify(new Error(t("请填写标题和内容")));
   busy.value = true;
   try {
     await post("/resources/posts", {
@@ -87,7 +85,7 @@ async function submit() {
         video_url: video.value,
       },
     });
-    uni.showToast({ title: "已提交审核", icon: "success" });
+    uni.showToast({ title: t("已提交审核"), icon: "success" });
     tab("discover");
   } catch (e) {
     notify(e);

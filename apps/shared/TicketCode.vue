@@ -1,12 +1,14 @@
 <template>
   <view v-if="code" class="ticket"
     ><image :src="qr" mode="aspectFit" class="qr" /><view class="small muted"
-      >入场时出示此报名码</view
+      >{{ t("入场时出示此报名码") }}</view
     ><text class="ticket-text" @click="copy">{{ code }}</text
-    ><text class="small link" @click="copy">复制报名码</text></view
+    ><text class="small link" @click="copy">{{ t("复制报名码") }}</text></view
   >
 </template>
 <script setup>
+import { t } from './i18n.js';
+
 import { computed } from "vue";
 import qrcode from "qrcode-generator";
 const props = defineProps({ code: String });

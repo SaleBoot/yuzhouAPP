@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { t } from "./i18n.js";
 import { runInNewContext } from "node:vm";
 import { cents, dayCount, validateOrder, eventEligibility, memberActive } from "./domain.js";
 test("金额按分解析且不接受负数和额外小数", () => {
@@ -35,8 +36,8 @@ test("iOS 严格日期解析器可格式化后端活动和优惠券日期", () =
       super(...args);
     }
   }
-  const source = readFileSync(new URL("./domain.js", import.meta.url), "utf8").replace(/^export /gm, "");
-  const { dateTime } = runInNewContext(`${source}; ({ dateTime });`, { Date: WebKitDate });
+  const source = readFileSync(new URL("./domain.js", import.meta.url), "utf8").replace(/^import .*\n/gm, "").replace(/^export /gm, "");
+  const { dateTime } = runInNewContext(`${source}; ({ dateTime });`, { t, Date: WebKitDate });
   assert.equal(dateTime("2026-10-11 09:35:42"), "2026-10-11 09:35");
   assert.equal(dateTime("2026-10-11 09:35:42", false), "2026-10-11");
   assert.equal(dateTime("invalid"), "invalid");
@@ -47,8 +48,8 @@ test("会员到期秒数无需经由日期字符串解析或丢失精度", () =>
   class FixedDate extends Date {
     constructor(...args) { super(...(args.length ? args : [Date.UTC(2026, 9, 11, 0, 0, 30)])); }
   }
-  const source = readFileSync(new URL("./domain.js", import.meta.url), "utf8").replace(/^export /gm, "");
-  const { memberActive: active } = runInNewContext(`${source}; ({ memberActive });`, { Date: FixedDate });
+  const source = readFileSync(new URL("./domain.js", import.meta.url), "utf8").replace(/^import .*\n/gm, "").replace(/^export /gm, "");
+  const { memberActive: active } = runInNewContext(`${source}; ({ memberActive });`, { t, Date: FixedDate });
   const now = Date.UTC(2026, 9, 11, 0, 0, 30);
   assert.equal(active({ member_until: now / 1000 + 15 }), true);
   assert.equal(active({ member_until: String(now / 1000 + 15) }), true);

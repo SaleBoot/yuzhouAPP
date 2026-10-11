@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { t, getLocale } from "./i18n.js";
 import { runInNewContext } from "node:vm";
 
 function apiHarness(response, { native = false } = {}) {
@@ -13,7 +14,7 @@ function apiHarness(response, { native = false } = {}) {
       return enabled.every(Boolean) && !line.startsWith("import ");
     }).join("\n").replaceAll("import.meta.env", "env").replace(/^export /gm, "");
   const api = runInNewContext(`${source}; ({ list, media });`, {
-    env: {}, URL, window: { location: { origin: "https://h5.test" } },
+    t, getLocale, env: {}, URL, window: { location: { origin: "https://h5.test" } },
     uni: {
       getStorageSync: (key) => storage.get(key),
       request(options) {
@@ -84,4 +85,50 @@ test("原生 App 的后续资源和图片继续使用 HTTPS 服务地址", async
   const items = await api.list("boats", { page_size: 1 });
   assert.equal(calls[1], "https://yuzhou.ourideas.top/api/v1/resources/boats?page_size=1&page=2");
   assert.equal(items[1].image_url, "https://yuzhou.ourideas.top/api/v1/files/2");
+});
+
+test('private page loading stays on the page for guests and explicit login cannot stack', () => {
+  const storage = new Map(), navigations = [], pages = [{ route: 'pages/work' }];
+  const source = readFileSync(new URL('./api.js', import.meta.url), 'utf8')
+    .replace(/^import .*\n/gm, '').replaceAll('import.meta.env', 'env').replace(/^export /gm, '');
+  const api = runInNewContext(`${source}; ({ requireLogin, go });`, {
+    t, getLocale, env: {}, getCurrentPages: () => pages,
+    uni: {
+      getStorageSync: key => storage.get(key), setStorageSync: (key, value) => storage.set(key, value), removeStorageSync: key => storage.delete(key),
+      navigateTo: options => navigations.push(options),
+    },
+  });
+  assert.equal(api.requireLogin(false), false);
+  assert.equal(api.requireLogin(false), false);
+  assert.equal(navigations.length, 0);
+  assert.equal(api.requireLogin(), false);
+  api.requireLogin();
+  assert.equal(navigations.length, 1);
+  pages.push({ route: 'pages/login' }); navigations[0].complete();
+  api.requireLogin();
+  assert.equal(navigations.length, 1);
+  pages.pop();
+  assert.equal(api.requireLogin(false), false);
+  storage.set('yuzhou_consumer_session', { token: 'synthetic' });
+  assert.equal(api.requireLogin(false), true);
+  assert.equal(navigations.length, 1);
+});
+
+test('a response from a previous account cannot display its private data or expire a new session', async () => {
+  const storage = new Map([['yuzhou_consumer_session', { token: 'old-synthetic' }]]), pending = [];
+  const source = readFileSync(new URL('./api.js', import.meta.url), 'utf8')
+    .replace(/^import .*\n/gm, '').replaceAll('import.meta.env', 'env').replace(/^export /gm, '');
+  const api = runInNewContext(`${source}; ({ request });`, {
+    t, getLocale, env: {}, uni: { getStorageSync: key => storage.get(key), removeStorageSync: key => storage.delete(key), request: options => pending.push(options) },
+  });
+  const oldResponse = api.request('/orders');
+  storage.set('yuzhou_consumer_session', { token: 'new-synthetic' });
+  pending[0].success({ statusCode: 200, data: { code: 0, data: { items: ['private-old-account'] } } });
+  await assert.rejects(oldResponse, /登录状态已改变/);
+  assert.equal(storage.get('yuzhou_consumer_session').token, 'new-synthetic');
+  const expired = api.request('/auth/me');
+  storage.set('yuzhou_consumer_session', { token: 'third-synthetic' });
+  pending[1].success({ statusCode: 401, data: { code: 401, message: 'Authentication required' } });
+  await assert.rejects(expired, /登录状态已改变/);
+  assert.equal(storage.get('yuzhou_consumer_session').token, 'third-synthetic');
 });

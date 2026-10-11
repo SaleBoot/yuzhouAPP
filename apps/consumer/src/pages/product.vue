@@ -6,50 +6,48 @@
       class="cover"
     /><view class="title section">{{ item.name }}</view
     ><view class="price section">{{
-      item.price_cents ? `¥${money(item.price_cents)}` : "按需求报价"
+      item.price_cents ? `¥${money(item.price_cents)}` : t('按需求报价')
     }}</view
     ><view class="card section"
       ><view class="card-head">{{
-        kind === "products" ? "商品介绍" : "服务项目"
+        kind === "products" ? t('商品介绍') : t('服务项目')
       }}</view
       ><view class="article">{{
-        item.description || "请向销售了解服务详情"
+        item.description || t('请向销售了解服务详情')
       }}</view
       ><view v-if="kind === 'products'" class="muted small section"
-        >平台自营 ·
-        {{
-          item.stock !== undefined ? `库存 ${item.stock}` : "以提交时库存为准"
+        >{{ t('平台自营') }} · {{
+          item.stock !== undefined ? t('库存 {count}', { count: item.stock }) : t('以提交时库存为准')
         }}</view
       ></view
     ><view v-if="kind === 'upgrades'" class="card section">
-      <view class="card-head">升级效果对比</view>
+      <view class="card-head">{{ t('升级效果对比') }}</view>
       <view v-if="boatTypeName" class="small muted section"
-        >适配船型 · {{ boatTypeName }}</view
+        >{{ t('适配船型 · {name}', { name: boatTypeName }) }}</view
       >
       <view class="parameter-row small muted"
-        ><text>参数</text><text>升级前</text><text>升级后</text></view
+        ><text>{{ t('参数') }}</text><text>{{ t('升级前') }}</text><text>{{ t('升级后') }}</text></view
       >
       <view v-for="row in parameterRows" :key="row.key" class="parameter-row"
-        ><text>{{ row.label }}</text
+        ><text>{{ t(row.label) }}</text
         ><text>{{ row.before }}</text
         ><text>{{ row.after }}</text></view
       >
       <view v-if="!parameterRows.length" class="small muted section"
-        >升级前后参数待服务方补充，可咨询销售确认适配与安装方案。</view
+        >{{ t('升级前后参数待服务方补充，可咨询销售确认适配与安装方案。') }}</view
       >
     </view>
     <view class="actions section"
-      ><button v-if="kind === 'products'" class="secondary" @click="addCart">
-        加入购物车</button
-      ><button class="secondary" @click="go('chat', { resource_id: item.id })">
-        咨询</button
+      ><button v-if="kind === 'products'" class="secondary" @click="addCart">{{ t('加入购物车') }}</button
+      ><button class="secondary" @click="go('chat', { resource_id: item.id })">{{ t('咨询') }}</button
       ><button class="primary" @click="buy">
-        {{ kind === "products" ? "立即购买" : "提交需求" }}
+        {{ kind === "products" ? t('立即购买') : t('提交需求') }}
       </button></view
     ></view
-  ><view v-else class="page empty">{{ error || "正在加载…" }}</view>
+  ><view v-else class="page empty">{{ error || t('正在加载…') }}</view>
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { ref, computed } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import {
@@ -91,13 +89,13 @@ const parameterRows = computed(() => {
   );
 });
 function formatParameter(value) {
-  if (value === undefined || value === null || value === "") return "待补充";
+  if (value === undefined || value === null || value === "") return t("待补充");
   if (Array.isArray(value)) return value.map(formatParameter).join("、");
   if (typeof value === "object")
     return value.value !== undefined
       ? `${value.value}${value.unit || ""}`
-      : "待补充";
-  return typeof value === "boolean" ? (value ? "是" : "否") : String(value);
+      : t("待补充");
+  return typeof value === "boolean" ? (value ? t("是") : t("否")) : String(value);
 }
 onLoad(async (q) => {
   kind.value = q.kind || "products";
@@ -115,7 +113,7 @@ async function addCart() {
   if (!requireLogin()) return;
   try {
     await post("/cart", { product_id: item.value.id, quantity: 1 });
-    uni.showToast({ title: "已加入购物车", icon: "success" });
+    uni.showToast({ title: t("已加入购物车"), icon: "success" });
   } catch (e) {
     notify(e);
   }

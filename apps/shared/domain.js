@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 export const ORDER_TYPES = {
   boat_rental: "租船",
   boat_purchase: "买船",
@@ -36,7 +37,7 @@ export function money(cents = 0) {
   });
 }
 export function state(value) {
-  return STATES[value] || value || "待处理";
+  return t(STATES[value] || value || "待处理");
 }
 export function displayTitle(value) {
   return typeof value === "string"
@@ -45,10 +46,10 @@ export function displayTitle(value) {
 }
 export function cents(value) {
   if (!/^\d+(\.\d{1,2})?$/.test(String(value)))
-    throw new Error("请输入有效金额，最多两位小数");
+    throw new Error(t("请输入有效金额，最多两位小数"));
   const [whole, fraction = ""] = String(value).split(".");
   const amount = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
-  if (!Number.isSafeInteger(amount)) throw new Error("金额超出可处理范围");
+  if (!Number.isSafeInteger(amount)) throw new Error(t("金额超出可处理范围"));
   return amount;
 }
 export function dayCount(start, end) {
@@ -57,7 +58,7 @@ export function dayCount(start, end) {
       86400000,
   );
   if (!Number.isFinite(count) || count < 1)
-    throw new Error("结束日期应晚于开始日期，最少租赁一天");
+    throw new Error(t("结束日期应晚于开始日期，最少租赁一天"));
   return count;
 }
 export const today = () => {
@@ -66,14 +67,14 @@ export const today = () => {
 };
 export function validateOrder(form) {
   if (!Object.prototype.hasOwnProperty.call(ORDER_TYPES, form.type))
-    throw new Error("请选择订单类型");
-  if (!form.resource_id) throw new Error("请选择船艇或商品");
+    throw new Error(t("请选择订单类型"));
+  if (!form.resource_id) throw new Error(t("请选择船艇或商品"));
   if (form.type === "boat_rental") {
-    if (form.start_date < today()) throw new Error("预约日期不能早于今天");
+    if (form.start_date < today()) throw new Error(t("预约日期不能早于今天"));
     dayCount(form.start_date, form.end_date);
   }
   if (!Number.isInteger(Number(form.quantity)) || Number(form.quantity) < 1)
-    throw new Error("数量应为正整数");
+    throw new Error(t("数量应为正整数"));
   return { ...form, quantity: Number(form.quantity) };
 }
 function dateValue(value) {

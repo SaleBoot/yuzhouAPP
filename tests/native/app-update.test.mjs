@@ -15,15 +15,15 @@ const release = {
 };
 
 function page(options = {}) {
-  const elements = Object.fromEntries(["title", "version", "status", "update"].map(id => [id, {textContent: "", disabled: true, addEventListener() {}}]));
+  const elements = Object.fromEntries(["title", "version", "status", "update", "notice"].map(id => [id, {textContent: "", disabled: true, addEventListener() {}}]));
   const calls = {fetch: 0, downloads: [], readers: 0, installs: [], restarts: 0};
   const item = {...release, ...options.release};
   const current = {appid: options.appid || appid, version: "1.0.2", versionCode: "102", ...options.current};
   const local = "_doc/yuzhou-update/" + item.appid + "-" + item.version_name + ".wgt";
   const context = {
-    document: {getElementById: id => elements[id], addEventListener() {}},
-    location: {origin: options.origin || "https://yuzhou.ourideas.top"},
-    URL, AbortController, setTimeout, clearTimeout, Uint8Array,
+    document: {documentElement: {}, getElementById: id => elements[id], addEventListener() {}},
+    location: {origin: options.origin || "https://yuzhou.ourideas.top", search: options.search || ""},
+    URL, URLSearchParams, AbortController, setTimeout, clearTimeout, Uint8Array,
     crypto: options.digestError ? {subtle: {digest: async () => {throw new Error("摘要计算失败");}}} : webcrypto,
     atob: text => Buffer.from(text, "base64").toString("binary"),
     fetch: async (url, settings) => {
@@ -214,4 +214,59 @@ test("broker only receives its own WGT", async () => {
   await p.check(); await p.update();
   assert.equal(p.calls.downloads[0].url, "https://yuzhou.ourideas.top/app-updates/broker-1.0.3.wgt");
   assert.equal(p.calls.restarts, 1);
+});
+
+test("update page takes English only from the explicit App language query and defaults to Chinese", () => {
+  for (const search of ["", "?lang=zh-Hans", "?lang=fr", "?lang=en-US", "?lang=__proto__"]) {
+    const p = page({search});
+    assert.equal(p.context.document.documentElement.lang, "zh-CN");
+    assert.equal(p.context.document.title, "驭舟更新");
+    assert.equal(p.elements.status.textContent, "请在驭舟 App 内打开此页面。");
+  }
+  const p = page({search: "?lang=en"});
+  assert.equal(p.context.document.documentElement.lang, "en");
+  assert.equal(p.context.document.title, "Yuzhou updates");
+  assert.equal(p.elements.title.textContent, "Yuzhou updates");
+  assert.equal(p.elements.update.textContent, "Checking for updates");
+  assert.match(p.elements.notice.textContent, /restarts after updating/);
+  assert.equal(p.calls.fetch, 0);
+  assert.equal(p.calls.installs.length, 0);
+});
+
+test("English update page keeps both App identities, verified download and force:false installation", async () => {
+  for (const app of [
+    {appid, title: "Yuzhou updates", url: "/app-updates/consumer-1.0.3.wgt", package: "top.ourideas.yuzhou.consumer"},
+    {appid: "__UNI__59A80C3", title: "Yuzhou Broker updates", url: "/app-updates/broker-1.0.3.wgt", package: "top.ourideas.yuzhou.broker"}
+  ]) {
+    const p = page({search: "?lang=en", appid: app.appid, release: app});
+    await p.check();
+    assert.equal(p.elements.title.textContent, app.title);
+    assert.equal(p.elements.version.textContent, "Current version 1.0.2 · New version 1.0.3");
+    assert.equal(p.elements.update.textContent, "Update and restart");
+    assert.equal(p.calls.downloads.length, 0);
+    await p.update();
+    assert.equal(p.calls.downloads[0].url, "https://yuzhou.ourideas.top" + app.url);
+    assert.equal(p.calls.installs.length, 1);
+    assert.equal(p.calls.installs[0].settings.force, false);
+    assert.equal(p.calls.restarts, 1);
+    assert.equal(p.elements.status.textContent, "Update complete. Restarting…");
+  }
+});
+
+test("English text cannot bypass origin, identity, URL, runtime, size, hash or installed-version rejection", async () => {
+  for (const options of [
+    {origin: "https://other.example"}, {appid: "__proto__"},
+    {release: {url: "/app-updates/consumer-1.0.3.wgt?lang=en"}},
+    {release: {appid: "__UNI__59A80C3"}}, {uniVersion: "5.27.0"},
+    {release: {bytes: "32"}}, {release: {sha256: "invalid"}},
+    {fileSize: bytes.length + 1}, {fileBytes: Buffer.alloc(bytes.length, 7)},
+    {digestError: true}, {installError: true}, {installed: {versionCode: "101"}},
+    {fetchError: true}, {readError: true}
+  ]) {
+    const p = page({search: "?lang=en", ...options});
+    await p.check(); await p.update();
+    assert.equal(p.calls.restarts, 0);
+    assert.doesNotMatch(p.elements.status.textContent, /[\u3400-\u9fff]/);
+    if (!options.installError && !options.installed) assert.equal(p.calls.installs.length, 0);
+  }
 });

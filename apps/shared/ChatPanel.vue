@@ -1,15 +1,14 @@
 <template>
   <view class="page"
-    ><template v-if="!selected"
-      ><view class="title">咨询消息</view
-      ><view class="subtitle">与销售沟通船艇、配置和交付</view
+    ><LoginPrompt /><template v-if="!selected"
+      ><view class="title">{{ t("咨询消息") }}</view
+      ><view class="subtitle">{{ t("与销售沟通船艇、配置和交付") }}</view
       ><button
         v-if="resourceId"
         class="primary section"
         :disabled="busy"
         @click="start"
-      >
-        咨询这艘船艇</button
+      >{{ t("咨询这艘船艇") }}</button
       ><view
         v-for="chat in conversations"
         :key="chat.id"
@@ -17,21 +16,21 @@
         @click="open(chat)"
         ><view
           ><view class="card-head">{{
-            chat.title || chat.resource_title || `咨询 ${chat.id}`
+            chat.title || chat.resource_title || t("咨询 {id}", { id: chat.id })
           }}</view
           ><view class="muted small">{{
-            chat.last_message?.content || "查看咨询记录"
+            chat.last_message?.content || t("查看咨询记录")
           }}</view></view
         ><text>›</text></view
       ><view v-if="!conversations.length" class="empty"
-        >暂无咨询记录。可从船艇详情发起咨询。</view
+        >{{ t("暂无咨询记录。可从船艇详情发起咨询。") }}</view
       ></template
     ><template v-else
       ><view class="row spread"
-        ><view class="card-head">{{ selected.title || "船艇咨询" }}</view
-        ><text class="link" @click="open(null)">全部咨询</text></view
+        ><view class="card-head">{{ selected.title || t("船艇咨询") }}</view
+        ><text class="link" @click="open(null)">{{ t("全部咨询") }}</text></view
       ><view class="notice small"
-        >消息保存于服务端，当前每5秒同步一次。系统推送尚未配置。</view
+        >{{ t("消息保存于服务端，当前每5秒同步一次。系统推送尚未配置。") }}</view
       ><scroll-view scroll-y class="messages" :scroll-into-view="lastMessage"
         ><view
           v-for="m in messages"
@@ -46,8 +45,8 @@
               m.sender_name ||
               m.nickname ||
               (Number(m.sender_id || m.user_id) === Number(user?.id)
-                ? "我"
-                : user?.role === "broker" ? "客户" : "销售")
+                ? t("我")
+                : user?.role === "broker" ? t("客户") : t("销售"))
             }}
             · {{ dateTime(m.created_at) }}</text
           ><view class="bubble">{{ m.content }}</view></view
@@ -55,19 +54,20 @@
       ><view class="chat-input row"
         ><input
           v-model="content"
-          placeholder="输入咨询内容"
+          :placeholder="t('输入咨询内容')"
           maxlength="2000"
           @confirm="send"
-        /><button class="primary" :disabled="busy" @click="send">
-          发送
-        </button></view
+        /><button class="primary" :disabled="busy" @click="send">{{ t("发送") }}</button></view
       ></template
     ><view v-if="error" class="error"
-      >{{ error }} <text class="link" @click="selected ? loadMessages() : load()">重试</text></view
+      >{{ t(error) }} <text class="link" @click="selected ? loadMessages() : load()">{{ t("重试") }}</text></view
     ></view
   >
 </template>
 <script setup>
+import LoginPrompt from "./LoginPrompt.vue";
+import { t } from './i18n.js';
+
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { request, post, notify, requireLogin, session, uuid } from "./api.js";
 import { dateTime } from "./domain.js";
@@ -90,7 +90,7 @@ const lastMessage = computed(() =>
     : "",
 );
 async function load() {
-  if (!requireLogin()) return;
+  if (!requireLogin(false)) return;
   const generation = ++listGeneration;
   error.value = "";
   try {

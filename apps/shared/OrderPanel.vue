@@ -1,94 +1,90 @@
 <template>
-  <view class="page">
+  <view class="page"><LoginPrompt />
     <view v-if="error" class="error"
-      >{{ error }}<text class="link" @click="load"> 重试</text></view
+      >{{ t(error) }}<text class="link" @click="load"> {{ t("重试") }}</text></view
     >
-    <view v-if="!order && !error" class="empty">订单加载中…</view>
+    <view v-if="!order && !error" class="empty">{{ t("订单加载中…") }}</view>
     <template v-if="order">
       <view class="order-head"
         ><view class="title">{{ state(order.status) }}</view
         ><view class="small"
-          >{{ ORDER_TYPES[order.type] }} · {{ order.order_no }}</view
+          >{{ t(ORDER_TYPES[order.type]) }} · {{ order.order_no }}</view
         ></view
       >
       <view class="card"
         ><view class="row spread"
-          ><text class="card-head">订单金额</text
+          ><text class="card-head">{{ t("订单金额") }}</text
           ><text class="price">¥{{ money(order.amount_cents) }}</text></view
         ><view class="row spread muted small"
-          ><text>已付 ¥{{ money(order.paid_cents) }}</text
-          ><text>已退款 ¥{{ money(order.refund_cents) }}</text></view
+          ><text>{{ t("已付 ¥{amount}", { amount: money(order.paid_cents) }) }}</text
+          ><text>{{ t("已退款 ¥{amount}", { amount: money(order.refund_cents) }) }}</text></view
         ><view
           v-for="item in order.items || []"
           :key="item.id"
           class="list-item"
           ><text>{{
             displayTitle(item.title || item.name) ||
-            `船艇 ${item.boat_id || item.resource_id}`
+            t("船艇 {id}", { id: item.boat_id || item.resource_id })
           }}</text
           ><text>× {{ item.quantity || 1 }}</text></view
         ><view v-if="order.start_date" class="section small"
-          >{{ order.start_date }} 至 {{ order.end_date }}（归还日不计租）</view
+          >{{ t("{start} 至 {end}（归还日不计租）", { start: order.start_date, end: order.end_date }) }}</view
         ><view class="muted small section">{{
-          order.notes || "无备注"
+          order.notes || t("无备注")
         }}</view></view
       >
       <view
         v-if="broker && ['awaiting_quote', 'quoted'].includes(order.status)"
         class="card section"
-        ><view class="card-head">向客户报价</view
+        ><view class="card-head">{{ t("向客户报价") }}</view
         ><view class="formline"
-          ><text class="form-label">总报价（元）</text
+          ><text class="form-label">{{ t("总报价（元）") }}</text
           ><input
             v-model="quoteAmount"
             type="digit"
-            placeholder="以最终配置为准" /></view
+            :placeholder="t('以最终配置为准')" /></view
         ><view class="formline"
-          ><text class="form-label">报价说明</text
+          ><text class="form-label">{{ t("报价说明") }}</text
           ><textarea
             v-model="quoteNotes"
-            placeholder="配置、交付时间、包含项目"
+            :placeholder="t('配置、交付时间、包含项目')"
           /></view
-        ><button class="primary" :disabled="busy" @click="quote">
-          提交报价
-        </button></view
+        ><button class="primary" :disabled="busy" @click="quote"> {{ t("提交报价") }} </button></view
       >
       <view v-if="order.status === 'quoted' && !broker" class="card section"
-        ><view class="card-head">报价确认</view
+        ><view class="card-head">{{ t("报价确认") }}</view
         ><view class="article">{{
           order.quote?.notes ||
           order.quote_notes ||
-          "请确认上述总金额和订单配置"
+          t("请确认上述总金额和订单配置")
         }}</view
         ><button
           class="primary"
           :disabled="busy"
           @click="action('accept-quote')"
-        >
-          接受报价
-        </button></view
+        > {{ t("接受报价") }} </button></view
       >
       <view
         v-if="broker || requiresContract || contracts.length"
         class="card section"
         ><view class="row spread"
-          ><text class="card-head">合同材料</text
-          ><text class="badge">离线签署 PDF</text></view
+          ><text class="card-head">{{ t("合同材料") }}</text
+          ><text class="badge">{{ t("离线签署 PDF") }}</text></view
         ><view v-if="!contracts.length" class="muted small"
-          >暂未上传合同。由销售提供合同，签署后上传 PDF，再由平台审核。</view
+          >{{ t("暂未上传合同。由销售提供合同，签署后上传 PDF，再由平台审核。") }}</view
         ><view v-for="c in contracts" :key="c.id" class="list-item"
           ><view
-            ><view>{{ c.title || "合同文件" }} · v{{ c.version }}</view
+            ><view>{{ c.title || t("合同文件") }} · v{{ c.version }}</view
             ><view class="muted small">{{
               c.signed_at
-                ? "已确认签署"
+                ? t("已确认签署")
                 : c.review_status === "approved"
-                  ? "已审核，待客户确认"
+                  ? t("已审核，待客户确认")
                   : c.review_status === "rejected"
-                    ? "审核拒绝，请重传"
-                    : "待平台审核"
+                    ? t("审核拒绝，请重传")
+                    : t("待平台审核")
             }}</view></view
-          ><text class="link" @click="preview(c.file_id)">预览</text></view
+          ><text class="link" @click="preview(c.file_id)">{{ t("预览") }}</text></view
         ><view class="actions section"
           ><button
             v-if="
@@ -99,8 +95,7 @@
             class="secondary"
             :disabled="busy"
             @click="uploadContract"
-          >
-            上传合同 PDF</button
+          > {{ t("上传合同 PDF") }}</button
           ><button
             v-if="
               contracts.length &&
@@ -111,43 +106,39 @@
             class="secondary"
             :disabled="busy"
             @click="sign"
-          >
-            确认签署当前版
-          </button></view
+          > {{ t("确认签署当前版") }} </button></view
         ><view class="muted small section"
-          >当前PDF经平台审核通过后，由客户确认线下签署。电子签服务将另行接入。</view
+          >{{ t("当前PDF经平台审核通过后，由客户确认线下签署。电子签服务将另行接入。") }}</view
         ></view
       >
       <view
         v-if="!broker && ['awaiting_payment'].includes(order.status)"
         class="card section"
-        ><view class="card-head">支付订单</view
+        ><view class="card-head">{{ t("支付订单") }}</view
         ><picker
-          :range="channels.map((x) => x.label)"
+          :range="channels.map((x) => t(x.label))"
           :value="channelIndex"
           @change="channelIndex = Number($event.detail.value)"
           ><view class="picker-value"
-            >{{ channels[channelIndex].label }} ▾</view
+            >{{ t(channels[channelIndex].label) }} ▾</view
           ></picker
         ><view
           v-if="channels[channelIndex].value === 'test'"
           class="notice small"
-          >开发环境测试支付，仅验证订单状态，不产生真实扣款。</view
+          >{{ t("开发环境测试支付，仅验证订单状态，不产生真实扣款。") }}</view
         ><view v-if="requiresContract && !canPay" class="notice small section"
-          >请等待当前合同通过平台审核，并确认线下签署后支付。</view
+          >{{ t("请等待当前合同通过平台审核，并确认线下签署后支付。") }}</view
         ><button
           class="primary"
           :loading="busy"
           :disabled="busy || !canPay"
           @click="pay"
-        >
-          支付服务端订单金额
-        </button></view
+        > {{ t("支付服务端订单金额") }} </button></view
       >
       <view
         v-if="['boat_upgrade', 'maintenance'].includes(order.type)"
         class="card section"
-        ><view class="card-head">服务预约</view
+        ><view class="card-head">{{ t("服务预约") }}</view
         ><view v-if="order.schedule" class="small section"
           >{{ dateTime(order.schedule.scheduled_at) }} ·
           {{ order.schedule.location }}</view
@@ -157,9 +148,7 @@
             v-model:date="serviceDate"
             v-model:time="serviceTime"
             v-model:location="serviceLocation"
-          /><button class="secondary" :disabled="busy" @click="schedule">
-            保存服务预约
-          </button></template
+          /><button class="secondary" :disabled="busy" @click="schedule"> {{ t("保存服务预约") }} </button></template
         ></view
       >
       <view
@@ -169,14 +158,14 @@
             ['paid', 'fulfilling', 'partially_refunded'].includes(order.status))
         "
         class="card section"
-        ><view class="card-head">履约进度</view
+        ><view class="card-head">{{ t("履约进度") }}</view
         ><view
           v-for="entry in order.progress || []"
           :key="entry.id"
           class="list-item"
           ><view
             ><view
-              >{{ progressLabels[entry.stage] || entry.stage }} ·
+              >{{ t(progressLabels[entry.stage] || entry.stage) }} ·
               {{ entry.percent }}%</view
             ><view class="small muted">{{ entry.notes }}</view
             ><view class="small muted">{{
@@ -189,42 +178,40 @@
             ['paid', 'fulfilling', 'partially_refunded'].includes(order.status)
           "
           ><view class="formline"
-            ><text class="form-label">实际进度阶段</text
+            ><text class="form-label">{{ t("实际进度阶段") }}</text
             ><picker
-              :range="progressStages.map((s) => s.label)"
+              :range="progressStages.map((s) => t(s.label))"
               :value="stageIndex"
               @change="stageIndex = Number($event.detail.value)"
               ><view class="picker-value"
-                >{{ progressStages[stageIndex].label }} ▾</view
+                >{{ t(progressStages[stageIndex].label) }} ▾</view
               ></picker
             ></view
           ><view class="formline"
-            ><text class="form-label">完成百分比</text
+            ><text class="form-label">{{ t("完成百分比") }}</text
             ><input
               v-model="progressPercent"
               type="number"
-              placeholder="0至100" /></view
+              :placeholder="t('0至100')" /></view
           ><textarea
             v-model="progressNotes"
-            placeholder="填写实际安装或服务进度"
+            :placeholder="t('填写实际安装或服务进度')"
           /><button
             class="secondary section"
             :disabled="busy"
             @click="saveProgress"
-          >
-            保存实际进度
-          </button></template
+          > {{ t("保存实际进度") }} </button></template
         ><view class="small muted section"
-          >交付验收以订单履约状态为准。</view
+          >{{ t("交付验收以订单履约状态为准。") }}</view
         ></view
       >
       <view
         v-if="broker && ['paid', 'fulfilling'].includes(order.status)"
         class="card section"
-        ><view class="card-head">履约进度</view
+        ><view class="card-head">{{ t("履约进度") }}</view
         ><textarea
           v-model="fulfillNotes"
-          placeholder="填写实际交付或履约说明"
+          :placeholder="t('填写实际交付或履约说明')"
         /><view class="actions"
           ><button
             v-if="order.status === 'paid'"
@@ -233,30 +220,25 @@
             @click="
               action('fulfill', { status: 'fulfilling', notes: fulfillNotes })
             "
-          >
-            开始履约</button
+          > {{ t("开始履约") }}</button
           ><button
             class="primary"
             :disabled="busy"
             @click="
               action('fulfill', { status: 'completed', notes: fulfillNotes })
             "
-          >
-            完成交付
-          </button></view
+          > {{ t("完成交付") }} </button></view
         ></view
       >
       <view v-if="!broker && order.status === 'fulfilling'" class="card section"
-        ><view class="card-head">验收交付</view
-        ><view class="small muted">请核对实际交付内容后确认。</view
-        ><button class="primary section" :disabled="busy" @click="receive">
-          确认交付完成
-        </button>
+        ><view class="card-head">{{ t("验收交付") }}</view
+        ><view class="small muted">{{ t("请核对实际交付内容后确认。") }}</view
+        ><button class="primary section" :disabled="busy" @click="receive"> {{ t("确认交付完成") }} </button>
       </view>
       <view class="card section"
-        ><view class="card-head">客户服务</view
+        ><view class="card-head">{{ t("客户服务") }}</view
         ><view class="formline"
-          ><input v-model="reason" placeholder="取消或退款原因" /></view
+          ><input v-model="reason" :placeholder="t('取消或退款原因')" /></view
         ><view class="actions"
           ><button
             v-if="
@@ -267,8 +249,7 @@
             class="secondary"
             :disabled="busy"
             @click="cancel"
-          >
-            取消订单</button
+          > {{ t("取消订单") }}</button
           ><button
             v-if="
               !broker &&
@@ -278,29 +259,26 @@
             class="secondary"
             :disabled="busy || refundPending"
             @click="refund"
-          >
-            申请退款</button
-          ><button v-if="broker" class="secondary" @click="share">
-            复制客户订单链接
-          </button></view
+          > {{ t("申请退款") }}</button
+          ><button v-if="broker" class="secondary" @click="share"> {{ t("复制客户订单链接") }} </button></view
         ><view
           v-for="entry in order.refund_requests || []"
           :key="entry.id"
           class="section small"
-          ><text>退款申请 ¥{{ money(entry.amount_cents) }} · {{ refundLabels[entry.status] || entry.status }}</text
+          ><text>{{ t("退款申请 ¥{amount} · {status}", { amount: money(entry.amount_cents), status: t(refundLabels[entry.status] || entry.status) }) }}</text
           ><view v-if="entry.review_notes" class="muted">{{ entry.review_notes }}</view></view
         ><view
           v-if="broker && order.profit_cents !== null"
           class="section muted small"
-          >平台确认利润 ¥{{
-            money(order.profit_cents)
-          }}，分配以平台规则为准。</view
+          >{{ t("平台确认利润 ¥{amount}，分配以平台规则为准。", { amount: money(order.profit_cents) }) }}</view
         ></view
       >
     </template>
   </view>
 </template>
 <script setup>
+import { t } from "./i18n.js";
+import LoginPrompt from "./LoginPrompt.vue";
 import { computed, ref, watch } from "vue";
 import ServiceScheduleFields from "./ServiceScheduleFields.vue";
 import {
@@ -310,6 +288,7 @@ import {
   previewFile,
   notify,
   uuid,
+  requireLogin,
 } from "./api.js";
 import { money, state, cents, dateTime, ORDER_TYPES, displayTitle } from "./domain.js";
 const props = defineProps({ id: [String, Number], broker: Boolean });
@@ -376,12 +355,26 @@ const canPay = computed(
       signedLatest.value && contracts.value[0]?.review_status === "approved",
     ),
 );
+let loadVersion = 0;
 watch(() => props.id, load, { immediate: true });
 async function load() {
   if (!props.id) return;
+  const version = ++loadVersion;
+  if (!requireLogin(false)) {
+    order.value = null;
+    contracts.value = [];
+    error.value = "";
+    testEnabled.value = false;
+    serviceDate.value = serviceLocation.value = "";
+    serviceTime.value = "10:00";
+    stageIndex.value = progressPercent.value = 0;
+    return;
+  }
   error.value = "";
   try {
-    order.value = await request(`/orders/${props.id}`);
+    const currentOrder = await request(`/orders/${props.id}`);
+    if (version !== loadVersion) return;
+    order.value = currentOrder;
     if (order.value.schedule) {
       const [day, time] = dateTime(order.value.schedule.scheduled_at).split(
         " ",
@@ -400,17 +393,19 @@ async function load() {
       );
     }
     const c = await request(`/orders/${props.id}/contracts`);
+    if (version !== loadVersion) return;
     contracts.value = (Array.isArray(c) ? c : c.items || []).sort(
       (a, b) => b.version - a.version,
     );
     const b = await request("/bootstrap");
+    if (version !== loadVersion) return;
     testEnabled.value = Boolean(
       b.test_payments_enabled ||
       b.payments?.test_enabled ||
       b.allow_test_payments,
     );
   } catch (e) {
-    error.value = e.message;
+    if (version === loadVersion) error.value = e.message;
   }
 }
 async function action(name, data = {}) {
@@ -419,7 +414,7 @@ async function action(name, data = {}) {
   try {
     await post(`/orders/${props.id}/${name}`, data);
     await load();
-    uni.showToast({ title: "操作已保存", icon: "success" });
+    uni.showToast({ title: t("操作已保存"), icon: "success" });
   } catch (e) {
     notify(e);
   } finally {
@@ -478,8 +473,8 @@ async function preview(id) {
 }
 function sign() {
   uni.showModal({
-    title: "确认当前合同",
-    content: "请确认你已阅读且已线下签署最新版本PDF。",
+    title: t("确认当前合同"),
+    content: t("请确认你已阅读且已线下签署最新版本PDF。"),
     success: (r) => {
       if (r.confirm)
         action("sign", { version: contracts.value[0].version, accepted: true });
@@ -494,8 +489,8 @@ async function pay() {
 }
 function receive() {
   uni.showModal({
-    title: "确认交付完成",
-    content: "请确认你已实际验收本订单的交付内容。",
+    title: t("确认交付完成"),
+    content: t("请确认你已实际验收本订单的交付内容。"),
     success: (r) => {
       if (r.confirm)
         action("fulfill", { status: "completed", notes: "客户确认交付完成" });
@@ -509,9 +504,9 @@ function cancel() {
 function refund() {
   if (!reason.value.trim()) return notify(new Error("请填写退款原因"));
   uni.showModal({
-    title: "申请退款",
+    title: t("申请退款"),
     content:
-      "将提交当前订单剩余实付金额的退款申请，平台审核并实际处理后更新账务。",
+      t("将提交当前订单剩余实付金额的退款申请，平台审核并实际处理后更新账务。"),
     success: (r) => {
       if (r.confirm)
         action("refund-request", {

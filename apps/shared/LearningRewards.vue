@@ -1,7 +1,7 @@
 <template>
   <view>
     <view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t("重试") }}</text></view
     >
     <view v-for="item in displayed" :key="item.id" class="list-item">
       <view>
@@ -14,11 +14,11 @@
           {{ dateTime(item.created_at) }}</view
         >
         <view v-if="item.notes" class="small muted">{{ item.notes }}</view>
-        <view v-if="item.status === 'eligible'" class="small muted">参加活动仍须平台资料审核与有效会员。</view>
+        <view v-if="item.status === 'eligible'" class="small muted">{{ t("参加活动仍须平台资料审核与有效会员。") }}</view>
         <text
           v-if="item.reward_snapshot?.reward_type === 'growth'"
           class="small gold"
-          >{{ item.reward_snapshot.points }} 成长值</text
+          >{{ item.reward_snapshot.points }}{{ t("成长值") }}</text
         >
       </view>
       <view class="reward-status">
@@ -27,7 +27,7 @@
           v-if="item.reward_snapshot?.event_id && item.status === 'eligible'"
           class="link small"
           @click="go('event', { id: item.reward_snapshot.event_id })"
-          >查看活动 ›</text
+          >{{ t("查看活动 ›") }}</text
         >
         <text
           v-if="
@@ -36,20 +36,22 @@
           "
           class="link small"
           @click="go('coupons')"
-          >查看优惠券 ›</text
+          >{{ t("查看优惠券 ›") }}</text
         >
       </view>
     </view>
     <view v-if="!displayed.length && !error" class="small muted section">{{
       loading
-        ? "奖励记录加载中…"
+        ? t("奖励记录加载中…")
         : session()
-          ? "暂无已获得的课程奖励"
-          : "登录后查看实际奖励记录"
+          ? t("暂无已获得的课程奖励")
+          : t("登录后查看实际奖励记录")
     }}</view>
   </view>
 </template>
 <script setup>
+import { t } from './i18n.js';
+
 import { ref, computed, watch } from "vue";
 import { request, go, session } from "./api.js";
 import { dateTime } from "./domain.js";
@@ -85,10 +87,10 @@ const states = {
   eligible: "课程条件已满足",
 };
 function typeLabel(type) {
-  return types[type] || "课程奖励";
+  return t(types[type] || "课程奖励");
 }
 function stateLabel(item) {
-  return states[item.status] || item.status || "状态待更新";
+  return t(states[item.status] || item.status || "状态待更新");
 }
 async function load() {
   if (!session()) return;

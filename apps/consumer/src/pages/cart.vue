@@ -1,9 +1,9 @@
 <template>
   <view class="page"
-    ><view class="title">购物车</view
-    ><view class="subtitle">航海生活需要的小物，一次收藏</view
+    ><LoginPrompt /><view class="title">{{ t('购物车') }}</view
+    ><view class="subtitle">{{ t('航海生活需要的小物，一次收藏') }}</view
     ><view class="notice small section"
-      >按商品分单结算，每件生成独立订单并分别支付。订单创建成功后移出购物车，失败商品保留。</view
+      >{{ t('按商品分单结算，每件生成独立订单并分别支付。订单创建成功后移出购物车，失败商品保留。') }}</view
     ><view v-for="item in items" :key="item.id" class="card section"
       ><view class="row"
         ><image
@@ -13,7 +13,7 @@
         /><view class="flex"
           ><view class="card-head">{{ item.product?.title }}</view
           ><view class="price">¥{{ money(item.product?.price_cents) }}</view
-          ><view class="small muted">数量 {{ item.quantity }}</view></view
+          ><view class="small muted">{{ t('数量 {count}', { count: item.quantity }) }}</view></view
         ></view
       ><view class="row spread section"
         ><view class="row"
@@ -31,22 +31,22 @@
           >
             ＋
           </button></view
-        ><text class="link small" @click="remove(item)">移除</text></view
-      ><button class="primary section" :disabled="busy" @click="checkout(item)">
-        为该商品创建订单
-      </button></view
+        ><text class="link small" @click="remove(item)">{{ t('移除') }}</text></view
+      ><button class="primary section" :disabled="busy" @click="checkout(item)">{{ t('为该商品创建订单') }}</button></view
     ><view v-if="!items.length && !error" class="empty"
-      >购物车里还没有商品。<text
+      >{{ t('购物车里还没有商品。') }}<text
         class="link"
         @click="go('shop', { kind: 'products' })"
-        >逛逛周边商城</text
+        >{{ t('逛逛周边商城') }}</text
       ></view
     ><view v-if="error" class="error"
-      >{{ error }} <text @click="load">重试</text></view
+      >{{ t(error) }} <text @click="load">{{ t('重试') }}</text></view
     ></view
   >
 </template>
 <script setup>
+import LoginPrompt from "@shared/LoginPrompt.vue";
+import { t } from "@shared/i18n.js";
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import {
@@ -63,7 +63,7 @@ const items = ref([]),
   busy = ref(false),
   error = ref("");
 async function load() {
-  if (!requireLogin()) return;
+  if (!requireLogin(false)) { items.value = []; error.value = ""; return; }
   try {
     const r = await request("/cart");
     items.value = r.items || [];
@@ -110,7 +110,7 @@ async function checkout(item) {
     try {
       await request(`/cart/${item.id}`, { method: "DELETE" });
     } catch (e) {
-      notify(new Error("订单已创建，购物车移除失败，请勿重复下单"));
+      notify(new Error(t("订单已创建，购物车移除失败，请勿重复下单")));
     }
     go("order", { id: order.id });
   } catch (e) {

@@ -1,8 +1,8 @@
 <template>
   <view class="page"
-    ><view class="title">{{ ORDER_TYPES[form.type] }}预约</view
-    ><view class="subtitle">确认配置，开始下一段航程</view
-    ><view v-if="error" class="error">{{ error }}</view
+    ><view class="title">{{ t('{type}预约', { type: t(ORDER_TYPES[form.type]) }) }}</view
+    ><view class="subtitle">{{ t('确认配置，开始下一段航程') }}</view
+    ><view v-if="error" class="error">{{ t(error) }}</view
     ><template v-if="item"
       ><view class="card"
         ><view class="row"
@@ -14,14 +14,14 @@
             ><view class="card-head">{{ item.name }}</view
             ><view class="muted small">{{
               form.type === "boat_rental"
-                ? "按天租赁，归还日不计租"
-                : "提交后由销售确认配置与报价"
+                ? t('按天租赁，归还日不计租')
+                : t('提交后由销售确认配置与报价')
             }}</view></view
           ></view
         ></view
       ><view class="card section"
         ><view v-if="form.type === 'boat_purchase'" class="formline"
-          ><text class="form-label">购买的实际船艇</text
+          ><text class="form-label">{{ t('购买的实际船艇') }}</text
           ><picker
             :range="
               instances.map((b) => `${b.name} · ${b.serial_number || b.id}`)
@@ -30,17 +30,16 @@
             @change="instanceIndex = Number($event.detail.value)"
             ><view class="picker-value"
               >{{
-                instances[instanceIndex]?.name || "暂无可购买的船艇，请咨询销售"
+                instances[instanceIndex]?.name || t('暂无可购买的船艇，请咨询销售')
               }}
               ▾</view
             ></picker
           ><view v-if="instances[instanceIndex]" class="small muted section"
-            >所选实船售价 ¥{{ money(instances[instanceIndex].price_cents) }} ·
-            最终以销售报价为准</view
+            >{{ t('所选实船售价 ¥{amount} · 最终以销售报价为准', { amount: money(instances[instanceIndex].price_cents) }) }}</view
           ></view
         ><view v-if="form.type === 'boat_rental'"
           ><view class="formline"
-            ><text class="form-label">开始日期</text
+            ><text class="form-label">{{ t('开始日期') }}</text
             ><picker
               mode="date"
               :value="form.start_date"
@@ -50,11 +49,11 @@
                 availability = null;
               "
               ><view class="picker-value"
-                >{{ form.start_date || "选择日期" }} ▾</view
+                >{{ form.start_date || t('选择日期') }} ▾</view
               ></picker
             ></view
           ><view class="formline"
-            ><text class="form-label">归还日期</text
+            ><text class="form-label">{{ t('归还日期') }}</text
             ><picker
               mode="date"
               :value="form.end_date"
@@ -64,13 +63,13 @@
                 availability = null;
               "
               ><view class="picker-value"
-                >{{ form.end_date || "选择日期" }} ▾</view
+                >{{ form.end_date || t('选择日期') }} ▾</view
               ></picker
             ></view
           ></view
         ><view v-if="form.type !== 'boat_purchase'" class="formline"
           ><text class="form-label">{{
-            form.type === "boat_rental" ? "船艇数量" : "数量"
+            form.type === "boat_rental" ? t('船艇数量') : t('数量')
           }}</text
           ><input
             v-model="form.quantity"
@@ -82,15 +81,14 @@
           class="secondary"
           :disabled="busy"
           @click="checkInventory"
-        >
-          查询可用船艇</button
+        >{{ t('查询可用船艇') }}</button
         ><view v-if="availability" class="notice section"
           >{{
             availability.available
-              ? "当前日期可预约，提交后由服务端锁定船艇"
-              : "当前日期库存不足，请调整日期或数量"
+              ? t('当前日期可预约，提交后由服务端锁定船艇')
+              : t('当前日期库存不足，请调整日期或数量')
           }}<view v-for="boat in availableBoats" :key="boat.id" class="small">{{
-            boat.title || boat.serial_number || `船艇 ${boat.id}`
+            boat.title || boat.serial_number || t('船艇 {id}', { id: boat.id })
           }}</view></view
         ><ServiceScheduleFields
           v-if="['boat_upgrade', 'maintenance'].includes(form.type)"
@@ -98,7 +96,7 @@
           v-model:time="serviceTime"
           v-model:location="serviceLocation" />
         <view v-if="form.type === 'boat_purchase' && purchaseOptions.length"
-          ><view class="card-head section">选择配置</view
+          ><view class="card-head section">{{ t('选择配置') }}</view
           ><view
             v-for="opt in purchaseOptions"
             :key="opt.id || opt.name"
@@ -110,43 +108,42 @@
             ><text>¥{{ money(opt.price_cents) }}</text></view
           ></view
         ><view class="formline"
-          ><text class="form-label">优惠券</text
+          ><text class="form-label">{{ t('优惠券') }}</text
           ><picker
             :range="[
-              '不使用优惠券',
-              ...coupons.map((c) => c.title || c.name || '优惠券'),
+              t('不使用优惠券'),
+              ...coupons.map((c) => c.title || c.name || t('优惠券')),
             ]"
             :value="couponIndex"
             @change="couponIndex = Number($event.detail.value)"
             ><view class="picker-value"
               >{{
                 couponIndex
-                  ? coupons[couponIndex - 1]?.title || "已选择优惠券"
-                  : "不使用优惠券"
+                  ? coupons[couponIndex - 1]?.title || t('已选择优惠券')
+                  : t('不使用优惠券')
               }}
               ▾</view
             ></picker
           ></view
         ><view class="formline"
-          ><text class="form-label">备注</text
+          ><text class="form-label">{{ t('备注') }}</text
           ><textarea
             v-model="form.notes"
-            placeholder="出行需求、交付地点和其他说明"
+            :placeholder="t('出行需求、交付地点和其他说明')"
           /></view></view
       ><view class="notice small section"
-        >实际总价、定金、优惠和可用船艇以服务端订单为准。未确认订单前不会发生扣款。</view
+        >{{ t('实际总价、定金、优惠和可用船艇以服务端订单为准。未确认订单前不会发生扣款。') }}</view
       ><button
         class="primary section"
         :loading="busy"
         :disabled="busy"
         @click="submit"
-      >
-        提交预约
-      </button></template
+      >{{ t('提交预约') }}</button></template
     ></view
   >
 </template>
 <script setup>
+import { t } from "@shared/i18n.js";
 import { reactive, ref, computed, watch } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import ServiceScheduleFields from "@shared/ServiceScheduleFields.vue";
@@ -198,7 +195,7 @@ const availableBoats = computed(
     availability.value?.items ||
     (availability.value?.boat_ids || []).map((id) => ({
       id,
-      title: `可用船艇 ${id}`,
+      title: t("可用船艇 {id}", { id }),
     })),
 );
 onLoad(async (q) => {
@@ -212,7 +209,7 @@ onLoad(async (q) => {
       );
       if (q.instance_id) {
         instanceIndex.value = instances.value.findIndex((boat) => Number(boat.id) === Number(q.instance_id));
-        if (instanceIndex.value < 0) throw new Error("所选实船当前不可购买，请返回地图刷新");
+        if (instanceIndex.value < 0) throw new Error(t("所选实船当前不可购买，请返回地图刷新"));
       }
     }
     const c = await request("/coupons/my");
@@ -256,7 +253,7 @@ async function submit() {
       ["boat_upgrade", "maintenance"].includes(form.type) &&
       (!serviceDate.value || !serviceLocation.value.trim())
     )
-      throw new Error("请确定服务日期、时间和地点");
+      throw new Error(t("请确定服务日期、时间和地点"));
     const payload = validateOrder({
       ...form,
       resource_id:
@@ -276,7 +273,7 @@ async function submit() {
     if (form.type === "boat_rental") {
       await checkInventory();
       if (!availability.value?.available)
-        throw new Error("请先确认预约库存充足");
+        throw new Error(t("请先确认预约库存充足"));
     }
     busy.value = true;
     const o = await post("/orders", payload);

@@ -1,9 +1,11 @@
 <template>
   <web-view v-if="valid" :src="resolved" /><view v-else class="page error"
-    >链接无效，请返回重试。</view
+    >{{ t("链接无效，请返回重试。") }}</view
   >
 </template>
 <script setup>
+import { t } from './i18n.js';
+
 import { computed } from "vue";
 const props = defineProps({ url: String });
 const resolved = computed(() => {
