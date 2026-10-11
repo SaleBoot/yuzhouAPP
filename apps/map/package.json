@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "check": "node --check map.js && node --test model.test.mjs"
+    "check": "node --check map.js && node --check amap.js && node --test model.test.mjs amap.test.mjs"
   },
   "dependencies": {
     "leaflet": "1.9.4"

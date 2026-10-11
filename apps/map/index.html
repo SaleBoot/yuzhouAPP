@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="./map.css">
 </head>
 <body>
-  <header><div><strong>地图找船</strong><p>船艇位置由发布方维护</p></div><div class="header-actions"><a id="app-update" class="detail-link" href="/app-updates/" hidden>应用更新</a><button id="refresh" type="button">刷新</button></div></header>
+  <header><div><strong data-i18n="地图找船">地图找船</strong><p data-i18n="船艇位置由发布方维护">船艇位置由发布方维护</p></div><div class="header-actions"><button id="refresh" type="button" data-i18n="刷新">刷新</button></div></header>
   <div id="status" role="status">正在加载已发布船艇…</div>
   <main>
     <div id="map" aria-label="已录入位置的船艇地图"></div>
     <section id="boats" aria-label="船艇列表"></section>
   </main>
-  <footer>地图数据 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">地图服务使用政策</a><span id="provider-note"></span></footer>
+  <footer><span id="tile-credit"><span data-i18n="地图数据 © ">地图数据 © </span><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener" data-i18n="地图服务使用政策">地图服务使用政策</a></span><span id="provider-note"></span></footer>
   <script src="./vendor/leaflet/leaflet.js"></script>
   <script src="./vendor/uni.webview.1.5.8.js"></script>
   <script type="module" src="./map.js"></script>

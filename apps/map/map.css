@@ -1,11 +1,13 @@
-:root { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; color: #09233f; background: #f4f6f8; }
+:root { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; color: #3f4855; background: #f6f7f8; }
 * { box-sizing: border-box; }
 body { margin: 0; }
-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: white; }
-header strong { font-size: 21px; }
-header p { margin: 5px 0 0; color: #748394; font-size: 12px; }
+header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: white; }
+header > div:first-child { min-width: 0; }
+header strong { font-size: 18px; font-weight: 500; }
+header p { margin: 5px 0 0; color: #748394; font-size: 12px; overflow-wrap: anywhere; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-button, .detail-link { color: white; background: #09233f; border: 0; border-radius: 9px; padding: 9px 14px; font-size: 13px; text-decoration: none; cursor: pointer; }
+button, .detail-link { color: white; background: linear-gradient(110deg, #39bff6, #216cf7); border: 0; border-radius: 22px; padding: 9px 14px; font-size: 13px; text-decoration: none; cursor: pointer; max-width: 100%; overflow-wrap: anywhere; text-align: center; }
+.header-actions { flex-shrink: 0; }
 button:disabled { opacity: .5; cursor: wait; }
 #status { margin: 12px 16px; font-size: 13px; line-height: 1.6; }
 #status.error { color: #ac442c; }
@@ -13,9 +15,9 @@ button:disabled { opacity: .5; cursor: wait; }
 #boats { display: grid; gap: 12px; margin: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 .boat-card { padding: 16px; background: white; border-radius: 14px; border: 1px solid #e1e8ee; }
 .boat-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; }
-.boat-card h2 { font-size: 16px; margin: 12px 0 8px; }
+.boat-card h2 { font-size: 16px; margin: 12px 0 8px; overflow-wrap: anywhere; }
 .boat-card p { font-size: 13px; color: #607385; line-height: 1.6; }
-.boat-card .actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+.boat-card .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; align-items: center; }
 .locate { color: #09233f; background: #eef3f7; }
 .leaflet-popup-content { min-width: 170px; }
 .leaflet-popup-content p { margin: 7px 0; }

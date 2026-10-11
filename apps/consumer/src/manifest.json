@@ -2,8 +2,8 @@
   "name": "驭舟",
   "appid": "__UNI__E148E73",
   "description": "驭舟船艇服务",
-  "versionName": "1.0.10",
-  "versionCode": "110",
+  "versionName": "1.0.11",
+  "versionCode": "111",
   "transformPx": false,
   "vueVersion": "3",
   "h5": {

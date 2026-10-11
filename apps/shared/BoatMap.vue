@@ -9,15 +9,15 @@
   </view>
 </template>
 <script setup>
-import { t } from './i18n.js';
+import { t, getLocale } from './i18n.js';
 
 import { ref, onMounted, onUnmounted } from "vue";
 import { go } from "./api.js";
 import { validDetailMessage } from "../map/model.js";
 const client = import.meta.env.VITE_CLIENT || "consumer";
-let url = `https://yuzhou.ourideas.top/boat-map/?client=${client}&native=1`;
+let url = `https://yuzhou.ourideas.top/boat-map/?client=${client}&native=1&lang=${getLocale()}`;
 // #ifdef H5
-url = `${window.location.origin}/boat-map/?client=${client}`;
+url = `${window.location.origin}/boat-map/?client=${client}&lang=${getLocale()}`;
 // #endif
 const frame = ref(null);
 function onMessage(event) {
