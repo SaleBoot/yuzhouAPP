@@ -1,6 +1,6 @@
 <template>
   <view class="page"
-    ><text class="small muted">YUZHOU ACADEMY</text
+    ><text class="small muted">{{ t('驭舟课堂') }}</text
     ><view class="title">{{ t('在海上，更从容') }}</view
     ><view class="subtitle">{{ t('免费学习航海知识，积累成长与奖励') }}</view
     ><BannerStrip placement="learning"

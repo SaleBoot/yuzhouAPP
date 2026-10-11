@@ -1,7 +1,7 @@
 <template>
   <view class="page"
     ><LoginPrompt /><view class="hero"
-      ><view class="hero-kicker">YUZHOU MEMBERSHIP</view
+      ><view class="hero-kicker">{{ t('驭舟会员') }}</view
       ><view class="title">{{ t('每一段航程，都有回响') }}</view
       ><view class="section">{{
         member ? t('航海会员权益生效中') : t('积累成长，解锁更多航海体验')

@@ -2,7 +2,7 @@
   <view class="page"
     ><view class="row spread"
       ><view
-        ><text class="small muted">YUZHOU COMMUNITY</text
+        ><text class="small muted">{{ t('驭舟社区') }}</text
         ><view class="title">{{ t('发现海上的故事') }}</view></view
       ><text class="round-action" @click="go('publish')">＋</text></view
     ><BannerStrip placement="community" />

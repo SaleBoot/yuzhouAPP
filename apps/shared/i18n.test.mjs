@@ -47,3 +47,37 @@ test('both apps navigation entries have English and parameter names agree', () =
     assert.deepEqual(parameters(key), parameters(value), `Parameters: ${key}`);
   }
 });
+
+test('all named messages interpolate in both languages with Uni string-only runtime compilation', () => {
+  const stringRuntime = options => createI18n({
+    ...options,
+    messageCompiler: source => context => context.normalize([source]),
+  });
+  const i18n = installLanguage(createSSRApp({}), stringRuntime, pages);
+  setLocale('zh-Hans');
+  assert.equal(i18n.global.t('{name}，早安', { name: '陈船长' }), '{name}，早安');
+  assert.equal(t('{name}，早安', { name: '陈船长' }), '陈船长，早安');
+  assert.equal(t('公司 {month} 销售目标', { month: '2026-10' }), '公司 2026-10 销售目标');
+  assert.equal(t('当月实收净额 ¥{amount}', { amount: '0.00' }), '当月实收净额 ¥0.00');
+  setLocale('en');
+  assert.equal(i18n.global.t('{name}，早安', { name: 'Captain Chen' }), 'Good morning, {name}');
+  assert.equal(t('{name}，早安', { name: 'Captain Chen' }), 'Good morning, Captain Chen');
+  assert.equal(t('公司 {month} 销售目标', { month: '2026-10' }), 'Company sales target · 2026-10');
+  assert.equal(t('当月实收净额 ¥{amount}', { amount: '0.00' }), 'Net received this month ¥0.00');
+  for (const locale of ['zh-Hans', 'en']) {
+    setLocale(locale);
+    for (const [key, translation] of Object.entries(english)) {
+      const names = [...key.matchAll(/\{(\w+)\}/g)].map(match => match[1]);
+      if (!names.length) continue;
+      const parameters = Object.fromEntries(names.map(name => [name, `[${name}:值]`]));
+      const expected = (locale === 'en' ? translation : key).replace(/\{(\w+)\}/g, (_, name) => parameters[name]);
+      assert.equal(t(key, parameters), expected, `${locale}: ${key}`);
+      assert.doesNotMatch(t(key, parameters), /\{\w+\}/, `${locale}: ${key}`);
+    }
+    assert.equal(t('已选 {count} 艘', { count: 0 }), locale === 'en' ? '0 boats selected' : '已选 0 艘');
+    assert.equal(t('{name}，早安', { name: '{month} $&' }), locale === 'en' ? 'Good morning, {month} $&' : '{month} $&，早安');
+    assert.equal(t('未登记 {value}', { value: 0 }), '未登记 0');
+    assert.equal(t('未登记 {value}', { value: '' }), '未登记 ');
+  }
+  setLocale('zh-Hans');
+});

@@ -2,7 +2,7 @@
   <view class="page home">
     <view class="row spread"
       ><view
-        ><text class="small muted">{{ t('YUZHOU · 航海生活') }}</text
+        ><text class="small muted">{{ t('驭舟 · 航海生活') }}</text
         ><view class="title">{{ t('今天，向海出发') }}</view></view
       ><text class="avatar small" @click="tab('profile')">{{ getLocale() === 'en' ? 'Y' : t('驭舟') }}</text></view
     >
@@ -18,7 +18,7 @@
       ><view class="hero section"
         ><image :src="fallbackBoat" mode="aspectFill" class="hero-image" /><view
           class="hero-copy"
-          ><text class="hero-kicker">YOUR NEXT VOYAGE</text
+          ><text class="hero-kicker">{{ t('下一段航程') }}</text
           ><view class="hero-title">{{ t('把日常，交给海风') }}</view
           ><text class="hero-sub">{{ t('精选船艇 · 轻松预约') }}</text></view
         ></view

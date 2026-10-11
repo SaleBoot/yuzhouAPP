@@ -12,8 +12,9 @@ export function getLocale() {
 }
 export function t(key, params = {}) {
   key = String(key ?? "");
-  if (translator && translator.te(key)) return translator.t(key, params);
-  return String(key ?? '').replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match);
+  // Uni's bundled i18n runtime returns message strings without compiling named parameters.
+  const message = getLocale() === 'en' && Object.prototype.hasOwnProperty.call(english, key) ? english[key] : key;
+  return message.replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match);
 }
 export function refreshNavigation() {
   if (!pageConfig || typeof uni === 'undefined') return;

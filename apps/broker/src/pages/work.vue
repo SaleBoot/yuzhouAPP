@@ -1,23 +1,23 @@
 <template>
-  <view class="page"
+  <view class="page work"
     ><LoginPrompt /><view class="row spread"
       ><view
-        ><text class="small muted">YUZHOU SALES</text
+        ><text class="small muted">{{ t('驭舟销售') }}</text
         ><view class="title"
           >{{ t("{name}，早安", { name: user?.nickname || t("驭舟销售") }) }}</view
         ></view
       ><text class="avatar" @click="tab('profile')">{{ t("舟") }}</text></view
     ><view class="subtitle">{{ t("把每一次咨询，带到更远的航程") }}</view
     ><view class="hero section"
-      ><view class="hero-kicker">YOUR SALES DESK</view
+      ><view class="hero-kicker">{{ t('你的销售工作台') }}</view
       ><view class="title">{{ t("从看船，到交付") }}</view
       ><view class="small section">{{ t("客户、配置、合同与履约，随时跟进") }}</view
       ><button class="gold-button section" @click="go('quote')"> {{ t("＋ 代客配置下单") }} </button></view
-    ><view class="row spread section" @click="external(vrBaseUrl)"
-      ><text class="card-head">{{ t("智能 3D 看船") }}</text
-      ><text class="link small">{{ t("进入看船平台 ↗") }}</text></view
+    ><view class="row spread section work-entry" @click="external(vrBaseUrl)"
+      ><view class="card-head work-entry-title">{{ t("智能 3D 看船") }}</view
+      ><view class="link small work-entry-link">{{ t("进入看船平台 ↗") }}</view></view
     >
-    <view class="row spread section" @click="go('map')"><text class="card-head">{{ t("地图找船") }}</text><text class="link small">{{ t("查看已发布实船 ›") }}</text></view>
+    <view class="row spread section work-entry" @click="go('map')"><view class="card-head work-entry-title">{{ t("地图找船") }}</view><view class="link small work-entry-link">{{ t("查看已发布实船 ›") }}</view></view>
     <view class="grid section"
       ><view class="kpi card" @click="tab('customers')"
         ><text class="kpi-value">{{ customerCount }}</text
@@ -117,6 +117,23 @@ async function load() {
 onShow(load);
 </script>
 <style scoped>
+.work-entry {
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12rpx 20rpx;
+}
+.work-entry-title {
+  flex: 1 1 240rpx;
+  min-width: 0;
+  margin-bottom: 0;
+  overflow-wrap: normal;
+}
+.work-entry-link {
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 0;
+  white-space: nowrap;
+}
 .four {
   grid-template-columns: repeat(4, 1fr);
 }

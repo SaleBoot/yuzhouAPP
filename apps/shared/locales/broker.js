@@ -1,4 +1,5 @@
 export default {
+  "你的销售工作台": "YOUR SALES DESK",
   "{name}，早安": "Good morning, {name}",
   "为客户配置一段航程": "Plan a customer's voyage",
   "从看船，到交付": "From viewing to delivery",
