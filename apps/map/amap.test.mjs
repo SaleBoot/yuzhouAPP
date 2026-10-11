@@ -63,6 +63,24 @@ test('authentication failures, incomplete SDK and synchronous errors fail withou
     target.AMapLoader.load = () => Promise.resolve(sdk); assert.equal(await loadAMap(key, target), sdk);
   }
 });
+test('failed SDK cache is reset so refresh sends a new request instead of reusing the rejection', async () => {
+  const { loadAMap } = await fresh(); const { target } = browser();
+  let cached, requests = 0, resets = 0;
+  target.AMapLoader = {
+    load() {
+      if (cached) return cached;
+      requests++;
+      cached = requests === 1 ? Promise.reject(new Error('SDK network failure')) : Promise.resolve(sdk);
+      return cached;
+    },
+    reset() { resets++; cached = undefined; },
+  };
+  await assert.rejects(loadAMap(key, target), /加载失败/);
+  assert.equal(requests, 1); assert.equal(resets, 1);
+  assert.equal(await loadAMap(key, target), sdk);
+  assert.equal(requests, 2); assert.equal(resets, 1);
+  assert.equal(await loadAMap(key, target), sdk); assert.equal(requests, 2);
+});
 test('both native and H5 map caller URLs carry the current Chinese or English locale', async () => {
   const source = await readFile(new URL('../shared/BoatMap.vue', import.meta.url), 'utf8');
   const script = source.match(/<script setup>([\s\S]*?)<\/script>/)[1];

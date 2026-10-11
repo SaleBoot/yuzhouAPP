@@ -24,6 +24,7 @@ export function loadAMap(key, target = window) {
       if (settled) return;
       settled = true;
       clearTimeout(timer); script?.remove(); pending = null;
+      try { target.AMapLoader?.reset?.(); } catch { /* Preserve the public loading error if SDK cleanup fails. */ }
       reject(new Error(message));
     };
     const load = () => {
