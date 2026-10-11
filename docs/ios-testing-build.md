@@ -116,7 +116,7 @@ python3 scripts/build-ios-ipa.py consumer \
 
 ### 原生宿主配置与兼容工具链
 
-两端源 manifest 的 `distribute.icons` 使用 `apps/shared/assets` 同一品牌图标。离线工程也必须将这些尺寸填入 `AppIcon.appiconset`，并保持 target 的 `ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon`；仅更新 WGT 无法改变桌面图标。SDK 模板的 `zh-Hans.lproj/InfoPlist.strings` 和 `en.lproj/InfoPlist.strings` 中 `CFBundleDisplayName` 会覆盖 Info.plist，须分别改为“驭舟”或“驭舟经纪人”。
+两端源 manifest 的 `distribute.icons` 使用 `apps/shared/assets` 同一品牌图标。HBuilderX 按 UniApp CLI 工程根目录（`apps/consumer` 或 `apps/broker`）解析图标路径，因此共用图标使用 `../shared/assets/...`。离线工程也必须将这些尺寸填入 `AppIcon.appiconset`，并保持 target 的 `ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon`；仅更新 WGT 无法改变桌面图标。SDK 模板的 `zh-Hans.lproj/InfoPlist.strings` 和 `en.lproj/InfoPlist.strings` 中 `CFBundleDisplayName` 会覆盖 Info.plist，须分别改为“驭舟”或“驭舟经纪人”。
 
 本仓库 `scripts/ios` 保留官方 5.26 示例宿主的 Scene 接入补丁。对每个独立副本的 `HBuilder-Hello/AppDelegate.m` 执行 `patch --fuzz=0 AppDelegate.m < 仓库/scripts/ios/AppDelegate-scene.patch`，复制同目录的 `SceneDelegate.m`，并将 `scene-manifest.plist` 的字典放入 Info.plist 的 `UIApplicationSceneManifest`。补丁通过导入 SceneDelegate.m 编译，勿再重复加入 Compile Sources。原生生命周期、URL、用户活动及快捷操作仍转发给 DCloud。
 

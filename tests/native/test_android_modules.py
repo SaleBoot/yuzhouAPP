@@ -56,12 +56,12 @@ class AndroidModuleTests(unittest.TestCase):
                 self.assertEqual((res / ('drawable-' + density) / 'yuzhou_icon.png').read_bytes(),
                                  (assets / 'app-icons' / ('icon-' + str(size) + '.png')).read_bytes())
 
-    def test_both_manifests_use_same_opaque_pngs_at_platform_sizes(self):
+    def test_both_manifests_resolve_opaque_platform_icons_from_cli_project_roots(self):
         root = SCRIPT.parents[1]
         configs = []
         for app in ['consumer', 'broker']:
-            source = root / 'apps' / app / 'src'
-            manifest = json.loads((source / 'manifest.json').read_text())
+            project = root / 'apps' / app
+            manifest = json.loads((project / 'src/manifest.json').read_text())
             icons = manifest['app-plus']['distribute']['icons']
             configs.append(icons)
             expected = [(icons['ios']['appstore'], 1024)]
@@ -75,7 +75,7 @@ class AndroidModuleTests(unittest.TestCase):
                 expected += [(icons['ios'][platform][name], size) for name, size in sizes.items()]
             for relative, size in expected:
                 with self.subTest(app=app, path=relative):
-                    png = (source / relative).read_bytes()
+                    png = (project / relative).read_bytes()
                     self.assertEqual(png[:8], b'\x89PNG\r\n\x1a\n')
                     self.assertEqual(struct.unpack('>II', png[16:24]), (size, size))
                     self.assertEqual(png[25], 2, 'iOS icons must be RGB without an alpha channel')

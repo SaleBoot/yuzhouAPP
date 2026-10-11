@@ -46,33 +46,33 @@
       "sdkConfigs": {},
       "icons": {
         "android": {
-          "hdpi": "../../shared/assets/app-icons/icon-72.png",
-          "xhdpi": "../../shared/assets/app-icons/icon-96.png",
-          "xxhdpi": "../../shared/assets/app-icons/icon-144.png",
-          "xxxhdpi": "../../shared/assets/app-icons/icon-192.png"
+          "hdpi": "../shared/assets/app-icons/icon-72.png",
+          "xhdpi": "../shared/assets/app-icons/icon-96.png",
+          "xxhdpi": "../shared/assets/app-icons/icon-144.png",
+          "xxxhdpi": "../shared/assets/app-icons/icon-192.png"
         },
         "ios": {
-          "appstore": "../../shared/assets/app-icon.png",
+          "appstore": "../shared/assets/app-icon.png",
           "iphone": {
-            "app@2x": "../../shared/assets/app-icons/icon-120.png",
-            "app@3x": "../../shared/assets/app-icons/icon-180.png",
-            "spotlight@2x": "../../shared/assets/app-icons/icon-80.png",
-            "spotlight@3x": "../../shared/assets/app-icons/icon-120.png",
-            "settings@2x": "../../shared/assets/app-icons/icon-58.png",
-            "settings@3x": "../../shared/assets/app-icons/icon-87.png",
-            "notification@2x": "../../shared/assets/app-icons/icon-40.png",
-            "notification@3x": "../../shared/assets/app-icons/icon-60.png"
+            "app@2x": "../shared/assets/app-icons/icon-120.png",
+            "app@3x": "../shared/assets/app-icons/icon-180.png",
+            "spotlight@2x": "../shared/assets/app-icons/icon-80.png",
+            "spotlight@3x": "../shared/assets/app-icons/icon-120.png",
+            "settings@2x": "../shared/assets/app-icons/icon-58.png",
+            "settings@3x": "../shared/assets/app-icons/icon-87.png",
+            "notification@2x": "../shared/assets/app-icons/icon-40.png",
+            "notification@3x": "../shared/assets/app-icons/icon-60.png"
           },
           "ipad": {
-            "app": "../../shared/assets/app-icons/icon-76.png",
-            "app@2x": "../../shared/assets/app-icons/icon-152.png",
-            "proapp@2x": "../../shared/assets/app-icons/icon-167.png",
-            "spotlight": "../../shared/assets/app-icons/icon-40.png",
-            "spotlight@2x": "../../shared/assets/app-icons/icon-80.png",
-            "settings": "../../shared/assets/app-icons/icon-29.png",
-            "settings@2x": "../../shared/assets/app-icons/icon-58.png",
-            "notification": "../../shared/assets/app-icons/icon-20.png",
-            "notification@2x": "../../shared/assets/app-icons/icon-40.png"
+            "app": "../shared/assets/app-icons/icon-76.png",
+            "app@2x": "../shared/assets/app-icons/icon-152.png",
+            "proapp@2x": "../shared/assets/app-icons/icon-167.png",
+            "spotlight": "../shared/assets/app-icons/icon-40.png",
+            "spotlight@2x": "../shared/assets/app-icons/icon-80.png",
+            "settings": "../shared/assets/app-icons/icon-29.png",
+            "settings@2x": "../shared/assets/app-icons/icon-58.png",
+            "notification": "../shared/assets/app-icons/icon-20.png",
+            "notification@2x": "../shared/assets/app-icons/icon-40.png"
           }
         }
       }
