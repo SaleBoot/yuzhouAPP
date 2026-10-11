@@ -105,6 +105,9 @@ def verify_ipa(ipa, package, team_id, output, logfile):
         archive.extractall(inspection)
     app_path = inspection / prefix.rstrip('/')
     run(['codesign', '--verify', '--deep', '--strict', str(app_path)], logfile)
+    dylibs = sorted(path for path in app_path.rglob('*.dylib') if path.is_file())
+    for dylib in dylibs:
+        run(['codesign', '--verify', '--strict', str(dylib)], logfile)
     profile_result = subprocess.run(['security', 'cms', '-D', '-i', str(app_path / 'embedded.mobileprovision')],
                                     capture_output=True, check=False)
     if profile_result.returncode:
@@ -131,6 +134,7 @@ def verify_ipa(ipa, package, team_id, output, logfile):
     return {
         'bundle_id': info['CFBundleIdentifier'], 'version_name': info['CFBundleShortVersionString'],
         'version_code': str(info['CFBundleVersion']), 'codesign_verified': True,
+        'verified_dylib_paths': [path.relative_to(app_path).as_posix() for path in dylibs],
         'embedded_resources_sha256_verified': True,
         'profile_expires_at': expires.replace(tzinfo=timezone.utc).isoformat(),
         'device_install_verified': False,

@@ -1,0 +1,38 @@
+--- AppDelegate.m
++++ AppDelegate.m
+@@ -29,10 +29,18 @@
+  */
+ - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+ {
+-    BOOL ret = [PDRCore initEngineWihtOptions:launchOptions
+-                                  withRunMode:PDRCoreRunModeNormal withDelegate:self];
++    return [PDRCore initEngineWihtOptions:launchOptions
++                             withRunMode:PDRCoreRunModeNormal withDelegate:self];
++}
+ 
+-    UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
++- (void)connectWindowScene:(UIWindowScene *)scene
++{
++    if (self.window) {
++        self.window.windowScene = scene;
++        [self.window makeKeyAndVisible];
++        return;
++    }
++    UIWindow *window = [[UIWindow alloc] initWithWindowScene:scene];
+     self.window = window;
+     
+     ViewController *viewController = [[ViewController alloc] init];
+@@ -47,7 +55,6 @@
+     }
+     self.window.rootViewController = navigationController;
+     [self.window makeKeyAndVisible];
+-    return ret;
+ }
+ 
+ -(BOOL)getStatusBarHidden {
+@@ -162,3 +169,5 @@
+     return UIInterfaceOrientationMaskPortrait;
+ }
+ @end
++
++#import "SceneDelegate.m"

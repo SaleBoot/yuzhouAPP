@@ -19,6 +19,18 @@ CORE_FEATURES = {
     'NativeUI': 'io.dcloud.feature.ui.nativeui.NativeUIFeatureImpl',
     'Console': 'io.dcloud.feature.pdr.LoggerFeatureImpl',
 }
+ANDROID_ICON_SIZES = {'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
+
+
+def configure_branding(res, assets):
+    for density, size in ANDROID_ICON_SIZES.items():
+        directory = res / ('drawable-' + density)
+        directory.mkdir(exist_ok=True)
+        shutil.copy2(assets / 'app-icons' / ('icon-' + str(size) + '.png'), directory / 'yuzhou_icon.png')
+    for sample_splash in res.glob('drawable*/splash.*'):
+        sample_splash.unlink()
+    (res / 'drawable').mkdir(exist_ok=True)
+    shutil.copy2(assets / 'app-icon.png', res / 'drawable/splash.png')
 
 
 def assert_core_features(root):
@@ -111,11 +123,7 @@ for name in ['lib.5plus.base-release.aar', 'uniapp-v8-release.aar', 'android-gif
 package = identity['android_package']
 label = manifest['name']
 (main / 'res/values/strings.xml').write_text('<resources><string name="app_name">' + label + '</string></resources>')
-(main / 'res/drawable').mkdir(exist_ok=True)
-shutil.copy2(ROOT / 'apps' / args.app / 'src/static/yacht.jpg', main / 'res/drawable/yuzhou_test.jpg')
-for sample_splash in (main / 'res').glob('drawable*/splash.*'):
-    sample_splash.unlink()
-shutil.copy2(ROOT / 'apps' / args.app / 'src/static/yacht.jpg', main / 'res/drawable/splash.jpg')
+configure_branding(main / 'res', ROOT / 'apps/shared/assets')
 (main / 'AndroidManifest.xml').write_text('''<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -126,7 +134,7 @@ shutil.copy2(ROOT / 'apps' / args.app / 'src/static/yacht.jpg', main / 'res/draw
 <uses-permission android:name="com.vivo.notification.permission.BADGE_ICON" tools:node="remove"/>
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" tools:replace="android:maxSdkVersion"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" tools:replace="android:maxSdkVersion"/>
-<application android:name="io.dcloud.application.DCloudApplication" android:label="@string/app_name" android:icon="@drawable/yuzhou_test" android:allowBackup="false" android:usesCleartextTraffic="false" tools:replace="android:usesCleartextTraffic" android:largeHeap="true">
+<application android:name="io.dcloud.application.DCloudApplication" android:label="@string/app_name" android:icon="@drawable/yuzhou_icon" android:allowBackup="false" android:usesCleartextTraffic="false" tools:replace="android:usesCleartextTraffic" android:largeHeap="true">
 <activity android:name="io.dcloud.PandoraEntry" android:label="@string/app_name" android:launchMode="singleTask" android:hardwareAccelerated="true" android:theme="@style/TranslucentTheme" android:exported="true" android:configChanges="orientation|keyboardHidden|keyboard|navigation" android:windowSoftInputMode="adjustResize"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
 <activity android:name="io.dcloud.PandoraEntryActivity" android:launchMode="singleTask" android:configChanges="orientation|keyboardHidden|screenSize|mcc|mnc|fontScale|keyboard|smallestScreenSize|screenLayout|uiMode" android:hardwareAccelerated="true" android:theme="@style/DCloudTheme" android:exported="false" android:windowSoftInputMode="adjustResize"/>
 <meta-data android:name="dcloud_appkey" android:value="''' + runtime['appkey'] + '''"/>

@@ -1,6 +1,6 @@
 # iOS 测试包构建
 
-仓库包含两个独立 App；本目录的资源交接包不能直接安装到 iPhone。用户的 Mac、Apple 开发者账号与 Xcode 可用于最终归档和签名；当前 Linux 云端没有连接到该 Mac，不能代替它执行 `xcodebuild` 或验证 iPhone 安装。
+仓库包含两个独立 App；资源交接包不能直接安装到 iPhone。最终归档、签名和设备安装须在连接 iPhone 的 Mac 上执行。
 
 | App | DCloud AppID | Apple Bundle ID |
 | --- | --- | --- |
@@ -113,6 +113,14 @@ python3 scripts/build-ios-ipa.py consumer \
 输出目录还包含 `.xcarchive`、私有构建日志和临时资源备份。交付时只传需要的 IPA、回执和校验清单，不要把整个构建目录提交到 Git。若脚本失败，应检查该目录的 `xcodebuild.log`；`export/` 内的中间 IPA 未经脚本验证，不能冒充已完成交付。
 
 ## iPhone 验证
+
+### 原生宿主配置与兼容工具链
+
+两端源 manifest 的 `distribute.icons` 使用 `apps/shared/assets` 同一品牌图标。离线工程也必须将这些尺寸填入 `AppIcon.appiconset`，并保持 target 的 `ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon`；仅更新 WGT 无法改变桌面图标。SDK 模板的 `zh-Hans.lproj/InfoPlist.strings` 和 `en.lproj/InfoPlist.strings` 中 `CFBundleDisplayName` 会覆盖 Info.plist，须分别改为“驭舟”或“驭舟经纪人”。
+
+本仓库 `scripts/ios` 保留官方 5.26 示例宿主的 Scene 接入补丁。对每个独立副本的 `HBuilder-Hello/AppDelegate.m` 执行 `patch --fuzz=0 AppDelegate.m < 仓库/scripts/ios/AppDelegate-scene.patch`，复制同目录的 `SceneDelegate.m`，并将 `scene-manifest.plist` 的字典放入 Info.plist 的 `UIApplicationSceneManifest`。补丁通过导入 SceneDelegate.m 编译，勿再重复加入 Compile Sources。原生生命周期、URL、用户活动及快捷操作仍转发给 DCloud。
+
+2026-10-11 真机确认：Xcode 27 构建的 DCloud 5.26 经典 UniApp 运行库在 iOS 27 因默认 NSFileManager 设置 delegate 断言终止；Scene 补丁不能修复运行库内部调用。[DCloud 官方答复](https://ask.dcloud.net.cn/question/221682)建议临时使用 Xcode 26 或云打包。[官方 5.26 下载说明](https://nativesupport.dcloud.net.cn/AppDocs/download/ios.html)列出的云构建环境为 Xcode 26.6 / iOS SDK 26.5。采用并行安装的官方工具链时，显式设置 `DEVELOPER_DIR=/Applications/Xcode-26.6.app/Contents/Developer`，保留原有 Xcode；是否解决闪退须以重新安装后的持续运行与设备日志判断。
 
 Development/Ad Hoc IPA 只允许对应 profile 中登记的设备，通过 Xcode Devices and Simulators 等正规方式安装。App Store Connect 导出的 IPA 需要后续上传及 TestFlight 流程才能供测试者安装；生成 IPA 本身不会建立 TestFlight 邀请。
 

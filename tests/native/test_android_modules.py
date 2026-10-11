@@ -1,7 +1,10 @@
 """Synthetic module assets and DEX descriptors; does not compile or install an APK."""
 import ast
+import json
 from pathlib import Path
 import re
+import shutil
+import struct
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -12,9 +15,9 @@ SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/build-android.py'
 # Load only the checks; importing the build script would invoke npm and Gradle.
 tree = ast.parse(SCRIPT.read_text())
 nodes = [node for node in tree.body if
-         isinstance(node, ast.FunctionDef) and node.name in {'assert_core_features', 'configure_modules', 'verify_apk_modules'} or
-         isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == 'CORE_FEATURES' for target in node.targets)]
-checks = {'ET': ET, 'ZipFile': ZipFile, 're': re}
+         isinstance(node, ast.FunctionDef) and node.name in {'assert_core_features', 'configure_modules', 'verify_apk_modules', 'configure_branding'} or
+         isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id in {'CORE_FEATURES', 'ANDROID_ICON_SIZES'} for target in node.targets)]
+checks = {'ET': ET, 'ZipFile': ZipFile, 're': re, 'shutil': shutil}
 exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SCRIPT), 'exec'), checks)
 
 XML = '''<properties><features>
@@ -39,6 +42,45 @@ DESCRIPTORS = b'\0'.join([
 
 
 class AndroidModuleTests(unittest.TestCase):
+    def test_branding_uses_shared_logo_and_removes_all_sdk_splashes(self):
+        assets = SCRIPT.parents[1] / 'apps/shared/assets'
+        with tempfile.TemporaryDirectory(prefix='yuzhou-branding-check-') as temporary:
+            res = Path(temporary)
+            for directory in ['drawable', 'drawable-hdpi', 'drawable-xxhdpi']:
+                (res / directory).mkdir()
+                (res / directory / 'splash.jpg').write_bytes(b'old SDK image')
+            checks['configure_branding'](res, assets)
+            self.assertEqual((res / 'drawable/splash.png').read_bytes(), (assets / 'app-icon.png').read_bytes())
+            self.assertEqual(list(res.glob('drawable*/splash.jpg')), [])
+            for density, size in checks['ANDROID_ICON_SIZES'].items():
+                self.assertEqual((res / ('drawable-' + density) / 'yuzhou_icon.png').read_bytes(),
+                                 (assets / 'app-icons' / ('icon-' + str(size) + '.png')).read_bytes())
+
+    def test_both_manifests_use_same_opaque_pngs_at_platform_sizes(self):
+        root = SCRIPT.parents[1]
+        configs = []
+        for app in ['consumer', 'broker']:
+            source = root / 'apps' / app / 'src'
+            manifest = json.loads((source / 'manifest.json').read_text())
+            icons = manifest['app-plus']['distribute']['icons']
+            configs.append(icons)
+            expected = [(icons['ios']['appstore'], 1024)]
+            expected += [(icons['android'][density], size) for density, size in checks['ANDROID_ICON_SIZES'].items()]
+            for platform, sizes in {
+                'iphone': {'app@2x': 120, 'app@3x': 180, 'spotlight@2x': 80, 'spotlight@3x': 120,
+                           'settings@2x': 58, 'settings@3x': 87, 'notification@2x': 40, 'notification@3x': 60},
+                'ipad': {'app': 76, 'app@2x': 152, 'proapp@2x': 167, 'spotlight': 40, 'spotlight@2x': 80,
+                         'settings': 29, 'settings@2x': 58, 'notification': 20, 'notification@2x': 40},
+            }.items():
+                expected += [(icons['ios'][platform][name], size) for name, size in sizes.items()]
+            for relative, size in expected:
+                with self.subTest(app=app, path=relative):
+                    png = (source / relative).read_bytes()
+                    self.assertEqual(png[:8], b'\x89PNG\r\n\x1a\n')
+                    self.assertEqual(struct.unpack('>II', png[16:24]), (size, size))
+                    self.assertEqual(png[25], 2, 'iOS icons must be RGB without an alpha channel')
+        self.assertEqual(configs[0], configs[1])
+
     def package(self, xml=XML, dex=DESCRIPTORS):
         temp = tempfile.TemporaryDirectory(prefix='yuzhou-module-check-')
         self.addCleanup(temp.cleanup)
