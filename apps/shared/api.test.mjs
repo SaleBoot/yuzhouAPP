@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { t, getLocale } from "./i18n.js";
 import { runInNewContext } from "node:vm";
 
-function apiHarness(response, { native = false, locale = "zh-Hans" } = {}) {
+function apiHarness(response, { native = false, locale = "zh-Hans", client = "consumer" } = {}) {
   const calls = [], storage = new Map(), enabled = [];
   const source = readFileSync(new URL("./api.js", import.meta.url), "utf8")
     .split("\n").filter((line) => {
@@ -13,8 +13,9 @@ function apiHarness(response, { native = false, locale = "zh-Hans" } = {}) {
       if (line === "// #endif") { enabled.pop(); return false; }
       return enabled.every(Boolean) && !line.startsWith("import ");
     }).join("\n").replaceAll("import.meta.env", "env").replace(/^export /gm, "");
-  const api = runInNewContext(`${source}; ({ list, media, resource, resourceName });`, {
-    t, getLocale: () => locale, env: {}, URL, window: { location: { origin: "https://h5.test" } },
+  const api = runInNewContext(`${source}; ({ list, media, resource, resourceName, request });`, {
+    t, getLocale: () => locale, env: { VITE_CLIENT: client },
+    ...(native ? {} : { URL, window: { location: { origin: "https://h5.test" } } }),
     uni: {
       getStorageSync: (key) => storage.get(key),
       request(options) {
@@ -112,6 +113,40 @@ test("原生 App 的后续资源和图片继续使用 HTTPS 服务地址", async
   const items = await api.list("boats", { page_size: 1 });
   assert.equal(calls[1], "https://yuzhou.ourideas.top/api/v1/resources/boats?page_size=1&page=2");
   assert.equal(items[1].image_url, "https://yuzhou.ourideas.top/api/v1/files/2");
+});
+
+test("两端原生首页资源在没有 URL、URLSearchParams 和 window 的运行库中正常加载", async () => {
+  const boat = { id: 36, title: "游艇", price_cents: 250000, payload: { category: "yacht", daily_price_cents: 120000, image_urls: ["/api/v1/files/22", "/api/v1/files/23"] } };
+  const banner = { id: 7, title: "航海生活", price_cents: 0, payload: { placement: "home", image_url: "/api/v1/files/24", target_url: "/pages/shop?kind=events" } };
+  const post = { id: 8, title: "航海资讯", price_cents: 0, payload: { post_type: "news", image_urls: ["/api/v1/files/25"] } };
+  for (const client of ["consumer", "broker"]) {
+    const { api, calls } = apiHarness(url => {
+      if (url.pathname === "/api/v1/bootstrap") return { vr_base_url: "https://vr.test/" };
+      if (url.pathname === "/api/v1/recommendations") return { items: [boat], personalized: false };
+      const item = { boat_types: boat, banners: banner, posts: post }[url.pathname.split("/").pop()];
+      assert.ok(item, `unexpected resource request: ${url.pathname}`);
+      return { items: [item], total: 1, page: 1, page_size: 100 };
+    }, { native: true, client });
+    const [boats, config, posts, picks, banners] = await Promise.all([
+      api.list("boat_types", { search: "" }), api.request("/bootstrap"), api.list("posts"),
+      api.request("/recommendations?limit=6"), api.list("banners", { placement: "home" }),
+    ]);
+    assert.equal(boats[0].image_url, "https://yuzhou.ourideas.top/api/v1/files/22");
+    assert.equal(boats[0].image_urls[1], "https://yuzhou.ourideas.top/api/v1/files/23");
+    assert.equal(boats[0].daily_price_cents, 120000);
+    assert.equal(boats[0].price_cents, 250000);
+    assert.equal(config.vr_base_url, "https://vr.test/");
+    assert.equal(posts[0].post_type, "news");
+    assert.equal(posts[0].image_url, "https://yuzhou.ourideas.top/api/v1/files/25");
+    assert.equal(api.resource(picks.items[0]).image_url, boats[0].image_url);
+    assert.equal(banners[0].image_url, "https://yuzhou.ourideas.top/api/v1/files/24");
+    assert.equal(banners[0].target_url, "/pages/shop?kind=events");
+    assert.equal(calls.length, 5);
+    assert.ok(calls.every(url => url.startsWith("https://yuzhou.ourideas.top/api/v1/")));
+    assert.equal(api.media("https://external.test/boat.jpg"), "https://external.test/boat.jpg");
+    assert.equal(api.media("_doc/contract.pdf"), "_doc/contract.pdf");
+    assert.equal(api.media(undefined), undefined);
+  }
 });
 
 test('private page loading stays on the page for guests and explicit login cannot stack', () => {
