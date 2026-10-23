@@ -8,24 +8,25 @@ const { createI18n } = require('vue-i18n');
 const { createSSRApp, computed } = require('vue');
 const pages = JSON.parse(readFileSync(new URL('../consumer/src/pages.json', import.meta.url)));
 const storage = new Map(), tabs = [], titles = [];
+let currentRoute = 'pages/home';
 globalThis.uni = {
   getStorageSync: key => storage.get(key), setStorageSync: (key, value) => storage.set(key, value),
   setLocale() {}, setTabBarItem: value => tabs.push(value), setNavigationBarTitle: value => titles.push(value),
 };
-globalThis.getCurrentPages = () => [{ route: 'pages/profile' }];
+globalThis.getCurrentPages = () => [{ route: currentRoute }];
 
 test('language defaults to Chinese and changes live with saved navigation and named parameters', () => {
   installLanguage(createSSRApp({}), createI18n, pages);
-  const label = computed(() => t('首页'));
-  assert.equal(label.value, '首页');
+  const label = computed(() => t('船艇销售'));
+  assert.equal(label.value, '船艇销售');
   setLocale('en');
-  assert.equal(label.value, 'Home');
+  assert.equal(label.value, 'Boats');
   assert.equal(t('咨询 {id}', { id: 12 }), 'Enquiry 12');
   assert.equal(t('原始船艇名称'), '原始船艇名称');
   assert.equal(t('未登记提示 {id}', { id: 12 }), '未登记提示 12');
   assert.equal(storage.get('yuzhou_language'), 'en');
-  assert.equal(titles.at(-1).title, 'Me');
-  assert.deepEqual(tabs.slice(-4).map(item => item.text), ['Home', 'Learn', 'Discover', 'Me']);
+  assert.equal(titles.at(-1).title, 'Yuzhou');
+  assert.deepEqual(tabs.slice(-4).map(item => item.text), ['Boats', 'Maintenance', 'Shop', 'Me']);
   installLanguage(createSSRApp({}), createI18n, pages);
   assert.equal(getLocale(), 'en');
   setLocale('invalid');
@@ -33,7 +34,38 @@ test('language defaults to Chinese and changes live with saved navigation and na
   setLocale('zh-Hans');
   assert.equal(t('咨询 {id}', { id: 12 }), '咨询 12');
   refreshNavigation();
-  assert.equal(titles.at(-1).title, '我的');
+  assert.equal(titles.at(-1).title, '驭舟');
+  assert.deepEqual(tabs.slice(-4).map(item => item.text), ['船艇销售', '船艇维保', '商城', '我的']);
+});
+
+test('custom profile and settings translate their own headings without writing a native navigation title', () => {
+  const before = titles.length;
+  currentRoute = 'pages/profile';
+  setLocale('en');
+  assert.equal(t('个人中心'), 'Profile');
+  assert.deepEqual(tabs.slice(-4).map(item => item.text), ['Boats', 'Maintenance', 'Shop', 'Me']);
+  currentRoute = 'pages/settings';
+  setLocale('zh-Hans');
+  assert.equal(t('设置'), '设置');
+  setLocale('en');
+  assert.equal(t('设置'), 'Settings');
+  assert.equal(t('返回'), 'Back');
+  assert.equal(titles.length, before);
+  currentRoute = 'pages/home';
+  setLocale('zh-Hans');
+});
+
+test('broker navigation keeps its existing dashboard, customer and order tabs in both languages', () => {
+  const broker = JSON.parse(readFileSync(new URL('../broker/src/pages.json', import.meta.url)));
+  currentRoute = 'pages/profile';
+  installLanguage(createSSRApp({}), createI18n, broker);
+  setLocale('en');
+  assert.deepEqual(tabs.slice(-4).map(item => item.text), ['Dashboard', 'Customer', 'Order', 'Me']);
+  assert.equal(titles.at(-1).title, 'Me');
+  setLocale('zh-Hans');
+  assert.deepEqual(tabs.slice(-4).map(item => item.text), ['工作台', '客户', '订单', '我的']);
+  currentRoute = 'pages/home';
+  installLanguage(createSSRApp({}), createI18n, pages);
 });
 
 test('both apps navigation entries have English and parameter names agree', () => {

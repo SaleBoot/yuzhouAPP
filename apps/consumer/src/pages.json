@@ -25,7 +25,7 @@
       "path": "pages/profile",
       "style": {
         "navigationBarTitleText": "我的",
-        "navigationStyle": "default"
+        "navigationStyle": "custom"
       }
     },
     {
@@ -180,6 +180,27 @@
       "style": {
         "navigationBarTitleText": "身份资料与审核"
       }
+    },
+    {
+      "path": "pages/maintenance",
+      "style": {
+        "navigationBarTitleText": "船艇维保",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/mall",
+      "style": {
+        "navigationBarTitleText": "商城",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/settings",
+      "style": {
+        "navigationBarTitleText": "设置",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {
@@ -196,21 +217,21 @@
     "list": [
       {
         "pagePath": "pages/home",
-        "text": "首页",
+        "text": "船艇销售",
         "iconPath": "static/tab-home.png",
         "selectedIconPath": "static/tab-home-active.png"
       },
       {
-        "pagePath": "pages/classroom",
-        "text": "课堂",
-        "iconPath": "static/tab-classroom.png",
-        "selectedIconPath": "static/tab-classroom-active.png"
+        "pagePath": "pages/maintenance",
+        "text": "船艇维保",
+        "iconPath": "static/tab-maintenance.png",
+        "selectedIconPath": "static/tab-maintenance-active.png"
       },
       {
-        "pagePath": "pages/discover",
-        "text": "发现",
-        "iconPath": "static/tab-discover.png",
-        "selectedIconPath": "static/tab-discover-active.png"
+        "pagePath": "pages/mall",
+        "text": "商城",
+        "iconPath": "static/tab-mall.png",
+        "selectedIconPath": "static/tab-mall-active.png"
       },
       {
         "pagePath": "pages/profile",

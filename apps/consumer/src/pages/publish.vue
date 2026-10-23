@@ -42,7 +42,6 @@ import {
   media,
   notify,
   requireLogin,
-  tab,
 } from "@shared/api.js";
 import { publicPostAttachment } from "@shared/post-boat.js";
 const previews = ref([]);
@@ -86,7 +85,7 @@ async function submit() {
       },
     });
     uni.showToast({ title: t("已提交审核"), icon: "success" });
-    tab("discover");
+    uni.redirectTo({ url: "/pages/discover" });
   } catch (e) {
     notify(e);
   } finally {

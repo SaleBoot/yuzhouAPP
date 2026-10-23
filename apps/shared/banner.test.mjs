@@ -16,14 +16,35 @@ test("published advert text follows the chosen App language and keeps Chinese me
   assert.deepEqual(bannerText(cached, "zh-Hans"), { title: "租船出海", description: "按日租赁" });
 });
 
-test("advert destinations preserve boat mode and product category using actual App routes", () => {
-  for (const url of ["/pages/boat?id=36&mode=rent", "/pages/boat?id=34&mode=buy", "/pages/shop?kind=products"])
+test("advert destinations preserve boat mode and every existing shop category using actual App routes", () => {
+  for (const url of ["/pages/boat?id=36&mode=rent", "/pages/boat?id=34&mode=buy", ...["maintenance", "upgrades", "products", "events"].map(kind => `/pages/shop?kind=${kind}`)])
     assert.equal(bannerTarget(url, consumer).url, url);
-  assert.deepEqual(bannerTarget("/pages/classroom", consumer), { page: "classroom", url: "/pages/classroom", tab: true });
+  for (const page of ["classroom", "discover"])
+    assert.deepEqual(bannerTarget(`/pages/${page}`, consumer), { page, url: `/pages/${page}`, tab: false });
+  for (const page of ["maintenance", "mall"])
+    assert.deepEqual(bannerTarget(`/pages/${page}`, consumer), { page, url: `/pages/${page}`, tab: true });
   assert.deepEqual(bannerTarget("https://www.ourideas.top/detail.html?id=12", consumer), { external: "https://www.ourideas.top/detail.html?id=12" });
-  for (const invalid of ["javascript:alert(1)", "//other.test", "https://", "/pages/community/points", "/pages/missing", "/pages/home?mode=buy", "/pages/boat#fragment", "/pages/boat?bad=space value"])
+  for (const invalid of ["javascript:alert(1)", "//other.test", "https://", "/pages/community/points", "/pages/missing", "/pages/home?mode=buy", "/pages/maintenance?kind=upgrades", "/pages/mall?kind=products", "/pages/boat#fragment", "/pages/boat?bad=space value"])
     assert.equal(bannerTarget(invalid, consumer), null);
   assert.equal(bannerTarget("/pages/home", broker), null);
+});
+
+test("advert taps use ordinary navigation for classroom and Discover and tab switching for the new catalogs", () => {
+  const source = readFileSync(new URL("./BannerStrip.vue", import.meta.url), "utf8").match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, "");
+  const navigations = [], tabs = [], errors = [];
+  const { open } = runInNewContext(`${source}; ({ open });`, {
+    defineProps: () => ({ placement: "home" }), ref: value => ({ value }), watch() {}, onShow() {},
+    t: value => value, getLocale: () => "zh-Hans", config: consumer, bannerText, bannerTarget,
+    list() {}, external() {}, tab: page => tabs.push(page), notify: error => errors.push(error), fallbackBoat: "/static/yacht.jpg",
+    uni: { navigateTo: options => navigations.push(options.url) },
+  });
+  for (const page of ["classroom", "discover", "maintenance", "mall"])
+    open({ target_url: `/pages/${page}` });
+  open({ target_url: "/pages/shop?kind=upgrades" });
+  open({ target_url: "/pages/mall?kind=products" });
+  assert.deepEqual(navigations, ["/pages/classroom", "/pages/discover", "/pages/shop?kind=upgrades"]);
+  assert.deepEqual(tabs, ["maintenance", "mall"]);
+  assert.equal(errors.length, 1);
 });
 
 test("page re-entry refreshes advertising, late placement responses are ignored and failed refresh clears stale adverts", async () => {
