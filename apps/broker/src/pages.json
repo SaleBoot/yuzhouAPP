@@ -25,7 +25,7 @@
       "path": "pages/profile",
       "style": {
         "navigationBarTitleText": "我的",
-        "navigationStyle": "default"
+        "navigationStyle": "custom"
       }
     },
     {
@@ -85,6 +85,13 @@
       "path": "pages/map",
       "style": {
         "navigationBarTitleText": "地图找船"
+      }
+    },
+    {
+      "path": "pages/settings",
+      "style": {
+        "navigationBarTitleText": "设置",
+        "navigationStyle": "custom"
       }
     }
   ],
