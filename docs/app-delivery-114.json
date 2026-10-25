@@ -1,0 +1,89 @@
+{
+  "app": "broker",
+  "version_name": "1.0.14",
+  "version_code": 114,
+  "problem": "The quotation stage used quoting instead of the API value quoted. Editing notes could also reset contacted, quoted or archived customers to new.",
+  "change": "Use all existing server stage values; retain the current stage for note-only edits and omit an unfamiliar future stage instead of resetting it. Preserve the final UI and native configuration.",
+  "source_commit": "acaa14368f5687832f94ec512433f6358f33419b",
+  "artifact": {
+    "type": "WGT",
+    "url": "https://yuzhou.ourideas.top/app-updates/broker-1.0.14.wgt",
+    "sha256": "4c1a8cdbd8e199c4659cdc5a8bad7aece9b2756a0d58c82d4c13afddf3d0f199",
+    "bytes": 383025,
+    "compiler_version": "5.26",
+    "mandatory": true
+  },
+  "deployment": {
+    "activated_at_utc": "2026-10-25T14:17:25Z",
+    "cloud": "tencent",
+    "ssh_alias": "tencent-cloud",
+    "source_commit": "acaa14368f5687832f94ec512433f6358f33419b",
+    "app": "broker",
+    "version_name": "1.0.14",
+    "version_code": 114,
+    "mandatory": true,
+    "wgt_sha256": "4c1a8cdbd8e199c4659cdc5a8bad7aece9b2756a0d58c82d4c13afddf3d0f199",
+    "wgt_bytes": 383025,
+    "update_release": "/www/wwwroot/yuzhou/shared/app-update-releases/broker-1.0.14-acaa143",
+    "previous_update_release": "/www/wwwroot/yuzhou/shared/app-update-releases/broker-1.0.13-702f91a",
+    "latest_sha256": "008d8949050abc4b532161e62f511cf8faf1671590ff3aaf860fcca9d137ee4f",
+    "consumer_113_unchanged": true,
+    "protected_files_unchanged": 672,
+    "desktop_current_unchanged": true,
+    "desktop_deployment_receipt_unchanged": true,
+    "nginx_config_unchanged": true,
+    "api_health": "ok",
+    "device_verified": false,
+    "aliyun_connected": false
+  },
+  "https_verification": {
+    "verified_at_utc": "2026-10-25T14:20:40.167358+00:00",
+    "public_origin_header": "tencent",
+    "public_dns_points_only_to_tencent": true,
+    "dns_verifier": "Cloudflare DNS over HTTPS A and AAAA",
+    "latest_manifest_sha256": "008d8949050abc4b532161e62f511cf8faf1671590ff3aaf860fcca9d137ee4f",
+    "apps": [
+      {
+        "app": "consumer",
+        "version": "1.0.13",
+        "bytes": 504676,
+        "sha256_matches": true,
+        "compiled_identity_and_version_match": true
+      },
+      {
+        "app": "broker",
+        "version": "1.0.14",
+        "bytes": 383025,
+        "sha256_matches": true,
+        "compiled_identity_and_version_match": true
+      }
+    ],
+    "desktop_entry_unchanged": true,
+    "update_page_available": true,
+    "consumer_descriptor_unchanged": true,
+    "device_installation_verified": false
+  },
+  "validation": {
+    "broker_manifest_routes_template_and_domain_checks": "passed",
+    "broker_and_shared_tests_passed": 104,
+    "customer_stage_regressions_included": 3,
+    "native_update_page_tests_passed": 21,
+    "compiled_wgt_identity_version_structure_and_quotation_enum": "passed",
+    "native_permissions_and_identifiers_unchanged": true,
+    "consumer_sources_backend_and_web_unchanged": true
+  },
+  "scope": {
+    "consumer": "Retains 1.0.13 / 113 and the exact previous descriptor and WGT SHA256. No rebuild.",
+    "desktop_site_and_sales_workspace": "Existing desktop release remains active; no current symlink or website deployment receipt change.",
+    "backend_and_management": "No source or runtime deployment change.",
+    "legacy_mobile_h5": "Entrances remain redirected to the desktop site and /sales; no legacy H5 deployment.",
+    "native_installers": "No APK or IPA rebuild.",
+    "aliyun": "No connection, deployment or runtime dependency added. Project instructions prohibit the retired connection.",
+    "chuangyidao": "No changes."
+  },
+  "acceptance_limits": [
+    "The WGT is published and its public bytes and metadata are verified; iOS/Android device installation, restart and customer editing have not been accepted on real devices.",
+    "No live customer stages, orders, uploads, payments or other business data were modified for testing."
+  ],
+  "private_evidence_directory": "artifacts/app-updates-114/"
+}

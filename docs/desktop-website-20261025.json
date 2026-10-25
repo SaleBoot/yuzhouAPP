@@ -82,7 +82,12 @@
     "consumer_update_needed_from_this_work": false,
     "broker_existing_issue": "App 1.0.13 submits quoting for the customer quotation stage; deployed API accepts quoted. Saving this stage is rejected.",
     "recommended": "A separately scoped broker WGT bug fix retaining the final UI.",
-    "performed": false
+    "performed": true,
+    "resolution": {
+      "broker_version": "1.0.14 / 114",
+      "source_commit": "acaa14368f5687832f94ec512433f6358f33419b",
+      "receipt": "docs/app-delivery-114.json"
+    }
   },
   "private_evidence_directory": "artifacts/desktop-web-20261025/"
 }
