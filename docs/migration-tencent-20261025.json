@@ -2,7 +2,6 @@
   "completed_at_utc": "2026-10-25T12:59:02.369396+00:00",
   "domain": "yuzhou.ourideas.top",
   "target_ssh_alias": "tencent-cloud",
-  "public_ipv4": "1.14.77.78",
   "application_root": "/www/wwwroot/yuzhou",
   "operations_root": "/opt/yuzhou-runtime",
   "nginx_vhost": "/etc/nginx/conf.d/yuzhou.conf",

@@ -1,0 +1,88 @@
+{
+  "domain": "yuzhou.ourideas.top",
+  "scope": "Independent desktop website only; final consumer and broker Apps unchanged",
+  "deployment": {
+    "release_id": "site-20261025T140039727-6d010e0f",
+    "source_commit": "6d010e0f750a552e93266c4d0172e8cee6304eca",
+    "previous_release": "/www/wwwroot/yuzhou/releases/site-20261025T135055463-9b4351dd",
+    "scope": "desktop website only",
+    "activated_at_utc": "2026-10-25T14:05:02Z",
+    "entry_sha256": "cc311869dd8878c1595d13ec7c6079d36e34371486ae5f6a53271c7169eb1c3f",
+    "api_and_app_update_manifest_and_environment_and_admin_preserved": true,
+    "app_versions_changed": false
+  },
+  "release_archive_sha256": "332d265a148ba19d5eadbb70046bf51ef08e5486a7c8f5b8633e6c9763fa3226",
+  "release_files": [
+    {
+      "path": "install-site.py",
+      "sha256": "95f30b9b8bb4302672cff5fe23804ad5b655fab01ef43ce8bf9c0804b9f3dd41"
+    },
+    {
+      "path": "public/index.html",
+      "sha256": "cc311869dd8878c1595d13ec7c6079d36e34371486ae5f6a53271c7169eb1c3f"
+    },
+    {
+      "path": "public/site-assets/site-DSHsW6by.css",
+      "sha256": "df425673940aee0cf5213c1f9627b8d2687ebd35830de5477715fb00db5fb5a1"
+    },
+    {
+      "path": "public/site-assets/site-s45rk3kz.js",
+      "sha256": "b4e461ba647a917318a82429250cf0cd7a2b42c6d29bafadb4c1ff0fe62c35ea"
+    }
+  ],
+  "routes": {
+    "public": "/",
+    "sales": "/sales",
+    "management": "/admin/",
+    "legacy_entrances": {
+      "/consumer/": "302 to /",
+      "/broker/": "302 to /sales"
+    }
+  },
+  "preserved": {
+    "apps_version": "1.0.13",
+    "apps_version_code": 113,
+    "consumer_wgt_sha256": "3426a2378de76711e457f5c17a0adccc7f0407633af270c01e37d845e8f3ab4c",
+    "broker_wgt_sha256": "a3a3604c69f72447ab60a36d43e27d0e8bc2ac8c2b35ec5a655bbb80cb7c305d",
+    "api_commit": "067b058b8c0279728ce79cbfbb3b530c6febb5bb",
+    "management_commit": "3974aebd08c19b533e6be2785ab477baa6810f5a",
+    "protected_files_hashes_and_permissions_unchanged": 670,
+    "chuangyidao": "No changes"
+  },
+  "validation": {
+    "typecheck": "passed",
+    "pure_node_tests_passed": 21,
+    "release_scope_regression_tests_passed": 1,
+    "installer_temporary_directory_tests_passed": 25,
+    "consumer_browser_fixture_scenarios_passed": 9,
+    "consumer_browser_fixture_assertions_passed": 32,
+    "broker_browser_fixture_flows": "passed; customers, quotes, contracts, fulfillment, appointments, withdrawals and messages",
+    "fixture_network_violations": 0,
+    "fixture_runtime_errors": 0,
+    "online_desktop_routes_passed": 13,
+    "online_asset_sha256_checks_passed": 2,
+    "online_consumer_and_broker_login_and_authorized_read_api": "passed",
+    "online_api_health": "ok",
+    "desktop_browser_visual_review": [
+      "home",
+      "catalog",
+      "boat detail",
+      "sales login",
+      "map"
+    ]
+  },
+  "acceptance_limits": [
+    "Browser business-flow mutation tests used intercepted local API fixtures; no real online orders, payments, refunds, private uploads, contract confirmations or content publishing were performed.",
+    "No iOS or Android true-device acceptance or App rebuild was performed.",
+    "Real payment, SMS, push and electronic signing providers remain unconfigured.",
+    "Desktop points redemption supports existing history and cancellation; no new redemption entry was added."
+  ],
+  "app_hot_update_assessment": {
+    "required_for_migration_or_desktop_site": false,
+    "consumer_update_needed_from_this_work": false,
+    "broker_existing_issue": "App 1.0.13 submits quoting for the customer quotation stage; deployed API accepts quoted. Saving this stage is rejected.",
+    "recommended": "A separately scoped broker WGT bug fix retaining the final UI.",
+    "performed": false
+  },
+  "private_evidence_directory": "artifacts/desktop-web-20261025/"
+}
