@@ -1,0 +1,88 @@
+{
+  "domain": "yuzhou.ourideas.top",
+  "scope": "Desktop detail layout only",
+  "deployment": {
+    "release_id": "site-20261025T145451142-11063270",
+    "source_commit": "11063270243ed37b2735c7a22a1c64644f620d53",
+    "previous_release": "/www/wwwroot/yuzhou/releases/site-20261025T140039727-6d010e0f",
+    "scope": "desktop website only",
+    "activated_at_utc": "2026-10-25T14:56:42Z",
+    "entry_sha256": "133ea4ca3cf21daee82f35a3bc3cdd0e42a4a5d706aef78bb978d98e489f7fdc",
+    "api_and_app_update_manifest_and_environment_and_admin_preserved": true,
+    "app_versions_changed": false
+  },
+  "preserved": {
+    "app_update_manifest": true,
+    "environment": true,
+    "management_entry": true,
+    "nginx_vhost": true
+  },
+  "release_archive_sha256": "ee8e61c5bf0a933385dee76b1b88a683d96176b9bbd379d284b91cbefc4a87d3",
+  "release_files": [
+    {
+      "path": "install-site.py",
+      "sha256": "95f30b9b8bb4302672cff5fe23804ad5b655fab01ef43ce8bf9c0804b9f3dd41"
+    },
+    {
+      "path": "public/index.html",
+      "sha256": "133ea4ca3cf21daee82f35a3bc3cdd0e42a4a5d706aef78bb978d98e489f7fdc"
+    },
+    {
+      "path": "public/site-assets/site-BaNyPbs3.css",
+      "sha256": "b8c80a337ab206c23496013fda55c61383bc4872d66135e5efe117085e4346af"
+    },
+    {
+      "path": "public/site-assets/site-DTNmjqoF.js",
+      "sha256": "69d51588085af5680786b7ce8c2a324144620a646f9b78c0d096444b0dcf11d9"
+    }
+  ],
+  "validation": {
+    "typecheck_and_site_build": "passed",
+    "web_unit_tests_passed": 21,
+    "release_scope_tests_passed": 1,
+    "consumer_browser_fixture_cases_passed": 10,
+    "consumer_browser_fixture_assertions_passed": 84,
+    "detail_layout_widths": [
+      1440,
+      1280,
+      1024,
+      851,
+      850,
+      600,
+      375,
+      320
+    ],
+    "online_asset_and_entry_checks": [
+      {
+        "path": "public/index.html",
+        "sha256": "133ea4ca3cf21daee82f35a3bc3cdd0e42a4a5d706aef78bb978d98e489f7fdc",
+        "matched": true
+      },
+      {
+        "path": "public/site-assets/site-BaNyPbs3.css",
+        "sha256": "b8c80a337ab206c23496013fda55c61383bc4872d66135e5efe117085e4346af",
+        "matched": true
+      },
+      {
+        "path": "public/site-assets/site-DTNmjqoF.js",
+        "sha256": "69d51588085af5680786b7ce8c2a324144620a646f9b78c0d096444b0dcf11d9",
+        "matched": true
+      }
+    ],
+    "online_api_health": "ok",
+    "online_actual_boat_id": 52,
+    "online_desktop_layout": {
+      "viewport_width": 1280,
+      "description_lines": 3,
+      "buttons_bottom": 639.1953125,
+      "image_bottom": 645.3125,
+      "page_scroll_width": 1265,
+      "full_description_below": true
+    }
+  },
+  "acceptance_limits": [
+    "Browser business-flow tests use intercepted synthetic local APIs. No live orders, payment, refund, private upload or content publication was performed.",
+    "No App rebuild, WGT release or iOS/Android true-device retest."
+  ],
+  "private_visual_evidence": "artifacts/desktop-web-20261025/boat-detail-overflow-online.png"
+}
