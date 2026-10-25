@@ -179,6 +179,56 @@ async function main() {
     verify(await page.locator('body').evaluate(node => node.scrollWidth <= innerWidth), 'Desktop account has no horizontal overflow')
     await shot('overview')
   })
+  await fixture('boat-detail-layout', { auth: false }, async ({ page, state, verify, shot }) => {
+    const description = 'JS–910B 铝合金高速公务执法艇，用于水上巡逻、执法、指挥通信、救援急救、登临行动及取证办公展示。\n\n设备配置：5083–H116铝合金，尖艏方艉单体V形折角船底，600L燃油箱，聚脲护舷，夹层钢化前风挡，甚高频无线电话、对外扩音、探照灯、航行信号灯、长排警灯及消防救生设备。实际交付设备以最终合同与船检要求为准。\n\n内饰展示包括六座巡逻、指挥通信、救援急救、登临行动、取证办公。五套内饰为展示配置；本艇专属船检证书待提供。'
+    const model = 'JS910B'.repeat(24), parameter = 'Aluminium5083H116'.repeat(24)
+    const boat = state.resources.boat_types[0]
+    boat.title = 'JS–910B 广州水警铝合金执法艇'
+    boat.payload = { daily_price_cents: 680000, description, length_m: '9.10', capacity: 6, model_code: 'JS–910B', image_urls: ['/__fixture/boat-0.svg'], vr_url: '/__fixture/model', parameters: { model_code: model, material: parameter } }
+    await page.route(`${base}/__fixture/boat-*.svg`, route => route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#e7eff6"/></svg>' }))
+    await page.goto(base + '/boats/101')
+    await page.getByRole('heading', { name: boat.title, exact: true }).waitFor()
+    await page.locator('.detail-main-image img').evaluate(image => image.decode())
+    for (const width of [1440, 1280]) {
+      await page.setViewportSize({ width, height: 1000 })
+      verify(await page.evaluate(() => document.querySelector('.detail-actions').getBoundingClientRect().bottom <= document.querySelector('.detail-gallery').getBoundingClientRect().bottom + 1), `${width}px: normal boat booking actions fit beside the fully loaded main image`)
+      await shot(`normal-${width}px`)
+    }
+    boat.payload.model_code = model
+    boat.payload.image_urls = Array.from({ length: 12 }, (_, index) => `/__fixture/boat-${index}.svg`)
+    await page.reload()
+    await page.getByRole('heading', { name: boat.title, exact: true }).waitFor()
+    for (const width of [1440, 1280, 1024, 851, 850, 600, 375, 320]) {
+      await page.setViewportSize({ width, height: 1000 })
+      const layout = await page.evaluate(() => {
+        const rect = selector => document.querySelector(selector).getBoundingClientRect()
+        const contained = (node, parent) => { const box = node.getBoundingClientRect(), bounds = parent.getBoundingClientRect(); return box.left >= bounds.left - 1 && box.right <= bounds.right + 1 }
+        const wraps = node => { const range = document.createRange(); range.selectNodeContents(node); return range.getClientRects().length > 1 && node.scrollWidth <= node.clientWidth + 1 }
+        const summary = document.querySelector('.detail-summary'), description = document.querySelector('.detail-description'), thumbnails = document.querySelector('.detail-thumbnails')
+        return {
+          noOverflow: document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth,
+          summaryLines: description.getBoundingClientRect().height / parseFloat(getComputedStyle(description).lineHeight),
+          fullDescription: document.querySelector('.article-copy').textContent,
+          actionsContained: [...document.querySelectorAll('.detail-actions>.button')].length === 3 && [...document.querySelectorAll('.detail-actions>.button')].every(node => contained(node, summary)),
+          thumbnailsContained: thumbnails.scrollWidth > thumbnails.clientWidth && rect('.detail-thumbnails').width <= rect('.detail-gallery').width + 1,
+          modelWraps: wraps(document.querySelector('.detail-facts>span:last-child')),
+          parametersWrap: [...document.querySelectorAll('.parameter-grid dd')].every(node => wraps(node) && contained(node, node.parentElement))
+        }
+      })
+      verify(layout.noOverflow, `${width}px: detail page has no horizontal overflow`)
+      verify(layout.summaryLines <= 3.05, `${width}px: description preview is at most three lines`)
+      verify(layout.fullDescription === description, `${width}px: detailed introduction retains the complete original description`)
+      verify(layout.actionsContained, `${width}px: booking, 3D and favorite actions stay inside the summary`)
+      verify(layout.thumbnailsContained, `${width}px: thumbnails scroll within the gallery`)
+      verify(layout.modelWraps && layout.parametersWrap, `${width}px: long model and parameter values wrap within their columns`)
+      if ([1440, 851, 375, 320].includes(width)) await shot(`${width}px`)
+    }
+    boat.title = 'JS910BAluminiumPatrolBoat'.repeat(12)
+    await page.reload()
+    await page.getByRole('heading', { name: boat.title, exact: true }).waitFor()
+    verify(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth), 'A long unbroken title also stays inside the narrow detail page')
+    verify(state.mutations.length === 0, 'Layout verification performs no business mutations')
+  })
   await fixture('rental-inventory', { auth: true }, async ({ page, state, verify, shot }) => {
     await page.goto(base + '/checkout?kind=boat_types&id=101&type=boat_rental')
     await page.getByRole('heading', { name: '合成 PC 船型', exact: true }).first().waitFor()
