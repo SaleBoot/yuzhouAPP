@@ -51,10 +51,10 @@
         ><view class="small muted">{{ t("客户标签") }}</view><view class="chips section"><text v-for="tag in tags" :key="tag.id" :class="['chip', {active: selectedTags.includes(Number(tag.id))}]" @click="toggleTag(tag.id)">{{ tag.name }}</text></view><view v-if="!tags.length" class="small muted">{{ t("公司尚未配置可用标签") }}</view><button class="secondary section" :disabled="busy" @click="saveTags(c)">{{ t("保存标签") }}</button
         ><picker
           :range="stageOptions.map((s) => t(s.label))"
-          :value="stageIndex"
+          :value="Math.max(0, stageIndex)"
           @change="stageIndex = Number($event.detail.value)"
           ><view class="picker-value"
-            >{{ t(stageOptions[stageIndex].label) }} ▾</view
+            >{{ t(stageOptions[stageIndex]?.label || c.stage) }} ▾</view
           ></picker
         ><textarea v-model="notes" :placeholder="t('跟进备注')" /><button
           class="secondary section"
@@ -86,10 +86,12 @@ const customers = ref([]),
   error = ref("");
 const stages = {
   new: "新客户",
+  contacted: "已联系",
   viewing: "带看中",
-  quoting: "报价中",
+  quoted: "报价中",
   won: "已成交",
   lost: "暂未成交",
+  archived: "已归档",
 };
 const stageOptions = Object.entries(stages).map(([value, label]) => ({
   value,
@@ -128,17 +130,14 @@ function edit(c) {
   editing.value = editing.value === c.id ? null : c.id;
   notes.value = c.notes || "";
   selectedTags.value = (c.tags || []).map((tag) => Number(tag.id)).filter((id) => tags.value.some((tag) => Number(tag.id) === id));
-  stageIndex.value = Math.max(
-    0,
-    stageOptions.findIndex((s) => s.value === c.stage),
-  );
+  stageIndex.value = stageOptions.findIndex((s) => s.value === c.stage);
 }
 async function save(c) {
   busy.value = true;
   try {
     await patch(`/customers/${c.id}`, {
       notes: notes.value,
-      stage: stageOptions[stageIndex.value].value,
+      ...(stageOptions[stageIndex.value] ? { stage: stageOptions[stageIndex.value].value } : {}),
     });
     editing.value = null;
     await load();

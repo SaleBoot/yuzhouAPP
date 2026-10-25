@@ -40,6 +40,8 @@ export default {
   "导出权限范围内、按记录日期筛选的实际分红流水。": "Export permitted profit-sharing transactions, filtered by record date.",
   "已成交": "Won",
   "带看中": "Viewing",
+  "已联系": "Contacted",
+  "已归档": "Archived",
   "带看预约": "Viewing appointments",
   "平台确认利润后生成，金额以账本为准": "Generated after profit is confirmed by the platform. Amounts follow the ledger.",
   "应用更新": "App updates",

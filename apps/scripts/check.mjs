@@ -86,7 +86,7 @@ for (const dir of [`${root}${name}/src/pages`, `${root}shared`])
     }
 const result = spawnSync(
   process.execPath,
-  ["--test", `${root}shared/i18n.test.mjs`, `${root}shared/native-update.test.mjs`, `${root}shared/api.test.mjs`, `${root}shared/domain.test.mjs`, `${root}shared/native-file.test.mjs`, `${root}shared/sms.test.mjs`, `${root}shared/account-panel.test.mjs`, `${root}shared/chat.test.mjs`, `${root}shared/post-boat.test.mjs`, `${root}shared/boat-parameters.test.mjs`, `${root}shared/banner.test.mjs`, `${root}shared/consumer-navigation.test.mjs`, `${root}shared/shop-catalog.test.mjs`, `${root}shared/broker-profile.test.mjs`],
+  ["--test", `${root}shared/i18n.test.mjs`, `${root}shared/native-update.test.mjs`, `${root}shared/api.test.mjs`, `${root}shared/domain.test.mjs`, `${root}shared/native-file.test.mjs`, `${root}shared/sms.test.mjs`, `${root}shared/account-panel.test.mjs`, `${root}shared/chat.test.mjs`, `${root}shared/post-boat.test.mjs`, `${root}shared/boat-parameters.test.mjs`, `${root}shared/banner.test.mjs`, `${root}shared/consumer-navigation.test.mjs`, `${root}shared/shop-catalog.test.mjs`, `${root}shared/broker-profile.test.mjs`, `${root}shared/broker-customers.test.mjs`],
   { stdio: "inherit" },
 );
 assert.equal(result.status, 0);

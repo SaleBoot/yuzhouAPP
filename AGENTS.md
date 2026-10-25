@@ -8,17 +8,17 @@
 - 保留提交历史，拉取使用 `--ff-only`，不强制推送。不将 GitHub 推送视为站点部署或真机验收。
 - 网页、后端和 App 热更新各自保留实际部署提交与哈希；不因为分支更新而重建安装包或自动覆盖在线环境。
 - 后续 App 页面与业务逻辑 bug 修复默认使用 WGT 热更新，两个独立 App 分别发布、校验和记录版本。涉及原生运行库、权限、插件、桌面图标或签名时，先明确安装包变更的必要性；WGT 不作为这些原生变更的交付证明。
-- 用户已确认当前两个 App 为最终版，现有线上 WGT 为 1.0.13（113）。电脑网页端独立使用 `npm --prefix web run build:site` 和 `npm run release:site` 构建发布；不能因迁服务器或改电脑网页而重编 App、增加 App 版本或发布新的 WGT。后续明确需要的 App 修复仍按上一条处理。
+- 用户已确认两个 App 现有界面为最终版；明确授权的 bug 修复保留该界面。电脑网页端独立使用 `npm --prefix web run build:site` 和 `npm run release:site` 构建发布；不能因迁服务器或改电脑网页而重编 App、增加 App 版本或发布新的 WGT。后续明确需要的 App 修复仍按上一条处理。
 - 修改须按实际影响范围同步后端 API、管理网页、用户/经纪人 H5 和 iOS/Android App，并分别记录实际部署与验证结果。
 - 上传及发布业务/测试内容走管理后台的上传、草稿、审核或发布流程；不通过直写数据库或绕过后台的脚本代发。离线单元测试的内存替身不作为已发布数据。
-- 2026-10-25 起线上运行于腾讯云，域名保持 `yuzhou.ourideas.top`；本机发布连接使用已配置的 SSH 别名 `tencent-cloud`。阿里云驭舟环境已清理，`yuzhou-aliyun` 仅用于共享主机只读核对，不得向其重新部署驭舟。复用本机 SSH 配置，不将私钥、口令或其他认证材料写入项目、日志或 Git。
+- 2026-10-25 起线上运行于腾讯云，域名保持 `yuzhou.ourideas.top`；本项目只使用已配置的 SSH 别名 `tencent-cloud`。旧阿里云环境和 `yuzhou-aliyun` 连接已退役，禁止再次连接、部署或建立运行依赖。复用本机 SSH 配置，不将私钥、口令或其他认证材料写入项目、日志或 Git。
 - 腾讯云使用独立的 `yuzhou-php`、`yuzhou-mysql` 容器、`/www/wwwroot/yuzhou` 项目目录、`/opt/yuzhou-runtime` 运维适配和 `/etc/nginx/conf.d/yuzhou.conf`。迁移记录见 `docs/migration-tencent-20261025.json`；现有宝塔初始化与安装脚本不能直接在腾讯云运行。不得修改同机其他项目或创意岛资源。
 
 ## 范围
 
 - 两个独立 UniApp/Vue3 App：consumer 用户端；broker 实际经纪销售端。各自支持 iOS 和 Android。
 - 一个 Vue3 管理工程，merchant 商家、agency 经纪公司管理、platform 平台三个入口。
-- 定制 ThinkPHP 5.1.41 LTS 后端，PHP7.2兼容；以创意岛实际阿里云框架和锁定依赖为基线。
+- 定制 ThinkPHP 5.1.41 LTS 后端，PHP7.2兼容；沿用既有框架和锁定依赖。
 - 前后端分离；部署 yuzhou.ourideas.top，新项目独立目录、库、账号、配置、缓存、上传和任务。
 - 两App视觉采用创意岛现有App：浅灰背景、白卡、蓝色渐变胶囊按钮；视频保留作为功能与导航参考。
 - 船型资料取自用户3D看船项目，其余测试素材可从网络找；页面不展示来源说明。
