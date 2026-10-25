@@ -1,5 +1,17 @@
 # 驭舟管理 Web
 
+## 独立电脑网站
+
+`src/site/` 是普通 Vue/HTML 的电脑网站，不使用 UniApp 页面或手机底栏。用户入口为根路径 `/`，经纪销售入口为 `/sales`；三个管理后台仍使用原有 `/admin/` 工程。网站独立使用 `yuzhou_desktop_consumer_token`、`yuzhou_desktop_broker_token` 浏览器会话，角色和组织继续由现有 API 核验。
+
+本地执行 `npm run dev:site`，默认 `http://127.0.0.1:5180/`；API 代理同样读取 `VITE_API_PROXY`。`npm run build:site` 只构建电脑网站到 `dist-site/`。在仓库根目录执行 `npm run release:site` 生成绑定已提交源码与 SHA256 的独立发布包，不构建 App、WGT 或后台。
+
+腾讯云通过发布包内的 `install-site.py` 激活网站，保留当前 API、管理后台、原 H5 资产、安装包、共享上传和两个 App 热更新。网站资产与旧资产同时保留，发布失败恢复原 current 和本站 Nginx 配置。原 `/consumer/`、`/broker/` 网页根入口分别转向电脑网站 `/`、`/sales`，App 本身仍使用原 API 和 WGT 地址。
+
+消费者网站包含船艇/商品/服务浏览与下单、个人中心、订单合同和学习活动；经纪销售工作台包含客户、代客配置报价、合同履约、预约、结算和会话。课程不单独售卖，PDF 采用下载、线下签署后确认，支付未配置的失败结果按实际接口显示。原 1.0.13（113）两个 App 保持不变。
+
+`node tests/site-consumer-browser.cjs`、`node tests/site-broker-browser.cjs` 为独立离线浏览器夹具测试，拦截全部 API，不代表真实支付、上线数据或设备验收。消费者脚本自行启动并关闭本地 5183 测试服务；经纪脚本需先启动本地网站，可用 `SITE_TEST_ORIGIN` 指定地址。其他原管理端检查保持下面的约定。
+
 一个 Vue 3 工程提供三套入口，菜单和会话分别管理；真实权限、组织隔离、状态与文件授权均由后端执行。
 
 | 入口 | 业务 |

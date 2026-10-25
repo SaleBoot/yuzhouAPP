@@ -1,0 +1,130 @@
+{
+  "completed_at_utc": "2026-10-25T12:59:02.369396+00:00",
+  "domain": "yuzhou.ourideas.top",
+  "target_ssh_alias": "tencent-cloud",
+  "public_ipv4": "1.14.77.78",
+  "application_root": "/www/wwwroot/yuzhou",
+  "operations_root": "/opt/yuzhou-runtime",
+  "nginx_vhost": "/etc/nginx/conf.d/yuzhou.conf",
+  "containers": {
+    "php": "yuzhou-php",
+    "mysql": "yuzhou-mysql"
+  },
+  "private_listeners": {
+    "php_fpm": "127.0.0.1:19072",
+    "mysql": "127.0.0.1:13306"
+  },
+  "source_versions": {
+    "api": {
+      "release": "api-109-067b058",
+      "commit": "067b058b8c0279728ce79cbfbb3b530c6febb5bb"
+    },
+    "consumer_web_and_wgt": {
+      "release": "consumer-113-a5756be",
+      "commit": "a5756be13427b868c968cd84bff82829a5e9b5c7",
+      "wgt_version": "1.0.13",
+      "wgt_sha256": "3426a2378de76711e457f5c17a0adccc7f0407633af270c01e37d845e8f3ab4c"
+    },
+    "broker_web_and_wgt": {
+      "release": "broker-113-702f91a",
+      "commit": "702f91a626a2e254d095aff3921a99cde82dd399",
+      "wgt_version": "1.0.13",
+      "wgt_sha256": "a3a3604c69f72447ab60a36d43e27d0e8bc2ac8c2b35ec5a655bbb80cb7c305d"
+    },
+    "admin_and_map": {
+      "commit": "3974aebd08c19b533e6be2785ab477baa6810f5a"
+    }
+  },
+  "migration_integrity": {
+    "tables": 71,
+    "rows_at_cutover": 691,
+    "verified_upload_references": 41,
+    "canonical_database_sql_sha256": "f76d300f4c27dc222d737b14b233f0798937d85bb462efe0ab69fd7dda1d2dff",
+    "full_source_archive_sha256": "12c9c610aef5d41b26b208519401f590caecf4a520c9964a8fa63c7a14dac0a6",
+    "source_archive_private_location": "artifacts/migration-20261025/",
+    "platform_adaptations": [
+      "DB_PORT=13306",
+      "AMap proxy uses Ubuntu system CA bundle",
+      "dedicated Docker PHP/MySQL and systemd adapters",
+      "independent Certbot lineage/deploy hook"
+    ]
+  },
+  "validation": {
+    "post_cutover_http_gets_passed": 29,
+    "public_and_private_file_access": true,
+    "both_wgt_hashes": true,
+    "consumer_browser_data_loaded": true,
+    "broker_browser_auth_gate_loaded": true,
+    "management_login_entry_loaded": true,
+    "real_amap_chinese_tiles_rendered": true,
+    "boat_markers": "No published boat positions were present in the migrated source data.",
+    "jobs_backup_certificate_services_succeeded": true,
+    "three_timers_enabled": true,
+    "certificate_renewal_dry_run_passed": true,
+    "certificate_expires_utc": "2027-01-23T11:45:53Z",
+    "other_dns_records_unchanged": 17,
+    "source_other_nginx_configs_unchanged": 11,
+    "source_other_database_schema_list_unchanged": true
+  },
+  "source_cleanup": {
+    "databases": [
+      "yuzhou",
+      "yuzhou_acceptance_20261009",
+      "yuzhou_restore_20261009_2132",
+      "yuzhou_restore_20261009_e338"
+    ],
+    "users": [
+      "yuzhou_app",
+      "yuzhou_acceptance",
+      "yuzhou_restore_2132",
+      "yuzhou_restore_e338"
+    ],
+    "project_and_staging_directories_removed": 12,
+    "own_vhost_and_six_units_removed": true,
+    "shared_nginx_php_mysql_and_chuangyidao_preserved": true
+  },
+  "existing_service_state": {
+    "APP_ENV": "test",
+    "ALLOW_TEST_PAYMENTS": true,
+    "real_payment_sms_push_esign": "unconfigured, preserved from source"
+  },
+  "acceptance_limits": [
+    "No iOS/Android true-device retest or actual payment/refund acceptance during infrastructure migration.",
+    "Tencent server has about 3 GiB free disk; no paid expansion was ordered."
+  ],
+  "future_deployment": "Use tencent-cloud and existing isolated target runtime. Do not run BaoTa bootstrap-database.py/install-release.py directly or recreate the Aliyun environment.",
+  "source_cleanup_completed_at_utc": "2026-10-25T12:52:07Z",
+  "final_target_runtime": {
+    "preexisting_nginx_configs_unchanged": 50,
+    "units": {
+      "jobs": {
+        "result": "success",
+        "timer": "enabled and active"
+      },
+      "backup": {
+        "result": "success",
+        "timer": "enabled and active"
+      },
+      "certificate": {
+        "result": "success",
+        "timer": "enabled and active"
+      }
+    },
+    "containers": {
+      "yuzhou-php": {
+        "image": "sha256:a4a6cba5af7c969a084cd5ac70ba82832301ddbf2bf4f773891b1ed065614900",
+        "running": true,
+        "oom_killed": false,
+        "restart_policy": "unless-stopped"
+      },
+      "yuzhou-mysql": {
+        "image": "sha256:5107333e08a87b836d48ff7528b1e84b9c86781cc9f1748bbc1b8c42a870d933",
+        "running": true,
+        "oom_killed": false,
+        "restart_policy": "unless-stopped"
+      }
+    },
+    "disk_available_bytes": 3125780480,
+    "certificate_renewal_dry_run_passed": true
+  }
+}

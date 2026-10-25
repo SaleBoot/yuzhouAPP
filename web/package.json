@@ -16,7 +16,9 @@
     "test:live:service": "node tests/live-service.cjs",
     "test:live:crm": "node tests/live-crm.cjs",
     "test:withdrawal:fixtures": "node tests/withdrawal-retry.cjs",
-    "test:live:map": "node tests/live-map.cjs"
+    "test:live:map": "node tests/live-map.cjs",
+    "dev:site": "vite --config vite.site.config.ts",
+    "build:site": "vue-tsc --noEmit && vite build --config vite.site.config.ts"
   },
   "dependencies": {
     "vue": "3.5.43",
