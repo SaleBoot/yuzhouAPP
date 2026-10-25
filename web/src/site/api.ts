@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { checkIdentity, privateFilePath, sessionKey } from './session-domain.js'
+import { checkIdentity, privateFilePath, sessionKey, responseMessage } from './session-domain.js'
 
 export type SiteRole = 'consumer' | 'broker'
 export const siteSession = reactive<{ token: string; user: any; role: SiteRole; restoring: boolean }>({ token: '', user: null, role: 'consumer', restoring: false })
@@ -9,14 +9,6 @@ function clear() {
   sessionStorage.removeItem(sessionKey(siteSession.role))
   siteSession.token = ''
   siteSession.user = null
-}
-
-function message(value: string, status: number) {
-  if (status === 401) return '登录已失效，请重新登录'
-  if (/Real payment.*not configured|Payment.*not configured/i.test(value)) return '此支付通道暂未开通，请联系平台'
-  if (/Real SMS service is not configured/i.test(value)) return '短信服务暂未开通，请使用账号密码登录'
-  if (/File access is not permitted/i.test(value)) return '当前账号无权访问此附件'
-  return value || `请求失败（${status}）`
 }
 
 export async function request<T = any>(path: string, options: RequestInit = {}): Promise<T> {
@@ -34,7 +26,7 @@ export async function request<T = any>(path: string, options: RequestInit = {}):
   catch { throw new Error(`服务响应无效（${response.status}）`) }
   if (!response.ok || result.code !== 0) {
     if (response.status === 401) clear()
-    throw new Error(message(result.message, response.status))
+    throw new Error(responseMessage(result.message, response.status))
   }
   return result.data as T
 }

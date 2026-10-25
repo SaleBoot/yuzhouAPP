@@ -18,3 +18,12 @@ export function privateFilePath(path) {
 export function safeWebsiteReturn(value, fallback = '/account') {
   return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') && !/[\\\r\n]/.test(value) ? value : fallback
 }
+
+export function responseMessage(value, status) {
+  if (/Invalid (?:username|account) or password|Invalid credentials/i.test(value || '')) return '账号或密码错误，请检查后重试'
+  if (status === 401) return '登录已失效，请重新登录'
+  if (/Real payment.*not configured|Payment.*not configured/i.test(value || '')) return '此支付通道暂未开通，请联系平台'
+  if (/Real SMS service is not configured/i.test(value || '')) return '短信服务暂未开通，请使用账号密码登录'
+  if (/File access is not permitted/i.test(value || '')) return '当前账号无权访问此附件'
+  return value || `请求失败（${status}）`
+}
